@@ -77,7 +77,7 @@
             color: #d2a679;
         }
 
-        /* Navigation */
+        /* Navigation & Search Bar */
         nav {
             background-color: #fff;
             padding: 12px 5%;
@@ -85,6 +85,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #eee;
+            position: relative;
         }
 
         .nav-links a {
@@ -97,6 +98,35 @@
 
         .nav-links a:hover {
             color: #d2a679;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-input {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 13px;
+            outline: none;
+            width: 0;
+            opacity: 0;
+            transition: width 0.4s ease, opacity 0.4s ease;
+        }
+
+        .search-input.active {
+            width: 200px;
+            opacity: 1;
+            margin-right: 8px;
+        }
+
+        .search-btn {
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
         }
 
         /* Announcement Bar */
@@ -300,8 +330,9 @@
             <a href="index.html">HOME</a>
             <a href="index.html">FEATURES</a>
         </div>
-        <div>
-            <i class="fa-solid fa-magnifying-glass" style="cursor: pointer;"></i>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="প্রোডাক্ট খুঁজুন..." onkeyup="filterProducts()">
+            <i class="fa-solid fa-magnifying-glass search-btn" onclick="toggleSearch()"></i>
         </div>
     </nav>
 
@@ -314,7 +345,7 @@
     <div class="container">
         <div class="section-title">LATEST PRODUCTS</div>
         
-        <div class="product-grid">
+        <div class="product-grid" id="productGrid">
             <!-- Product 1 -->
             <div class="product-card">
                 <div class="wishlist-icon"><i class="fa-regular fa-heart"></i></div>
@@ -400,12 +431,35 @@
         let selectedProduct = '';
         let selectedPrice = 0;
 
+        // Search Bar Toggle
+        function toggleSearch() {
+            const input = document.getElementById('searchInput');
+            input.classList.toggle('active');
+            if(input.classList.contains('active')) {
+                input.focus();
+            }
+        }
+
+        // Live Product Search
+        function filterProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('product-card');
+
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+                if (title.includes(input)) {
+                    cards[i].style.display = "";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
         function openCheckout(name, price) {
             selectedProduct = name;
             selectedPrice = price;
             document.getElementById('pName').value = name;
             document.getElementById('pPrice').value = price + ' BDT';
-            document.getElementById('checkoutModal').style.styleDisplay = 'none';
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
