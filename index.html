@@ -24,31 +24,68 @@
             color: inherit;
         }
 
-        /* Top Bar */
+        /* Top Bar Dynamic Responsive Styling */
         .top-bar {
             background-color: #111;
             color: #fff;
-            padding: 8px 5%;
+            padding: 10px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
-        .top-bar-right span, .top-bar-right a {
-            margin-left: 15px;
+        .top-bar-left, .top-bar-right {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .top-bar-right a, .top-bar-left a {
             color: #ddd;
             transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
         }
 
         .top-bar-right a:hover, .top-bar-left a:hover {
             color: #d2a679;
         }
 
+        /* Mobile Responsive adjustment for Top Bar */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                text-align: center;
+                padding: 8px 10px;
+                gap: 6px;
+            }
+
+            .top-bar-left, .top-bar-right {
+                justify-content: center;
+                width: 100%;
+                gap: 8px;
+            }
+
+            .top-bar-right {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .top-bar-right a, .top-bar-left a {
+                font-size: 11px;
+            }
+        }
+
         /* Header */
         header {
             background-color: #fff;
-            padding: 20px 5%;
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -62,7 +99,7 @@
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #000;
         }
@@ -118,7 +155,7 @@
         }
 
         .search-input.active {
-            width: 200px;
+            width: 160px;
             opacity: 1;
             margin-right: 8px;
         }
@@ -133,17 +170,18 @@
         .announcement {
             background-color: #d0e7e5;
             text-align: center;
-            padding: 10px;
-            font-size: 13px;
+            padding: 10px 15px;
+            font-size: 12px;
             font-weight: bold;
             color: #2c5e5a;
             letter-spacing: 0.5px;
+            line-height: 1.4;
         }
 
         /* Main Container */
         .container {
             max-width: 1200px;
-            margin: 30px auto;
+            margin: 20px auto;
             padding: 0 15px;
         }
 
@@ -160,7 +198,7 @@
         /* Product Grid */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 20px;
         }
 
@@ -192,11 +230,10 @@
 
         .product-card img {
             width: 100%;
-            height: 220px;
+            height: 200px;
             object-fit: cover;
             margin-bottom: 15px;
             cursor: pointer;
-            border-radius: 4px;
         }
 
         .product-card h3 {
@@ -255,7 +292,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.75);
             justify-content: center;
             align-items: center;
             z-index: 10000;
@@ -266,13 +303,12 @@
             padding: 25px;
             border-radius: 8px;
             width: 90%;
-            max-width: 550px;
+            max-width: 500px;
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
         }
 
-        /* স্পস্ট সুন্দর রেড ক্রস (×) বাটন */
         .close-btn {
             position: absolute;
             top: 10px;
@@ -281,14 +317,14 @@
             cursor: pointer;
             color: #fff;
             background-color: #ff3b30;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 20;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             transition: transform 0.2s, background 0.2s;
         }
 
@@ -302,47 +338,37 @@
             text-align: center;
         }
 
-        /* বড় ইমেইজ বক্স */
         .img-zoom-container {
             overflow: hidden;
             border-radius: 6px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             position: relative;
             cursor: zoom-in;
-            background: #f0f0f0;
-            border: 1px solid #ddd;
+            background: #eee;
         }
 
         .img-zoom-container img {
             width: 100%;
-            max-height: 380px;
-            object-fit: contain;
+            max-height: 280px;
+            object-fit: cover;
             transition: transform 0.4s ease;
             display: block;
         }
 
-        /* মাউস/আঙুল রাখলে জুম হবে */
         .img-zoom-container:hover img {
-            transform: scale(1.35);
+            transform: scale(1.3);
         }
 
-        .btn-full-view {
-            background-color: #eceff1;
-            color: #37474f;
-            border: 1px solid #cfd8dc;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 15px;
-            display: inline-block;
-            transition: background 0.3s;
-        }
-
-        .btn-full-view:hover {
-            background-color: #d2a679;
+        .zoom-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.6);
             color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            pointer-events: none;
         }
 
         .details-box h2 {
@@ -352,7 +378,7 @@
         }
 
         .details-price {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             color: #d2a679;
             margin-bottom: 15px;
@@ -371,12 +397,12 @@
             white-space: pre-line;
         }
 
-        /* সম্পূর্ণ স্ক্রিনে ছবি দেখার মোডাল (Full Screen Modal) */
+        /* Full Screen Image Viewer */
         .full-img-modal .modal-content {
             background: transparent;
             padding: 0;
-            max-width: 95vw;
-            max-height: 95vh;
+            max-width: 90vw;
+            max-height: 90vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -385,10 +411,9 @@
 
         .full-img-modal img {
             max-width: 100%;
-            max-height: 90vh;
+            max-height: 85vh;
             border-radius: 8px;
-            object-fit: contain;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
         }
 
         .form-group {
@@ -440,7 +465,7 @@
 </head>
 <body>
 
-    <!-- Top Bar -->
+    <!-- Top Bar: মোবাইলের জন্য অপটিমাইজড -->
     <div class="top-bar">
         <div class="top-bar-left">
             <a href="#contact"><i class="fa-solid fa-envelope"></i> Contact Us</a>
@@ -541,12 +566,10 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
             <div class="details-box">
-                <!-- জুম ও ফুল স্ক্রিন ভিউয়ের জন্য ইমেজ কন্টেইনার -->
                 <div class="img-zoom-container" onclick="openFullImage()">
                     <img id="dImg" src="" alt="Product Large Image">
+                    <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> জুম করতে বা বড় করে দেখতে ক্লিক করুন</span>
                 </div>
-                <button class="btn-full-view" onclick="openFullImage()"><i class="fa-solid fa-expand"></i> ছবি বড় করে দেখুন (Full View)</button>
-
                 <h2 id="dTitle"></h2>
                 <div id="dPrice" class="details-price"></div>
                 <div id="dDesc" class="details-desc"></div>
@@ -555,7 +578,7 @@
         </div>
     </div>
 
-    <!-- Full Screen Image Viewer Modal (শুধু সম্পূর্ণ বড় ছবি দেখার জন্য) -->
+    <!-- Full Screen Image Viewer Modal -->
     <div id="fullImgModal" class="modal full-img-modal" onclick="closeFullImage()">
         <span class="close-btn" onclick="closeFullImage()">&times;</span>
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -637,7 +660,6 @@
             }
         }
 
-        // Product Details Popup Functions
         function openDetails(name, price, imgSrc, description) {
             selectedProduct = name;
             selectedPrice = price;
@@ -655,7 +677,6 @@
             document.getElementById('detailsModal').style.display = 'none';
         }
 
-        // ফুল স্ক্রিন বড় ছবি দেখার ফাংশন
         function openFullImage() {
             document.getElementById('fullImgSrc').src = currentImgSrc;
             document.getElementById('fullImgModal').style.display = 'flex';
@@ -670,7 +691,6 @@
             openCheckout(selectedProduct, selectedPrice);
         }
 
-        // Checkout Functions
         function openCheckout(name, price) {
             selectedProduct = name;
             selectedPrice = price;
