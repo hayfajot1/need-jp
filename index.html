@@ -192,10 +192,11 @@
 
         .product-card img {
             width: 100%;
-            height: 200px;
+            height: 220px;
             object-fit: cover;
             margin-bottom: 15px;
             cursor: pointer;
+            border-radius: 4px;
         }
 
         .product-card h3 {
@@ -246,7 +247,7 @@
             background-color: #333;
         }
 
-        /* Modals (Order & Details Popup) */
+        /* Modals Common Styling */
         .modal {
             display: none;
             position: fixed;
@@ -254,10 +255,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.6);
+            background-color: rgba(0,0,0,0.8);
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 10000;
         }
 
         .modal-content {
@@ -265,19 +266,35 @@
             padding: 25px;
             border-radius: 8px;
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             position: relative;
             max-height: 90vh;
             overflow-y: auto;
         }
 
+        /* স্পস্ট সুন্দর রেড ক্রস (×) বাটন */
         .close-btn {
             position: absolute;
             top: 10px;
-            right: 15px;
-            font-size: 24px;
+            right: 12px;
+            font-size: 22px;
             cursor: pointer;
-            color: #555;
+            color: #fff;
+            background-color: #ff3b30;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .close-btn:hover {
+            background-color: #d62d20;
+            transform: scale(1.1);
         }
 
         /* Details Popup Specific Styling */
@@ -285,12 +302,47 @@
             text-align: center;
         }
 
-        .details-box img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: cover;
+        /* বড় ইমেইজ বক্স */
+        .img-zoom-container {
+            overflow: hidden;
             border-radius: 6px;
+            margin-bottom: 10px;
+            position: relative;
+            cursor: zoom-in;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+        }
+
+        .img-zoom-container img {
+            width: 100%;
+            max-height: 380px;
+            object-fit: contain;
+            transition: transform 0.4s ease;
+            display: block;
+        }
+
+        /* মাউস/আঙুল রাখলে জুম হবে */
+        .img-zoom-container:hover img {
+            transform: scale(1.35);
+        }
+
+        .btn-full-view {
+            background-color: #eceff1;
+            color: #37474f;
+            border: 1px solid #cfd8dc;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
             margin-bottom: 15px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn-full-view:hover {
+            background-color: #d2a679;
+            color: #fff;
         }
 
         .details-box h2 {
@@ -300,7 +352,7 @@
         }
 
         .details-price {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             color: #d2a679;
             margin-bottom: 15px;
@@ -316,6 +368,27 @@
             color: #555;
             margin-bottom: 20px;
             border: 1px solid #eee;
+            white-space: pre-line;
+        }
+
+        /* সম্পূর্ণ স্ক্রিনে ছবি দেখার মোডাল (Full Screen Modal) */
+        .full-img-modal .modal-content {
+            background: transparent;
+            padding: 0;
+            max-width: 95vw;
+            max-height: 95vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: none;
+        }
+
+        .full-img-modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 8px;
+            object-fit: contain;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.8);
         }
 
         .form-group {
@@ -416,10 +489,9 @@
         
         <div class="product-grid" id="productGrid">
             
-            <!-- প্রোডাক্ট ১ (সেজ প্রিজম ব্যাগ) -->
+            <!-- প্রোডাক্ট ১ -->
             <div class="product-card">
                 <div class="wishlist-icon"><i class="fa-regular fa-heart"></i></div>
-                <!-- ছবি বা নামে ক্লিক করলে ডিটেইলস পপআপ খুলবে -->
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg" alt="Product" onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">
                 <h3 onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার</h3>
                 <div class="button-group">
@@ -428,7 +500,7 @@
                 </div>
             </div>
 
-            <!-- প্রোডাক্ট ২ (boro bag 2.jpg) -->
+            <!-- প্রোডাক্ট ২ -->
             <div class="product-card">
                 <div class="wishlist-icon"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg" alt="Product" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">
@@ -439,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- প্রোডাক্ট ৩ (boro bag 3.jpg) -->
+            <!-- প্রোডাক্ট ৩ -->
             <div class="product-card">
                 <div class="wishlist-icon"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg" alt="Product" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">
@@ -450,7 +522,7 @@
                 </div>
             </div>
 
-            <!-- প্রোডাক্ট ৪ (boro bag 4.jpg) -->
+            <!-- প্রোডাক্ট ৪ -->
             <div class="product-card">
                 <div class="wishlist-icon"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg" alt="Product" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">
@@ -469,12 +541,25 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
             <div class="details-box">
-                <img id="dImg" src="" alt="Product Large Image">
+                <!-- জুম ও ফুল স্ক্রিন ভিউয়ের জন্য ইমেজ কন্টেইনার -->
+                <div class="img-zoom-container" onclick="openFullImage()">
+                    <img id="dImg" src="" alt="Product Large Image">
+                </div>
+                <button class="btn-full-view" onclick="openFullImage()"><i class="fa-solid fa-expand"></i> ছবি বড় করে দেখুন (Full View)</button>
+
                 <h2 id="dTitle"></h2>
                 <div id="dPrice" class="details-price"></div>
                 <div id="dDesc" class="details-desc"></div>
                 <button class="btn-submit" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Full Screen Image Viewer Modal (শুধু সম্পূর্ণ বড় ছবি দেখার জন্য) -->
+    <div id="fullImgModal" class="modal full-img-modal" onclick="closeFullImage()">
+        <span class="close-btn" onclick="closeFullImage()">&times;</span>
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="fullImgSrc" src="" alt="Full Screen Product Image">
         </div>
     </div>
 
@@ -528,6 +613,7 @@
     <script>
         let selectedProduct = '';
         let selectedPrice = 0;
+        let currentImgSrc = '';
 
         function toggleSearch() {
             const input = document.getElementById('searchInput');
@@ -555,6 +641,7 @@
         function openDetails(name, price, imgSrc, description) {
             selectedProduct = name;
             selectedPrice = price;
+            currentImgSrc = imgSrc;
             
             document.getElementById('dTitle').innerText = name;
             document.getElementById('dPrice').innerText = '৳' + price;
@@ -566,6 +653,16 @@
 
         function closeDetails() {
             document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        // ফুল স্ক্রিন বড় ছবি দেখার ফাংশন
+        function openFullImage() {
+            document.getElementById('fullImgSrc').src = currentImgSrc;
+            document.getElementById('fullImgModal').style.display = 'flex';
+        }
+
+        function closeFullImage() {
+            document.getElementById('fullImgModal').style.display = 'none';
         }
 
         function buyFromDetails() {
