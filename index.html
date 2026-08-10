@@ -57,7 +57,6 @@
             color: #d2a679;
         }
 
-        /* Mobile Responsive adjustment for Top Bar */
         @media (max-width: 768px) {
             .top-bar {
                 flex-direction: column;
@@ -333,7 +332,7 @@
             transform: scale(1.1);
         }
 
-        /* Details Popup Specific Styling */
+        /* Details Popup Styling */
         .details-box {
             text-align: center;
         }
@@ -435,6 +434,18 @@
             border-radius: 4px;
         }
 
+        /* পেমেন্ট ইনফো বক্স স্টাইলিং */
+        .payment-info-box {
+            background-color: #fff8e1;
+            border: 1px solid #ffe082;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #5d4037;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
         .btn-submit {
             background-color: #25D366;
             color: #fff;
@@ -465,7 +476,7 @@
 </head>
 <body>
 
-    <!-- Top Bar: মোবাইলের জন্য অপটিমাইজড -->
+    <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
             <a href="#contact"><i class="fa-solid fa-envelope"></i> Contact Us</a>
@@ -561,7 +572,7 @@
         </div>
     </div>
 
-    <!-- Product Details Popup (Modal) -->
+    <!-- Product Details Popup -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
@@ -615,12 +626,24 @@
                 </div>
                 <div class="form-group">
                     <label>পেমেন্ট মাধ্যম</label>
-                    <select id="pMethod">
+                    <select id="pMethod" onchange="togglePaymentFields()">
                         <option value="Cash on Delivery">Cash on Delivery</option>
-                        <option value="bkash">bKash (Personal)</option>
-                        <option value="Nagad">Nagad (Personal)</option>
+                        <option value="bKash (Personal)">bKash (Personal)</option>
+                        <option value="Nagad (Personal)">Nagad (Personal)</option>
                     </select>
                 </div>
+
+                <!-- পেমেন্ট নোটিশ এবং Transaction ID নেওয়ার নতুন ডাইনামিক ফিল্ড -->
+                <div id="paymentDetailsSection" style="display: none;">
+                    <div class="payment-info-box" id="paymentNotice">
+                        <!-- জাভাস্ক্রিপ্ট দিয়ে টেক্সট পরিবর্তন হবে -->
+                    </div>
+                    <div class="form-group">
+                        <label id="trxLabel">ট্রানজেকশন আইডি (TrxID) *</label>
+                        <input type="text" id="cTrxID" placeholder="যেমন: 9J38X4L0">
+                    </div>
+                </div>
+
                 <button type="button" class="btn-submit" onclick="sendOrder()"><i class="fa-brands fa-whatsapp"></i> অর্ডার নিশ্চিত করুন</button>
             </form>
         </div>
@@ -696,6 +719,11 @@
             selectedPrice = price;
             document.getElementById('pName').value = name;
             document.getElementById('pPrice').value = price + ' BDT';
+            
+            // ফর্ম ওপেন করার সময় পেমেন্ট অপশন রিসিট রিসেট করা
+            document.getElementById('pMethod').value = 'Cash on Delivery';
+            togglePaymentFields();
+
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
@@ -703,14 +731,38 @@
             document.getElementById('checkoutModal').style.display = 'none';
         }
 
+        // পেমেন্ট মাধ্যম সিলেক্ট অনুযায়ী ইনস্ট্রাকশন ও ট্রানজেকশন আইডি ফিল্ড দেখানো
+        function togglePaymentFields() {
+            let method = document.getElementById('pMethod').value;
+            let section = document.getElementById('paymentDetailsSection');
+            let notice = document.getElementById('paymentNotice');
+
+            if (method === 'bKash (Personal)') {
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> অনুগ্রহ করে বিকাশ পার্সোনাল নম্বর <strong>01747425457</strong>-এ "Send Money" সম্পন্ন করুন এবং নিচের বক্সে TrxID লিখুন।';
+            } else if (method === 'Nagad (Personal)') {
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> অনুগ্রহ করে নগদ পার্সোনাল নম্বর <strong>01747425457</strong>-এ "Send Money" সম্পন্ন করুন এবং নিচের বক্সে TrxID লিখুন।';
+            } else {
+                section.style.display = 'none';
+                document.getElementById('cTrxID').value = '';
+            }
+        }
+
         function sendOrder() {
             let name = document.getElementById('cName').value;
             let phone = document.getElementById('cPhone').value;
             let address = document.getElementById('cAddress').value;
             let method = document.getElementById('pMethod').value;
+            let trxID = document.getElementById('cTrxID').value;
 
             if(!name || !phone || !address) {
                 alert('অনুগ্রহ করে নাম, ফোন নম্বর এবং ঠিকানা সঠিকভাবে লিখুন।');
+                return;
+            }
+
+            if((method === 'bKash (Personal)' || method === 'Nagad (Personal)') && !trxID) {
+                alert('অনুগ্রহ করে পেমেন্টের TrxID (ট্রানজেকশন আইডি) প্রদান করুন।');
                 return;
             }
 
@@ -722,6 +774,10 @@
                           `• ফোন: ${phone}\n` +
                           `• ঠিকানা: ${address}\n` +
                           `• পেমেন্ট মাধ্যম: ${method}`;
+
+            if(trxID) {
+                message += `\n• TrxID: ${trxID}`;
+            }
 
             let whatsappURL = `https://wa.me/8801747425457?text=${encodeURIComponent(message)}`;
             window.open(whatsappURL, '_blank');
