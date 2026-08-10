@@ -1,143 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEED JP - Online Shop</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-        body { background-color: #f4f4f9; padding-bottom: 60px; }
-        header { background: #232f3e; color: white; padding: 15px; text-align: center; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 10px; }
-        .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
-        .product-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-        .product-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; }
-        .product-card h3 { font-size: 18px; margin: 10px 0; }
-        .price { color: #e47911; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
-        button { background: #ffd814; border: 1px solid #fcd200; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%; }
-        button:hover { background: #f7ca00; }
-        
-        /* Modal Style */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
-        .modal-content input, .modal-content select { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
-        .close-btn { background: #cc0000; color: white; border: none; margin-top: 10px; }
-    </style>
-</head>
-<body>
+<html b:css='false' b:defaultwidgetversion='2' b:layoutsVersion='3' b:responsive='true' b:templateVersion='1.0.0' expr:class='data:blog.languageDirection' expr:dir='data:blog.languageDirection' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+  <head>
+    <meta content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1' name='viewport'/>
+    <title><data:view.title.escaped/></title>
+    <b:include data='blog' name='all-head-content'/>
+
+    <!-- Fonts & Icons -->
+    <link href='https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&amp;display=swap' rel='stylesheet' type='text/css'/>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css' rel='stylesheet'/>
+
+    <b:skin><![CDATA[
+      /* Custom Styles for NEED JP - Premium Ecommerce Layout */
+      * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Lato', sans-serif; }
+      body { background-color: #f8f8f8; color: #42504b; padding-bottom: 60px; }
+      
+      header { background: #152420; color: #ffffff; padding: 25px 15px; text-align: center; }
+      header h1 { font-size: 32px; font-weight: 900; color: #0d87d9; letter-spacing: 1px; }
+      header p { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+
+      .container { max-width: 1100px; margin: 30px auto; padding: 0 15px; }
+      .section-title { font-size: 22px; color: #152420; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #0d87d9; display: inline-block; padding-bottom: 5px; }
+      
+      .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 25px; }
+      .product-card { background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.06); transition: 0.3s; text-align: center; padding: 15px; border: 1px solid #eee; }
+      .product-card:hover { transform: translateY(-5px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); }
+      .product-card img { width: 100%; height: 200px; object-fit: cover; border-radius: 6px; }
+      .product-card h3 { font-size: 16px; margin: 12px 0 8px; color: #152420; font-weight: 700; }
+      .price { color: #0d87d9; font-weight: 900; font-size: 18px; margin-bottom: 12px; }
+      
+      button.btn-buy { background: #0d87d9; color: #fff; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 700; width: 100%; transition: 0.2s; }
+      button.btn-buy:hover { background: #0a6cb0; }
+      
+      /* Checkout Modal */
+      .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999; }
+      .modal-content { background: #ffffff; padding: 25px; border-radius: 10px; width: 90%; max-width: 420px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+      .modal-content h3 { font-size: 20px; color: #152420; margin-bottom: 10px; }
+      .modal-content input, .modal-content select { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+      .close-btn { background: #e74c3c; color: white; border: none; margin-top: 10px; padding: 8px; width: 100%; border-radius: 5px; cursor: pointer; }
+    ]]></b:skin>
+  </head>
+  <body>
 
     <header>
-        <h1>NEED JP</h1>
-        <p>আপনার নির্ভরযোগ্য অনলাইন শপ</p>
+      <h1>NEED JP</h1>
+      <p>আপনার নির্ভরযোগ্য প্রিমিয়াম অনলাইন শপ</p>
     </header>
 
-    <div class="container">
-        <h2>প্রোডাক্ট তালিকা</h2>
-        <br>
-        <div class="products" id="product-list">
-            <!-- Sample Product 1 -->
-            <div class="product-card">
-                <img src="https://via.placeholder.com/200" alt="Product">
-                <h3>ডেমো প্রোডাক্ট ১</h3>
-                <div class="price">৳ ৫০০</div>
-                <button onclick="openCheckout('ডেমো প্রোডাক্ট ১', 500)">এখনই কিনুন</button>
-            </div>
-            <!-- Sample Product 2 -->
-            <div class="product-card">
-                <img src="https://via.placeholder.com/200" alt="Product">
-                <h3>ডেমো প্রোডাক্ট ২</h3>
-                <div class="price">৳ ১০০০</div>
-                <button onclick="openCheckout('ডেমো প্রোডাক্ট ২', 1000)">এখনই কিনুন</button>
-            </div>
+    <div class='container'>
+      <h2 class='section-title'>প্রোডাক্ট তালিকা</h2>
+      <div class='products' id='product-list'>
+        <!-- Product 1 -->
+        <div class='product-card'>
+          <img alt='Product' src='https://via.placeholder.com/300'/>
+          <h3>ডেমো প্রোডাক্ট ১</h3>
+          <div class='price'>৳ ৫০০</div>
+          <button class='btn-buy' onclick="openCheckout('ডেমো প্রোডাক্ট ১', 500)">এখনই কিনুন</button>
         </div>
+        <!-- Product 2 -->
+        <div class='product-card'>
+          <img alt='Product' src='https://via.placeholder.com/300'/>
+          <h3>ডেমো প্রোডাক্ট ২</h3>
+          <div class='price'>৳ ১০০০</div>
+          <button class='btn-buy' onclick="openCheckout('ডেমো প্রোডাক্ট ২', 1000)">এখনই কিনুন</button>
+        </div>
+      </div>
     </div>
 
     <!-- Checkout Modal -->
-    <div class="modal" id="checkoutModal">
-        <div class="modal-content">
-            <h3>অর্ডার কনফার্ম করুন</h3>
-            <p id="modal-product-info"></p>
-            
-            <input type="text" id="custName" placeholder="আপনার নাম" required>
-            <input type="text" id="custPhone" placeholder="মোবাইল নম্বর" required>
-            <input type="text" id="custAddress" placeholder="পূর্ণাঙ্গ ঠিকানা" required>
-            
-            <label for="paymentMethod"><b>পেমেন্ট মেথড সিলেক্ট করুন:</b></label>
-            <select id="paymentMethod" onchange="togglePaymentDetails()">
-                <option value="Cash on Delivery">ক্যাশ অন ডেলিভারি (COD)</option>
-                <option value="bKash">bKash (01732274010)</option>
-                <option value="Nagad">Nagad (01747425457)</option>
-            </select>
+    <div class='modal' id='checkoutModal'>
+      <div class='modal-content'>
+        <h3>অর্ডার কনফার্ম করুন</h3>
+        <p id='modal-product-info' style='color: #0d87d9; font-weight: bold; margin-bottom: 10px;'></p>
+        
+        <input id='custName' placeholder='আপনার নাম' required='required' type='text'/>
+        <input id='custPhone' placeholder='মোবাইল নম্বর' required='required' type='text'/>
+        <input id='custAddress' placeholder='পূর্ণাঙ্গ ঠিকানা' required='required' type='text'/>
+        
+        <label for='paymentMethod'><b>পেমেন্ট মেথড সিলেক্ট করুন:</b></label>
+        <select id='paymentMethod' onchange='togglePaymentDetails()'>
+          <option value='Cash on Delivery'>ক্যাশ অন ডেলিভারি (COD)</option>
+          <option value='bKash'>bKash (01732274010)</option>
+          <option value='Nagad'>Nagad (01747425457)</option>
+        </select>
 
-            <div id="paymentInstructions" style="display:none; font-size: 13px; color: #333; margin: 5px 0;">
-                <p id="payText"></p>
-                <input type="text" id="trxId" placeholder="TrxID (ট্রানজেকশন আইডি)">
-            </div>
-
-            <button onclick="sendOrder()" style="background: #25D366; color: white; border: none; margin-top: 10px;">WhatsApp-এ অর্ডার পাঠান</button>
-            <button class="close-btn" onclick="closeModal()">বন্ধ করুন</button>
+        <div id='paymentInstructions' style='display:none; font-size: 13px; color: #333; margin: 10px 0; background: #f1f1f1; padding: 10px; border-radius: 5px;'>
+          <p id='payText'></p>
+          <input id='trxId' placeholder='TrxID (ট্রানজেকশন আইডি)' type='text'/>
         </div>
+
+        <button onclick='sendOrder()' style='background: #25D366; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px;'>WhatsApp-এ অর্ডার পাঠান</button>
+        <button class='close-btn' onclick='closeModal()'>বন্ধ করুন</button>
+      </div>
     </div>
 
-    <script>
-        let selectedProduct = '';
-        let selectedPrice = 0;
+    <script type='text/javascript'>
+      let selectedProduct = '';
+      let selectedPrice = 0;
 
-        function openCheckout(name, price) {
-            selectedProduct = name;
-            selectedPrice = price;
-            document.getElementById('modal-product-info').innerText = `প্রোডাক্ট: ${name} - মূল্য: ৳${price}`;
-            document.getElementById('checkoutModal').style.display = 'flex';
-        }
+      function openCheckout(name, price) {
+          selectedProduct = name;
+          selectedPrice = price;
+          document.getElementById('modal-product-info').innerText = `প্রোডাক্ট: ${name} - মূল্য: ৳${price}`;
+          document.getElementById('checkoutModal').style.display = 'flex';
+      }
 
-        function closeModal() {
-            document.getElementById('checkoutModal').style.display = 'none';
-        }
+      function closeModal() {
+          document.getElementById('checkoutModal').style.display = 'none';
+      }
 
-        function togglePaymentDetails() {
-            let method = document.getElementById('paymentMethod').value;
-            let payDiv = document.getElementById('paymentInstructions');
-            let payText = document.getElementById('payText');
+      function togglePaymentDetails() {
+          let method = document.getElementById('paymentMethod').value;
+          let payDiv = document.getElementById('paymentInstructions');
+          let payText = document.getElementById('payText');
 
-            if (method === 'bKash') {
-                payDiv.style.display = 'block';
-                payText.innerHTML = "bKash (Personal) <b>01732274010</b> নম্বরে Send Money করুন এবং TrxID নিচে লিখুন।";
-            } else if (method === 'Nagad') {
-                payDiv.style.display = 'block';
-                payText.innerHTML = "Nagad (Personal) <b>01747425457</b> নম্বরে Send Money করুন এবং TrxID নিচে লিখুন।";
-            } else {
-                payDiv.style.display = 'none';
-            }
-        }
+          if (method === 'bKash') {
+              payDiv.style.display = 'block';
+              payText.innerHTML = "bKash (Personal) <b>01732274010</b> নম্বরে Send Money করুন এবং TrxID নিচে লিখুন।";
+          } else if (method === 'Nagad') {
+              payDiv.style.display = 'block';
+              payText.innerHTML = "Nagad (Personal) <b>01747425457</b> নম্বরে Send Money করুন এবং TrxID নিচে লিখুন।";
+          } else {
+              payDiv.style.display = 'none';
+          }
+      }
 
-        function sendOrder() {
-            let name = document.getElementById('custName').value;
-            let phone = document.getElementById('custPhone').value;
-            let address = document.getElementById('custAddress').value;
-            let method = document.getElementById('paymentMethod').value;
-            let trxId = document.getElementById('trxId').value;
+      function sendOrder() {
+          let name = document.getElementById('custName').value;
+          let phone = document.getElementById('custPhone').value;
+          let address = document.getElementById('custAddress').value;
+          let method = document.getElementById('paymentMethod').value;
+          let trxId = document.getElementById('trxId').value;
 
-            if(!name || !phone || !address) {
-                alert('অনুগ্রহ করে নাম, ফোন নম্বর ও ঠিকানা পূরণ করুন।');
-                return;
-            }
+          if(!name || !phone || !address) {
+              alert('অনুগ্রহ করে নাম, ফোন নম্বর ও ঠিকানা পূরণ করুন।');
+              return;
+          }
 
-            let message = `*নতুন অর্ডার - NEED JP*%0A%0A` +
-                          `*প্রোডাক্ট:* ${selectedProduct}%0A` +
-                          `*মূল্য:* ৳${selectedPrice}%0A%0A` +
-                          `*গ্রাহকের তথ্য:*%0A` +
-                          `নাম: ${name}%0A` +
-                          `ফোন: ${phone}%0A` +
-                          `ঠিকানা: ${address}%0A%0A` +
-                          `*পেমেন্ট মাধ্যম:* ${method}%0A`;
+          let message = `*নতুন অর্ডার - NEED JP*%0A%0A` +
+                        `*প্রোডাক্ট:* ${selectedProduct}%0A` +
+                        `*মূল্য:* ৳${selectedPrice}%0A%0A` +
+                        `*গ্রাহকের তথ্য:*%0A` +
+                        `নাম: ${name}%0A` +
+                        `ফোন: ${phone}%0A` +
+                        `ঠিকানা: ${address}%0A%0A` +
+                        `*পেমেন্ট মাধ্যম:* ${method}%0A`;
 
-            if(method !== 'Cash on Delivery') {
-                message += `*TrxID:* ${trxId}%0A`;
-            }
+          if(method !== 'Cash on Delivery') {
+              message += `*TrxID:* ${trxId}%0A`;
+          }
 
-            let whatsappURL = `https://wa.me/8801732274010?text=${message}`;
-            window.open(whatsappURL, '_blank');
-        }
+          let whatsappURL = `https://wa.me/8801732274010?text=${message}`;
+          window.open(whatsappURL, '_blank');
+      }
     </script>
-</body>
+    <b:section id='main'/>
+  </body>
 </html>
