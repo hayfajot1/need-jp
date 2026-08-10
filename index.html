@@ -63,7 +63,7 @@
         .icon-phone { color: #34B7F1; }
         .icon-whatsapp { color: #25D366; }
         .icon-facebook { color: #1877F2; }
-        .icon-heart { color: #e60023; }
+        .icon-heart-header { color: #888; }
         .icon-cart { color: #d2a679; }
 
         @media (max-width: 768px) {
@@ -232,14 +232,32 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        /* উইশলিস্ট লাভ আইকন স্টাইলিং */
         .wishlist-icon {
             position: absolute;
             top: 15px;
             right: 15px;
-            color: #e60023;
+            color: #888;
             cursor: pointer;
             z-index: 2;
-            font-size: 18px;
+            font-size: 20px;
+            transition: color 0.3s, transform 0.2s;
+            background: rgba(255, 255, 255, 0.8);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .wishlist-icon:hover {
+            transform: scale(1.15);
+        }
+
+        .wishlist-icon.active {
+            color: #e60023;
         }
 
         .product-card img {
@@ -511,7 +529,7 @@
         </a>
         <div class="header-icons">
             <a href="https://www.facebook.com/Need.Jp.To.China" target="_blank" title="Facebook Page"><i class="fa-brands fa-facebook icon-facebook"></i></a>
-            <a href="#" title="Wishlist"><i class="fa-solid fa-heart icon-heart"></i></a>
+            <a href="#" title="Wishlist"><i class="fa-regular fa-heart icon-heart-header" id="headerHeartIcon"></i></a>
             <a href="#" title="Cart"><i class="fa-solid fa-bag-shopping icon-cart"></i></a>
         </div>
     </header>
@@ -541,7 +559,7 @@
             
             <!-- প্রোডাক্ট ১ -->
             <div class="product-card">
-                <div class="wishlist-icon"><i class="fa-solid fa-heart"></i></div>
+                <div class="wishlist-icon" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg" alt="Product" 
                      onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">
                 <h3 onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">
@@ -555,7 +573,7 @@
 
             <!-- প্রোডাক্ট ২ -->
             <div class="product-card">
-                <div class="wishlist-icon"><i class="fa-solid fa-heart"></i></div>
+                <div class="wishlist-icon" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg" alt="Product" 
                      onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">
                 <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">
@@ -569,7 +587,7 @@
 
             <!-- প্রোডাক্ট ৩ -->
             <div class="product-card">
-                <div class="wishlist-icon"><i class="fa-solid fa-heart"></i></div>
+                <div class="wishlist-icon" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg" alt="Product" 
                      onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">
                 <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">
@@ -583,7 +601,7 @@
 
             <!-- প্রোডাক্ট ৪ -->
             <div class="product-card">
-                <div class="wishlist-icon"><i class="fa-solid fa-heart"></i></div>
+                <div class="wishlist-icon" onclick="toggleWishlist(this)"><i class="fa-regular fa-heart"></i></div>
                 <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg" alt="Product" 
                      onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">
                 <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">
@@ -684,6 +702,29 @@
         let selectedProduct = '';
         let selectedPrice = 0;
         let currentImgSrc = '';
+
+        /* ডাইনামিক লাভ/উইশলিস্ট টগল ফাংশন */
+        function toggleWishlist(element) {
+            let icon = element.querySelector('i');
+            element.classList.toggle('active');
+            
+            if (element.classList.contains('active')) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+            } else {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+            }
+
+            // হেডার লাভ আইকনের রঙ হাইলাইট করার লজিক
+            let activeCount = document.querySelectorAll('.wishlist-icon.active').length;
+            let headerHeart = document.getElementById('headerHeartIcon');
+            if(activeCount > 0) {
+                headerHeart.style.color = '#e60023';
+            } else {
+                headerHeart.style.color = '#888';
+            }
+        }
 
         function toggleSearch() {
             const input = document.getElementById('searchInput');
