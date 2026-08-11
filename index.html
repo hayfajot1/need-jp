@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeedJp - Online Shopping</title>
+    <title>NeedJp - Premium Online Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDKs -->
@@ -11,290 +11,146 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f8; color: #333; }
+        :root {
+            --primary-gold: #c59d5f;
+            --primary-dark: #111111;
+            --accent-red: #e60023;
+            --bg-light: #f4f6f8;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 15px 35px rgba(197, 157, 95, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-light); color: #222; }
         a { text-decoration: none; color: inherit; }
 
         /* Top Bar */
-        .top-bar { background-color: #111; color: #fff; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-wrap: wrap; gap: 8px; }
-        .top-bar-left, .top-bar-right { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-        .top-bar-right a, .top-bar-left a { color: #ddd; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-        .top-bar-right a:hover, .top-bar-left a:hover { color: #d2a679; }
-
-        .icon-contact { color: #e6ccb2; }
-        .icon-email { color: #EA4335; }
-        .icon-phone { color: #34B7F1; }
-        .icon-whatsapp { color: #25D366; }
-        .icon-facebook { color: #1877F2; }
-        .icon-heart-header { color: #e60023; }
-        .icon-cart { color: #d2a679; }
-
-        @media (max-width: 768px) {
-            .top-bar { flex-direction: column; text-align: center; padding: 8px 10px; gap: 6px; }
-            .top-bar-left, .top-bar-right { justify-content: center; width: 100%; gap: 8px; }
-            .top-bar-right a, .top-bar-left a { font-size: 11px; }
-        }
+        .top-bar { background: var(--primary-dark); color: #d1d1d1; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .top-bar-left, .top-bar-right { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .top-bar-right a, .top-bar-left a { color: #ccc; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; }
+        .top-bar-right a:hover, .top-bar-left a:hover { color: var(--primary-gold); }
 
         /* Header */
-        header { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; gap: 15px; flex-wrap: wrap; }
-        .logo { font-size: 28px; font-weight: 800; color: #222; text-decoration: none; letter-spacing: 0.5px; display: flex; align-items: center; }
-        .logo span { color: #d2a679; }
+        header { background: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 30px; font-weight: 900; color: #111; letter-spacing: 1px; display: flex; align-items: center; }
+        .logo span { color: var(--primary-gold); }
 
-        .scrolling-text-box { flex-grow: 1; overflow: hidden; background: #fff8f0; border: 1px solid #e6ccb2; border-radius: 20px; padding: 6px 15px; display: flex; align-items: center; max-width: 600px; margin: 0 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.03); }
-        .scrolling-text-box marquee { font-size: 14px; font-weight: 600; color: #2c5e5a; }
-        .scrolling-text-box marquee span { color: #e60023; font-weight: bold; }
+        .scrolling-text-box { flex-grow: 1; overflow: hidden; background: #fdfaf6; border: 1px solid #ebd3b4; border-radius: 25px; padding: 8px 20px; margin: 0 20px; max-width: 550px; }
+        .scrolling-text-box marquee { font-size: 13px; font-weight: 600; color: #444; }
 
-        .header-icons { display: flex; gap: 18px; font-size: 20px; align-items: center; flex-shrink: 0; }
-        .header-icons a { transition: transform 0.2s; position: relative; }
-        .header-icons a:hover { transform: scale(1.15); }
+        .header-icons { display: flex; gap: 20px; font-size: 20px; align-items: center; }
+        .header-icons a { position: relative; transition: transform 0.2s; color: #333; }
+        .header-icons a:hover { transform: scale(1.15); color: var(--primary-gold); }
+        .badge { position: absolute; top: -8px; right: -10px; background-color: var(--accent-red); color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; border: 2px solid #fff; }
 
-        .badge { position: absolute; top: -8px; right: -10px; background-color: #e60023; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; border: 2px solid #fff; }
+        /* Navigation */
+        nav { background: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .nav-links a { margin-right: 25px; font-weight: 700; font-size: 13px; text-transform: uppercase; color: #444; letter-spacing: 1px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary-gold); }
 
-        /* Nav & Search */
-        nav { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: relative; }
-        .nav-links a { margin-right: 20px; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #444; }
-        .nav-links a:hover { color: #d2a679; }
+        .search-container { display: flex; align-items: center; }
+        .search-input { padding: 8px 15px; border: 1.5px solid #ddd; border-radius: 20px; font-size: 13px; outline: none; width: 0; opacity: 0; transition: all 0.4s ease; }
+        .search-input.active { width: 180px; opacity: 1; margin-right: 8px; border-color: var(--primary-gold); }
+        .search-btn { cursor: pointer; font-size: 18px; color: #333; }
 
-        .search-container { display: flex; align-items: center; position: relative; }
-        .search-input { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 13px; outline: none; width: 0; opacity: 0; transition: width 0.4s ease, opacity 0.4s ease; }
-        .search-input.active { width: 160px; opacity: 1; margin-right: 8px; }
-        .search-btn { cursor: pointer; font-size: 16px; color: #333; }
+        .announcement { background: linear-gradient(135deg, #111, #222); color: var(--primary-gold); text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 
-        .announcement { background-color: #d0e7e5; text-align: center; padding: 10px 15px; font-size: 12px; font-weight: bold; color: #2c5e5a; letter-spacing: 0.5px; }
+        /* Container & Grid */
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 15px; }
+        .section-title { background: linear-gradient(135deg, var(--primary-gold), #a37c41); color: #fff; padding: 10px 22px; font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 30px; display: inline-block; border-radius: 30px; box-shadow: 0 4px 15px rgba(197, 157, 95, 0.3); }
 
-        /* Container & Titles */
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
-        .section-title { background: linear-gradient(135deg, #d2a679, #b88a5d); color: #fff; padding: 8px 18px; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 25px; display: inline-block; border-radius: 20px; box-shadow: 0 4px 10px rgba(210, 166, 121, 0.3); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; }
 
-        /* PRODUCT CARD DESIGN */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-        
+        /* PRODUCT CARD */
         .product-card { 
             background: #ffffff; 
-            border-radius: 12px; 
+            border-radius: 16px; 
             overflow: hidden; 
             position: relative; 
-            transition: all 0.3s ease; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             display: flex; 
             flex-direction: column; 
             justify-content: space-between;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.04);
         }
-        .product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 25px rgba(0,0,0,0.12); }
+        .product-card:hover { transform: translateY(-8px); box-shadow: var(--hover-shadow); }
 
         .wishlist-icon { 
-            position: absolute; 
-            top: 12px; 
-            right: 12px; 
-            color: #777; 
-            cursor: pointer; 
-            z-index: 3; 
-            font-size: 16px; 
-            transition: all 0.3s ease; 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(4px);
-            width: 36px; 
-            height: 36px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            box-shadow: 0 3px 8px rgba(0,0,0,0.12); 
+            position: absolute; top: 12px; right: 12px; color: #888; cursor: pointer; z-index: 3; font-size: 16px; transition: all 0.3s; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
-        .wishlist-icon:hover { transform: scale(1.15); background: #fff; }
-        .wishlist-icon.active { color: #e60023; }
+        .wishlist-icon:hover { transform: scale(1.15); background: #fff; color: var(--accent-red); }
+        .wishlist-icon.active { color: var(--accent-red); }
 
-        .product-tag {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: #e60023;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            padding: 3px 8px;
-            border-radius: 12px;
-            text-transform: uppercase;
-            z-index: 2;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 6px rgba(230, 0, 35, 0.3);
-        }
+        .product-tag { position: absolute; top: 12px; left: 12px; background: var(--primary-dark); color: var(--primary-gold); font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; z-index: 2; letter-spacing: 0.5px; border: 1px solid var(--primary-gold); }
 
-        .img-box-grid { width: 100%; height: 230px; overflow: hidden; background: #fafafa; cursor: pointer; position: relative; }
-        .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .img-box-grid { width: 100%; height: 250px; overflow: hidden; background: #fafafa; cursor: pointer; position: relative; }
+        .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
         .product-card:hover .img-box-grid img { transform: scale(1.08); }
 
-        .product-info { padding: 15px 15px 10px 15px; text-align: left; }
-        .product-category { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
-        .product-info h3 { 
-            font-size: 15px; 
-            color: #222; 
-            margin-bottom: 6px; 
-            font-weight: 700; 
-            display: -webkit-box; 
-            -webkit-line-clamp: 1; 
-            -webkit-box-orient: vertical; 
-            overflow: hidden; 
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-        .product-info h3:hover { color: #d2a679; }
+        .product-info { padding: 18px; text-align: left; }
+        .product-category { font-size: 10px; color: #999; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; display: block; }
+        .product-info h3 { font-size: 16px; color: #111; margin-bottom: 8px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+        .product-info h3:hover { color: var(--primary-gold); }
 
-        .product-rating { color: #ffb400; font-size: 11px; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
-        .product-rating span { color: #888; font-size: 11px; margin-left: 2px; }
+        .product-rating { color: #ffc107; font-size: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+        .product-rating span { color: #888; font-size: 11px; margin-left: 4px; font-weight: 600; }
 
-        .product-price-wrapper { display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px; }
-        .product-price-tag { font-size: 18px; font-weight: 800; color: #111; }
-        .stock-status { font-size: 10px; font-weight: 600; color: #2e7d32; background: #e8f5e9; padding: 2px 6px; border-radius: 4px; }
+        .product-price-wrapper { display: flex; align-items: center; justify-content: space-between; }
+        .product-price-tag { font-size: 20px; font-weight: 900; color: #111; }
+        .stock-status { font-size: 10px; font-weight: 700; color: #2e7d32; background: #e8f5e9; padding: 3px 8px; border-radius: 12px; }
 
-        .button-group { display: flex; gap: 8px; padding: 0 15px 15px 15px; }
-        .btn-buy { 
-            background: #111; color: #fff; border: none; padding: 10px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .btn-view { 
-            background: #f0f0f0; color: #333; border: 1px solid #e0e0e0; padding: 10px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; text-transform: uppercase; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .btn-buy:hover { background: #d2a679; color: #fff; box-shadow: 0 4px 12px rgba(210, 166, 121, 0.4); }
-        .btn-view:hover { background: #e2e2e2; color: #000; }
+        .button-group { display: flex; gap: 10px; padding: 0 18px 18px 18px; }
+        .btn-buy { background: var(--primary-dark); color: #fff; border: none; padding: 11px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: 0.5px; }
+        .btn-view { background: #f0f0f0; color: #333; border: 1px solid #e0e0e0; padding: 11px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-buy:hover { background: var(--primary-gold); color: #fff; box-shadow: 0 4px 15px rgba(197, 157, 95, 0.4); }
+        .btn-view:hover { background: #e2e2e2; }
 
-        /* PREMIUM MODAL STYLES */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
-        
-        .modal-content { 
-            background-color: #fff; 
-            padding: 25px 30px; 
-            border-radius: 16px; 
-            width: 100%; 
-            max-width: 480px; 
-            position: relative; 
-            max-height: 90vh; 
-            overflow-y: auto; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-            animation: modalSlideUp 0.3s ease-out;
-            border: 1px solid rgba(255,255,255,0.8);
-        }
+        /* MODALS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
+        .modal-content { background: #fff; padding: 25px 30px; border-radius: 20px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease; }
 
-        @keyframes modalSlideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes modalFadeIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .close-btn { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            color: #666; 
-            background-color: #f0f0f0; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 10; 
-            transition: all 0.2s;
-        }
-        .close-btn:hover { background-color: #ff3b30; color: #fff; transform: rotate(90deg); }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 16px; cursor: pointer; color: #666; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .close-btn:hover { background: var(--accent-red); color: #fff; }
 
-        /* Order Form Specific Premium Styling */
-        .modal-header-title { text-align: center; margin-bottom: 20px; }
-        .modal-header-title h2 { font-size: 20px; font-weight: 800; color: #111; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .modal-header-title h2 i { color: #d2a679; }
-        .modal-header-title p { font-size: 12px; color: #666; margin-top: 3px; }
-
-        .order-product-card {
-            background: #fdfaf6;
-            border: 1px dashed #e6ccb2;
-            border-radius: 10px;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .order-product-card .p-name { font-size: 14px; font-weight: 700; color: #222; }
-        .order-product-card .p-price { font-size: 16px; font-weight: 800; color: #d2a679; }
-
-        .form-group { margin-bottom: 16px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #444; }
+        /* Form Inputs */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 12px; color: #444; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
-        .input-wrapper i { position: absolute; left: 12px; color: #888; font-size: 14px; }
-        
-        .form-group input, .form-group textarea, .form-group select { 
-            width: 100%; 
-            padding: 11px 12px 11px 36px; 
-            border: 1.5px solid #e0e0e0; 
-            border-radius: 8px; 
-            font-size: 13px; 
-            outline: none;
-            transition: all 0.25s ease;
-            background: #fafafa;
-        }
-        
-        .form-group textarea { padding-left: 36px; }
+        .input-wrapper i { position: absolute; left: 14px; color: #888; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 12px 12px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 13px; outline: none; transition: 0.3s; background: #fafafa; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-gold); background: #fff; box-shadow: 0 0 0 4px rgba(197, 157, 95, 0.15); }
 
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { 
-            border-color: #d2a679; 
-            background: #fff;
-            box-shadow: 0 0 0 4px rgba(210, 166, 121, 0.15);
-        }
+        .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 12px; border-radius: 8px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
 
-        .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 12px; border-radius: 8px; font-size: 12px; color: #5d4037; margin-bottom: 18px; line-height: 1.5; }
-        
-        .btn-submit { 
-            background: linear-gradient(135deg, #25D366, #128C7E); 
-            color: #fff; 
-            border: none; 
-            padding: 14px; 
-            width: 100%; 
-            font-weight: bold; 
-            font-size: 15px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px; 
-            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
-            transition: all 0.3s ease;
-        }
+        .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
 
-        .wishlist-item { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .wishlist-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
-        .wishlist-item-info { flex-grow: 1; text-align: left; }
-        .wishlist-item-info h4 { font-size: 13px; color: #333; margin-bottom: 4px; }
-        .wishlist-item-info span { font-size: 13px; font-weight: bold; color: #d2a679; }
-        .wishlist-actions { display: flex; flex-direction: column; gap: 5px; }
-        .btn-wishlist-buy { background-color: #111; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; }
-        .btn-wishlist-remove { background-color: #ff3b30; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; }
+        /* Reviews Styling */
+        .reviews-section { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; text-align: left; }
+        .reviews-section h3 { font-size: 15px; margin-bottom: 12px; color: #111; display: flex; align-items: center; gap: 8px; }
+        .review-card { background: #fdfdfd; border: 1px solid #eee; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .review-author { font-weight: 700; font-size: 12px; color: #222; }
+        .review-stars { color: #ffc107; font-size: 10px; }
+        .review-text { font-size: 12px; color: #555; }
 
-        .details-box { text-align: center; }
-        .img-zoom-container { overflow: hidden; border-radius: 8px; margin-bottom: 15px; position: relative; cursor: zoom-in; background: #f0f0f0; }
-        .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; transition: transform 0.4s ease; display: block; }
-        .img-zoom-container:hover img { transform: scale(1.3); }
-        .zoom-hint { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none; }
-        .details-box h2 { font-size: 18px; margin-bottom: 8px; color: #222; }
-        .details-price { font-size: 20px; font-weight: bold; color: #d2a679; margin-bottom: 15px; }
-        .details-desc { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; border: 1px solid #eee; white-space: pre-line; }
+        .add-review-box { background: #fdfaf6; padding: 12px; border-radius: 10px; border: 1px dashed var(--primary-gold); margin-top: 15px; }
+        .star-rating-select { display: flex; gap: 6px; font-size: 18px; color: #ccc; cursor: pointer; margin: 6px 0 10px 0; }
+        .star-rating-select i.active { color: #ffc107; }
 
-        .full-img-modal .modal-content { background: transparent; padding: 0; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; box-shadow: none; border: none; }
-        .full-img-modal img { max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
-
-        footer { background-color: #111; color: #fff; padding: 25px 5%; margin-top: 50px; text-align: center; }
-        footer p { font-size: 13px; color: #aaa; margin-bottom: 8px; }
+        footer { background: var(--primary-dark); color: #aaa; padding: 30px 5%; margin-top: 60px; text-align: center; font-size: 13px; border-top: 3px solid var(--primary-gold); }
 
         @media (max-width: 480px) {
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .img-box-grid { height: 160px; }
-            .product-info { padding: 10px 10px 6px 10px; }
+            .img-box-grid { height: 170px; }
+            .product-info { padding: 12px; }
             .product-info h3 { font-size: 13px; }
-            .product-price-tag { font-size: 15px; }
-            .button-group { padding: 0 10px 10px 10px; gap: 5px; }
-            .btn-buy, .btn-view { padding: 8px 4px; font-size: 10px; }
+            .product-price-tag { font-size: 16px; }
+            .button-group { padding: 0 12px 12px 12px; gap: 6px; }
+            .btn-buy, .btn-view { padding: 9px 4px; font-size: 10px; }
             .modal-content { padding: 20px 18px; }
         }
     </style>
@@ -304,42 +160,39 @@
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
-            <a href="#contact"><i class="fa-solid fa-envelope icon-contact"></i> Contact Us</a>
+            <a href="#contact"><i class="fa-solid fa-envelope" style="color:var(--primary-gold)"></i> Contact Us</a>
         </div>
         <div class="top-bar-right">
-            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope icon-email"></i> mdhayfajothussain38@gmail.com</a>
-            <a href="tel:+8801732274010"><i class="fa-solid fa-phone icon-phone"></i> +8801732274010</a>
-            <a href="https://wa.me/8801747425457" target="_blank"><i class="fa-brands fa-whatsapp icon-whatsapp"></i> +8801747425457</a>
+            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope"></i> mdhayfajothussain38@gmail.com</a>
+            <a href="tel:+8801732274010"><i class="fa-solid fa-phone"></i> +8801732274010</a>
+            <a href="https://wa.me/8801747425457" target="_blank"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> +8801747425457</a>
         </div>
     </div>
 
     <!-- Header -->
     <header>
-        <a href="index.html" class="logo">
-            Need<span>Jp</span>
-        </a>
+        <a href="index.html" class="logo">Need<span>Jp</span></a>
         
         <div class="scrolling-text-box">
             <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
-                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা • যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন ✨
+                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা ✨
             </marquee>
         </div>
 
         <div class="header-icons">
-            <a href="https://www.facebook.com/Need.Jp.To.China" target="_blank" title="Facebook Page"><i class="fa-brands fa-facebook icon-facebook"></i></a>
-            <a href="javascript:void(0)" onclick="openWishlistModal()" title="Wishlist">
-                <i class="fa-solid fa-heart icon-heart-header"></i>
+            <a href="https://www.facebook.com/Need.Jp.To.China" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+            <a href="javascript:void(0)" onclick="openWishlistModal()">
+                <i class="fa-solid fa-heart" style="color:var(--accent-red)"></i>
                 <span class="badge" id="wishlistCount">0</span>
             </a>
-            <a href="#" title="Cart"><i class="fa-solid fa-bag-shopping icon-cart"></i></a>
         </div>
     </header>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation -->
     <nav>
         <div class="nav-links">
             <a href="index.html">HOME</a>
-            <a href="#">FEATURES</a>
+            <a href="#">COLLECTION</a>
         </div>
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="প্রোডাক্ট খুঁজুন..." onkeyup="filterProducts()">
@@ -347,93 +200,87 @@
         </div>
     </nav>
 
-    <!-- Announcement Bar -->
     <div class="announcement">
-        DELIVERY IN JOYPURHAT SODOR • SUMMER LOOK FLASH SALE 70% OFF • 20% OFF EVERYTHING FOR WOMAN
+        🔥 FLASH SALE! 20% OFF EVERYTHING FOR WOMEN • JOYPURHAT SODOR FREE DELIVERY 🔥
     </div>
 
     <!-- Main Container -->
     <div class="container">
-        <div class="section-title"><i class="fa-solid fa-fire"></i> LATEST PRODUCTS</div>
+        <div class="section-title"><i class="fa-solid fa-gem"></i> EXCLUSIVE PRODUCTS</div>
         <div class="product-grid" id="productGrid">
             <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div id="wishlistModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeWishlistModal()">&times;</span>
-            <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center; color: #333;"><i class="fa-solid fa-heart" style="color: #e60023;"></i> আপনার পছন্দনীয় প্রোডাক্টস (Wishlist)</h2>
-            <div id="wishlistContainer"></div>
-        </div>
-    </div>
-
+    <!-- Details & Reviews Modal -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
-            <div class="details-box">
-                <div class="img-zoom-container" onclick="openFullImage()">
-                    <img id="dImg" src="" alt="Product Large Image">
-                    <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> জুম করতে বা বড় করে দেখতে ক্লিক করুন</span>
-                </div>
-                <h2 id="dTitle"></h2>
-                <div id="dPrice" class="details-price"></div>
-                <div id="dDesc" class="details-desc"></div>
+            <div style="text-align: center;">
+                <img id="dImg" src="" style="width:100%; max-height:250px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
+                <h2 id="dTitle" style="font-size:18px; color:#111;"></h2>
+                <div id="dPrice" style="font-size:22px; font-weight:800; color:var(--primary-gold); margin:6px 0 12px 0;"></div>
+                <div id="dDesc" style="text-align:left; background:#f9f9f9; padding:12px; border-radius:8px; font-size:13px; color:#555; border:1px solid #eee; margin-bottom:15px; white-space:pre-line;"></div>
                 <button class="btn-submit" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
+            </div>
+
+            <!-- Customer Reviews -->
+            <div class="reviews-section">
+                <h3><i class="fa-solid fa-comments" style="color:var(--primary-gold);"></i> কাস্টমার রিভিউ (Customer Reviews)</h3>
+                <div id="reviewsList"></div>
+
+                <div class="add-review-box">
+                    <h4 style="font-size:12px; font-weight:700; color:#333;">আপনার মতামত দিন:</h4>
+                    <div class="star-rating-select" id="starSelector">
+                        <i class="fa-solid fa-star active" onclick="setRating(1)"></i>
+                        <i class="fa-solid fa-star active" onclick="setRating(2)"></i>
+                        <i class="fa-solid fa-star active" onclick="setRating(3)"></i>
+                        <i class="fa-solid fa-star active" onclick="setRating(4)"></i>
+                        <i class="fa-solid fa-star active" onclick="setRating(5)"></i>
+                    </div>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <input type="text" id="revName" placeholder="আপনার নাম..." style="padding:8px 12px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <textarea id="revComment" rows="2" placeholder="প্রোডাক্ট সম্পর্কে লিখুন..." style="padding:8px 12px;"></textarea>
+                    </div>
+                    <button type="button" onclick="submitReview()" style="background:var(--primary-dark); color:#fff; border:none; padding:8px 15px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">রিভিউ দিন</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="fullImgModal" class="modal full-img-modal" onclick="closeFullImage()">
-        <span class="close-btn" onclick="closeFullImage()">&times;</span>
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <img id="fullImgSrc" src="" alt="Full Screen Product Image">
-        </div>
-    </div>
-
-    <!-- Premium Checkout Modal -->
+    <!-- Dynamic Checkout Modal -->
     <div id="checkoutModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeCheckout()">&times;</span>
-            
-            <div class="modal-header-title">
-                <h2><i class="fa-solid fa-bag-shopping"></i> দ্রুত অর্ডার করুন</h2>
-                <p>ক্যাশ অন ডেলিভারিতে অর্ডার করতে তথ্যগুলো পূরণ করুন</p>
+            <div style="text-align:center; margin-bottom:18px;">
+                <h2 style="font-size:20px; font-weight:800;"><i class="fa-solid fa-bag-shopping" style="color:var(--primary-gold)"></i> দ্রুত অর্ডার কনফার্ম করুন</h2>
+                <p id="checkoutSubtitle" style="font-size:12px; color:#666; margin-top:4px;">ক্যাশ অন ডেলিভারিতে অর্ডার করতে তথ্য পূরণ করুন</p>
             </div>
 
-            <!-- Summary Box -->
-            <div class="order-product-card">
+            <div style="background:#fdfaf6; border:1px dashed var(--primary-gold); padding:12px 15px; border-radius:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <span style="font-size: 11px; color: #888; font-weight: 600;">SELECTED ITEM</span>
-                    <div class="p-name" id="displayPName">bags</div>
+                    <span style="font-size:10px; color:#888; font-weight:700;">SELECTED PRODUCT</span>
+                    <div id="displayPName" style="font-size:14px; font-weight:700;">-</div>
                 </div>
-                <div class="p-price" id="displayPPrice">৳250</div>
+                <div id="displayPPrice" style="font-size:18px; font-weight:800; color:var(--primary-gold);">৳0</div>
             </div>
 
             <form id="orderForm">
                 <div class="form-group">
                     <label>আপনার নাম *</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" id="cName" required placeholder="আপনার পুরো নাম লিখুন">
-                    </div>
+                    <div class="input-wrapper"><i class="fa-solid fa-user"></i><input type="text" id="cName" required placeholder="আপনার পুরো নাম লিখুন"></div>
                 </div>
 
                 <div class="form-group">
                     <label>মোবাইল নম্বর *</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-phone"></i>
-                        <input type="tel" id="cPhone" required placeholder="017XXXXXXXX">
-                    </div>
+                    <div class="input-wrapper"><i class="fa-solid fa-phone"></i><input type="tel" id="cPhone" required placeholder="017XXXXXXXX"></div>
                 </div>
 
                 <div class="form-group">
                     <label>পূর্ণাঙ্গ ঠিকানা *</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-location-dot" style="top: 14px;"></i>
-                        <textarea id="cAddress" rows="2" required placeholder="জেলা, থানা, বাসা বা এলাকার নাম..."></textarea>
-                    </div>
+                    <div class="input-wrapper"><i class="fa-solid fa-location-dot" style="top:14px;"></i><textarea id="cAddress" rows="2" required placeholder="জেলা, থানা, বাসা বা এলাকার নাম..."></textarea></div>
                 </div>
 
                 <div class="form-group">
@@ -459,17 +306,24 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-submit" onclick="sendOrder()">
-                    <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> হোয়াটসঅ্যাপে অর্ডার কনফার্ম করুন
-                </button>
+                <button type="button" class="btn-submit" onclick="sendOrder()"><i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপে অর্ডার কনফার্ম করুন</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div id="wishlistModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeWishlistModal()">&times;</span>
+            <h2 style="margin-bottom:15px; font-size:18px; text-align:center;"><i class="fa-solid fa-heart" style="color:var(--accent-red)"></i> আপনার পছন্দনীয় প্রোডাক্টস</h2>
+            <div id="wishlistContainer"></div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer id="contact">
         <p>Contact Us: mdhayfajothussain38@gmail.com | Phone: +8801732274010</p>
-        <p>&copy; 2026 NeedJp. All Rights Reserved.</p>
+        <p style="margin-top:5px;">&copy; 2026 NeedJp. All Rights Reserved.</p>
     </footer>
 
     <script>
@@ -486,9 +340,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let selectedProduct = '';
-        let selectedPrice = 0;
-        let currentImgSrc = '';
+        let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -498,44 +350,43 @@
 
         function loadProductsFromFirebase() {
             const grid = document.getElementById('productGrid');
-            
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 grid.innerHTML = '';
-                
                 if (snapshot.empty) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">এখনো কোনো প্রোডাক্ট আপলোড করা হয়নি। অ্যাডমিন প্যানেল থেকে যোগ করুন!</p>';
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
                     return;
                 }
 
                 snapshot.forEach(doc => {
                     const p = doc.data();
                     const id = doc.id;
+                    const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+
+                    const avgRating = p.avgRating || 5;
+                    let starsHTML = '';
+                    for (let i = 1; i <= 5; i++) {
+                        starsHTML += `<i class="fa-${i <= Math.round(avgRating) ? 'solid' : 'regular'} fa-star"></i>`;
+                    }
 
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.setAttribute('data-id', id);
-
-                    const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
 
                     card.innerHTML = `
                         <div class="product-tag">HOT</div>
                         <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
                             <i class="fa-regular fa-heart"></i>
                         </div>
-                        <div class="img-box-grid" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">
+                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">
                             <img src="${p.image}" alt="${p.title}">
                         </div>
                         <div class="product-info">
                             <span class="product-category">LADIES COLLECTION</span>
-                            <h3 onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
+                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
                             <div class="product-rating">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <span>(5.0)</span>
+                                ${starsHTML}
+                                <span>(${p.totalReviews || 1})</span>
                             </div>
                             <div class="product-price-wrapper">
                                 <div class="product-price-tag">৳${p.price}</div>
@@ -544,103 +395,108 @@
                         </div>
                         <div class="button-group">
                             <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})"><i class="fa-solid fa-bag-shopping"></i> BUY NOW</button>
-                            <button class="btn-view" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')"><i class="fa-solid fa-eye"></i> VIEW</button>
+                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')"><i class="fa-solid fa-eye"></i> VIEW</button>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
-
                 updateWishlistUI();
             });
         }
 
-        function toggleWishlist(id, name, price, img, element) {
-            let index = wishlist.findIndex(item => item.id === id);
-            if (index === -1) {
-                wishlist.push({ id, name, price, img });
+        /* Dynamic Payment Method Handler */
+        function togglePaymentFields() {
+            let method = document.getElementById('pMethod').value;
+            let section = document.getElementById('paymentDetailsSection');
+            let notice = document.getElementById('paymentNotice');
+            let subtitle = document.getElementById('checkoutSubtitle');
+
+            if (method === 'bKash (Personal)') {
+                subtitle.innerText = 'বিকাশ পেমেন্টের মাধ্যমে দ্রুত অর্ডার করুন';
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> বিকাশ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
+            } else if (method === 'Nagad (Personal)') {
+                subtitle.innerText = 'নগদ পেমেন্টের মাধ্যমে দ্রুত অর্ডার করুন';
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> নগদ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
             } else {
-                wishlist.splice(index, 1);
+                subtitle.innerText = 'ক্যাশ অন ডেলিভারিতে অর্ডার করতে তথ্য পূরণ করুন';
+                section.style.display = 'none';
+                document.getElementById('cTrxID').value = '';
             }
-            localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
-            updateWishlistUI();
         }
 
-        function updateWishlistUI() {
-            document.getElementById('wishlistCount').innerText = wishlist.length;
-            let cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                let id = card.getAttribute('data-id');
-                let iconBox = card.querySelector('.wishlist-icon');
-                if(iconBox) {
-                    let icon = iconBox.querySelector('i');
-                    let isFav = wishlist.some(item => item.id === id);
-                    if (isFav) {
-                        iconBox.classList.add('active');
-                        icon.classList.remove('fa-regular');
-                        icon.classList.add('fa-solid');
-                    } else {
-                        iconBox.classList.remove('active');
-                        icon.classList.remove('fa-solid');
-                        icon.classList.add('fa-regular');
-                    }
-                }
+        /* Review Functions */
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('#starSelector i');
+            stars.forEach((star, idx) => {
+                if (idx < rating) star.classList.add('active');
+                else star.classList.remove('active');
             });
         }
 
-        function openWishlistModal() {
-            let container = document.getElementById('wishlistContainer');
-            container.innerHTML = '';
-            if (wishlist.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#777; padding:20px 0;">আপনার উইশলিস্ট খালি।</p>';
-            } else {
-                wishlist.forEach(item => {
-                    let div = document.createElement('div');
-                    div.className = 'wishlist-item';
-                    div.innerHTML = `
-                        <img src="${item.img}" alt="${item.name}">
-                        <div class="wishlist-item-info">
-                            <h4>${item.name}</h4>
-                            <span>৳${item.price}</span>
-                        </div>
-                        <div class="wishlist-actions">
-                            <button class="btn-wishlist-buy" onclick="buyFromWishlist('${item.name}', ${item.price})">অর্ডার করুন</button>
-                            <button class="btn-wishlist-remove" onclick="removeFromWishlist('${item.id}')">মুছে ফেলুন</button>
+        function loadReviews(productId) {
+            const list = document.getElementById('reviewsList');
+            list.innerHTML = '<p style="font-size:12px; color:#888;">রিভিউ লোড হচ্ছে...</p>';
+            
+            db.collection('products').doc(productId).collection('reviews').orderBy('createdAt', 'desc').get().then(snapshot => {
+                list.innerHTML = '';
+                if(snapshot.empty) {
+                    list.innerHTML = '<p style="font-size:12px; color:#888;">এখনো কোনো রিভিউ নেই। প্রথম রিভিউ দিন!</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const r = doc.data();
+                    let stars = '';
+                    for(let i=1; i<=5; i++) stars += `<i class="fa-${i <= r.rating ? 'solid' : 'regular'} fa-star"></i>`;
+                    
+                    list.innerHTML += `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-author">${r.name}</span>
+                                <span class="review-stars">${stars}</span>
+                            </div>
+                            <p class="review-text">${r.comment}</p>
                         </div>
                     `;
-                    container.appendChild(div);
                 });
-            }
-            document.getElementById('wishlistModal').style.display = 'flex';
+            });
         }
 
-        function closeWishlistModal() { document.getElementById('wishlistModal').style.display = 'none'; }
-        function removeFromWishlist(id) { wishlist = wishlist.filter(item => item.id !== id); localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist)); updateWishlistUI(); openWishlistModal(); }
-        function buyFromWishlist(name, price) { closeWishlistModal(); openCheckout(name, price); }
+        function submitReview() {
+            const name = document.getElementById('revName').value.trim();
+            const comment = document.getElementById('revComment').value.trim();
 
-        function toggleSearch() { const input = document.getElementById('searchInput'); input.classList.toggle('active'); if(input.classList.contains('active')) input.focus(); }
-        function filterProducts() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let cards = document.getElementsByClassName('product-card');
-            for (let i = 0; i < cards.length; i++) {
-                let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-                cards[i].style.display = title.includes(input) ? "" : "none";
-            }
+            if(!name || !comment) { alert('অনুগ্রহ করে নাম এবং মতামত লিখুন!'); return; }
+
+            db.collection('products').doc(currentProductId).collection('reviews').add({
+                name: name,
+                comment: comment,
+                rating: currentRating,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('আপনার রিভিউ সফলভাবে জমা হয়েছে!');
+                document.getElementById('revName').value = '';
+                document.getElementById('revComment').value = '';
+                loadReviews(currentProductId);
+            });
         }
 
-        function openDetails(name, price, imgSrc, description) {
+        /* Modal Functions */
+        function openDetails(id, name, price, imgSrc, description) {
+            currentProductId = id;
             selectedProduct = name;
             selectedPrice = price;
-            currentImgSrc = imgSrc;
             document.getElementById('dTitle').innerText = name;
             document.getElementById('dPrice').innerText = '৳' + price;
             document.getElementById('dImg').src = imgSrc;
             document.getElementById('dDesc').innerText = description || 'কোনো বিবরণ দেওয়া হয়নি।';
             document.getElementById('detailsModal').style.display = 'flex';
+            loadReviews(id);
         }
 
         function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
-        function openFullImage() { document.getElementById('fullImgSrc').src = currentImgSrc; document.getElementById('fullImgModal').style.display = 'flex'; }
-        function closeFullImage() { document.getElementById('fullImgModal').style.display = 'none'; }
         function buyFromDetails() { closeDetails(); openCheckout(selectedProduct, selectedPrice); }
 
         function openCheckout(name, price) {
@@ -655,22 +511,6 @@
 
         function closeCheckout() { document.getElementById('checkoutModal').style.display = 'none'; }
 
-        function togglePaymentFields() {
-            let method = document.getElementById('pMethod').value;
-            let section = document.getElementById('paymentDetailsSection');
-            let notice = document.getElementById('paymentNotice');
-            if (method === 'bKash (Personal)') {
-                section.style.display = 'block';
-                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> বিকাশ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
-            } else if (method === 'Nagad (Personal)') {
-                section.style.display = 'block';
-                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> নগদ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
-            } else {
-                section.style.display = 'none';
-                document.getElementById('cTrxID').value = '';
-            }
-        }
-
         function sendOrder() {
             let name = document.getElementById('cName').value;
             let phone = document.getElementById('cPhone').value;
@@ -683,6 +523,60 @@
 
             let message = `*নতুন অর্ডার - NEED JP*\n*প্রোডাক্ট:* ${selectedProduct}\n*মূল্য:* ৳${selectedPrice}\n*গ্রাহক:* ${name}\n*ফোন:* ${phone}\n*ঠিকানা:* ${address}\n*পেমেন্ট:* ${method}` + (trxID ? `\n*TrxID:* ${trxID}` : '');
             window.open(`https://wa.me/8801747425457?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        /* Wishlist Functions */
+        function toggleWishlist(id, name, price, img, element) {
+            let index = wishlist.findIndex(item => item.id === id);
+            if (index === -1) wishlist.push({ id, name, price, img });
+            else wishlist.splice(index, 1);
+            localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+        }
+
+        function updateWishlistUI() {
+            document.getElementById('wishlistCount').innerText = wishlist.length;
+            document.querySelectorAll('.product-card').forEach(card => {
+                let id = card.getAttribute('data-id');
+                let iconBox = card.querySelector('.wishlist-icon');
+                if(iconBox) {
+                    let icon = iconBox.querySelector('i');
+                    let isFav = wishlist.some(item => item.id === id);
+                    if (isFav) {
+                        iconBox.classList.add('active');
+                        icon.classList.replace('fa-regular', 'fa-solid');
+                    } else {
+                        iconBox.classList.remove('active');
+                        icon.classList.replace('fa-solid', 'fa-regular');
+                    }
+                }
+            });
+        }
+
+        function openWishlistModal() {
+            let container = document.getElementById('wishlistContainer');
+            container.innerHTML = wishlist.length === 0 ? '<p style="text-align:center; color:#777;">উইশলিস্ট খালি।</p>' : '';
+            wishlist.forEach(item => {
+                container.innerHTML += `
+                    <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid #eee; padding:10px 0;">
+                        <img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
+                        <div style="flex-grow:1;"><h4 style="font-size:12px;">${item.name}</h4><span style="font-weight:bold; color:var(--primary-gold);">৳${item.price}</span></div>
+                        <button onclick="closeWishlistModal(); openCheckout('${item.name}', ${item.price});" style="background:var(--primary-dark); color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:10px; cursor:pointer;">অর্ডার</button>
+                    </div>
+                `;
+            });
+            document.getElementById('wishlistModal').style.display = 'flex';
+        }
+        function closeWishlistModal() { document.getElementById('wishlistModal').style.display = 'none'; }
+
+        function toggleSearch() { const input = document.getElementById('searchInput'); input.classList.toggle('active'); if(input.classList.contains('active')) input.focus(); }
+        function filterProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('product-card');
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+                cards[i].style.display = title.includes(input) ? "" : "none";
+            }
         }
     </script>
 </body>
