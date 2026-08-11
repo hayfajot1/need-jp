@@ -5,199 +5,470 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeedJp - Online Shopping</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f8f9fa; color: #333; }
+        a { text-decoration: none; color: inherit; }
 
-        /* টপ নোটিশ বার */
-        .top-bar { background: #111; color: #fff; padding: 6px 15px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .top-bar a { color: #fff; text-decoration: none; margin-left: 10px; }
+        .top-bar { background-color: #111; color: #fff; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-wrap: wrap; gap: 8px; }
+        .top-bar-left, .top-bar-right { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .top-bar-right a, .top-bar-left a { color: #ddd; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .top-bar-right a:hover, .top-bar-left a:hover { color: #d2a679; }
 
-        /* হেডার ও লোগো সেকশন */
-        .main-header { background: #fff; padding: 15px 5%; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 15px; }
+        .icon-contact { color: #e6ccb2; }
+        .icon-email { color: #EA4335; }
+        .icon-phone { color: #34B7F1; }
+        .icon-whatsapp { color: #25D366; }
+        .icon-facebook { color: #1877F2; }
+        .icon-heart-header { color: #e60023; }
+        .icon-cart { color: #d2a679; }
+
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; text-align: center; padding: 8px 10px; gap: 6px; }
+            .top-bar-left, .top-bar-right { justify-content: center; width: 100%; gap: 8px; }
+            .top-bar-right { flex-direction: flex-row; gap: 8px; flex-wrap: wrap; }
+            .top-bar-right a, .top-bar-left a { font-size: 11px; }
+        }
+
+        header { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; gap: 15px; flex-wrap: wrap; }
         
         .logo { font-size: 28px; font-weight: 800; color: #222; text-decoration: none; letter-spacing: 0.5px; display: flex; align-items: center; }
         .logo span { color: #d2a679; }
 
-        /* স্লাইডিং টেক্সট ব্যানার */
-        .ticker-wrap { flex-grow: 1; max-width: 500px; margin: 0 20px; overflow: hidden; background: #fff8f0; border: 1px solid #f3e5d8; border-radius: 25px; padding: 6px 15px; position: relative; }
-        .ticker-text { display: inline-block; white-space: nowrap; font-size: 14px; font-weight: 600; color: #b88a5d; animation: marquee 12s linear infinite; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .scrolling-text-box { flex-grow: 1; overflow: hidden; background: #fff8f0; border: 1px solid #e6ccb2; border-radius: 20px; padding: 6px 15px; display: flex; align-items: center; max-width: 600px; margin: 0 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.03); }
+        .scrolling-text-box marquee { font-size: 14px; font-weight: 600; color: #2c5e5a; }
+        .scrolling-text-box marquee span { color: #e60023; font-weight: bold; }
 
-        .header-icons { display: flex; align-items: center; gap: 18px; font-size: 18px; color: #333; }
-        .cart-icon { position: relative; cursor: pointer; }
-        .cart-count { position: absolute; top: -8px; right: -10px; background: #d2a679; color: #fff; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; }
+        .header-icons { display: flex; gap: 18px; font-size: 20px; align-items: center; flex-shrink: 0; }
+        .header-icons a { transition: transform 0.2s; position: relative; }
+        .header-icons a:hover { transform: scale(1.15); }
 
-        /* নেভিগেশন বার */
-        .nav-bar { background: #fff; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; }
-        .nav-links { display: flex; gap: 20px; list-style: none; }
-        .nav-links a { text-decoration: none; color: #444; font-weight: 600; font-size: 13px; text-transform: uppercase; }
+        .badge { position: absolute; top: -8px; right: -10px; background-color: #e60023; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; border: 2px solid #fff; }
+
+        nav { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: relative; }
+        .nav-links a { margin-right: 20px; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #444; }
         .nav-links a:hover { color: #d2a679; }
 
-        /* অ্যানাউন্সমেন্ট স্ট্রিপ */
-        .announcement { background: #e0f2f1; color: #00796b; text-align: center; padding: 8px 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+        .search-container { display: flex; align-items: center; position: relative; }
+        .search-input { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 13px; outline: none; width: 0; opacity: 0; transition: width 0.4s ease, opacity 0.4s ease; }
+        .search-input.active { width: 160px; opacity: 1; margin-right: 8px; }
+        .search-btn { cursor: pointer; font-size: 16px; color: #333; }
 
-        /* প্রোডাক্ট সেকশন */
+        .announcement { background-color: #d0e7e5; text-align: center; padding: 10px 15px; font-size: 12px; font-weight: bold; color: #2c5e5a; letter-spacing: 0.5px; line-height: 1.4; }
+
         .container { max-width: 1200px; margin: 25px auto; padding: 0 15px; }
-        .section-title { background: #d2a679; color: #fff; padding: 10px 18px; font-size: 15px; font-weight: 700; text-transform: uppercase; border-radius: 4px; margin-bottom: 20px; display: inline-block; }
+        .section-title { background-color: #d2a679; color: #fff; padding: 10px 15px; font-size: 15px; font-weight: bold; text-transform: uppercase; margin-bottom: 25px; display: inline-block; border-radius: 4px; }
 
-        /* সুন্দর ও সাইজ-নিয়ন্ত্রিত গ্রিড */
+        /* প্রোডাক্ট গ্রিড ফিক্সড রেসপন্সিভ সাইজ */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-
-        .product-card { background: #fff; border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .product-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; position: relative; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
         .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 
-        .img-box { width: 100%; height: 220px; background: #fafafa; overflow: hidden; position: relative; }
-        .img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .product-card:hover .img-box img { transform: scale(1.05); }
+        .wishlist-icon { position: absolute; top: 12px; right: 12px; color: #888; cursor: pointer; z-index: 2; font-size: 18px; transition: color 0.3s, transform 0.2s; background: rgba(255, 255, 255, 0.9); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .wishlist-icon:hover { transform: scale(1.15); }
+        .wishlist-icon.active { color: #e60023; }
 
-        .p-details { padding: 12px; text-align: center; }
-        .p-title { font-size: 15px; font-weight: 600; color: #222; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-        .p-price { font-size: 16px; font-weight: 700; color: #d2a679; }
+        .img-box-grid { width: 100%; height: 220px; overflow: hidden; background: #fafafa; cursor: pointer; }
+        .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+        .product-card:hover .img-box-grid img { transform: scale(1.05); }
 
-        .p-actions { display: flex; border-top: 1px solid #eee; }
-        .btn-buy { flex: 1; background: #333; color: #fff; border: none; padding: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; text-transform: uppercase; }
-        .btn-buy:hover { background: #111; }
-        .btn-view { flex: 1; background: #d2a679; color: #fff; border: none; padding: 10px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s; text-transform: uppercase; }
-        .btn-view:hover { background: #b88a5d; }
+        .product-info { padding: 12px; text-align: center; }
+        .product-info h3 { font-size: 14px; color: #333; margin-bottom: 6px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+        .product-price-tag { font-size: 16px; font-weight: 700; color: #d2a679; margin-bottom: 8px; }
 
-        /* ফুটার */
-        footer { background: #111; color: #aaa; text-align: center; padding: 20px 15px; font-size: 13px; margin-top: 40px; }
+        .button-group { display: flex; border-top: 1px solid #eee; }
+        .btn-buy { background-color: #333; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 11px; cursor: pointer; transition: background 0.3s; text-transform: uppercase; }
+        .btn-view { background-color: #d2a679; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 11px; cursor: pointer; transition: background 0.3s; text-transform: uppercase; }
+        .btn-buy:hover { background-color: #111; }
+        .btn-view:hover { background-color: #b88a5d; }
 
-        /* মোবাইল ফ্রেন্ডলি মোবাইল রেসপন্সিভ স্টাইল */
-        @media (max-width: 768px) {
-            .main-header { flex-direction: column; text-align: center; gap: 10px; }
-            .ticker-wrap { max-width: 100%; margin: 5px 0; }
+        /* মোডাল স্টাইল */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 10px; right: 12px; font-size: 20px; cursor: pointer; color: #fff; background-color: #ff3b30; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+
+        .wishlist-item { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .wishlist-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .wishlist-item-info { flex-grow: 1; text-align: left; }
+        .wishlist-item-info h4 { font-size: 13px; color: #333; margin-bottom: 4px; }
+        .wishlist-item-info span { font-size: 13px; font-weight: bold; color: #d2a679; }
+        .wishlist-actions { display: flex; flex-direction: column; gap: 5px; }
+        .btn-wishlist-buy { background-color: #333; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
+        .btn-wishlist-remove { background-color: #ff3b30; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
+
+        .details-box { text-align: center; }
+        .img-zoom-container { overflow: hidden; border-radius: 6px; margin-bottom: 15px; position: relative; cursor: zoom-in; background: #f0f0f0; }
+        .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; transition: transform 0.4s ease; display: block; }
+        .img-zoom-container:hover img { transform: scale(1.3); }
+        .zoom-hint { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none; }
+        .details-box h2 { font-size: 18px; margin-bottom: 8px; color: #222; }
+        .details-price { font-size: 20px; font-weight: bold; color: #d2a679; margin-bottom: 15px; }
+        .details-desc { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; border: 1px solid #eee; white-space: pre-line; }
+
+        .full-img-modal .modal-content { background: transparent; padding: 0; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; box-shadow: none; }
+        .full-img-modal img { max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+        .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
+        .btn-submit { background-color: #25D366; color: #fff; border: none; padding: 12px; width: 100%; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        footer { background-color: #111; color: #fff; padding: 25px 5%; margin-top: 50px; text-align: center; }
+        footer p { font-size: 13px; color: #aaa; margin-bottom: 8px; }
+
+        @media (max-width: 480px) {
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .img-box { height: 170px; }
-            .p-title { font-size: 13px; }
-            .p-price { font-size: 14px; }
-            .p-actions { flex-direction: column; }
-            .btn-buy, .btn-view { padding: 8px; font-size: 11px; }
+            .img-box-grid { height: 160px; }
+            .product-info h3 { font-size: 13px; }
+            .product-price-tag { font-size: 14px; }
+            .button-group { flex-direction: column; }
+            .btn-buy, .btn-view { width: 100%; padding: 8px 0; }
         }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-    <!-- টপ বার -->
     <div class="top-bar">
-        <div><i class="fa-solid fa-envelope"></i> Contact Us</div>
-        <div>
-            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope"></i> mdhayfajothussain38@gmail.com</a>
-            <a href="tel:+8801732274010"><i class="fa-solid fa-phone"></i> +8801732274010</a>
-            <a href="https://wa.me/8801747425457"><i class="fa-brands fa-whatsapp"></i> +8801747425457</a>
+        <div class="top-bar-left">
+            <a href="#contact"><i class="fa-solid fa-envelope icon-contact"></i> Contact Us</a>
+        </div>
+        <div class="top-bar-right">
+            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope icon-email"></i> mdhayfajothussain38@gmail.com</a>
+            <a href="tel:+8801732274010"><i class="fa-solid fa-phone icon-phone"></i> +8801732274010</a>
+            <a href="https://wa.me/8801747425457" target="_blank"><i class="fa-brands fa-whatsapp icon-whatsapp"></i> +8801747425457</a>
         </div>
     </div>
 
-    <!-- মোেইন হেডার -->
-    <header class="main-header">
-        <!-- স্টাইলিশ টেক্সট লোগো -->
+    <header>
         <a href="index.html" class="logo">
             Need<span>Jp</span>
         </a>
-
-        <!-- স্লাইডিং সুন্দর মার্কি নোটিশ -->
-        <div class="ticker-wrap">
-            <div class="ticker-text">
-                ✨ সারা দেশে ক্যাশ অন ডেলিভারি সুবিধা — যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন ✨
-            </div>
+        
+        <div class="scrolling-text-box">
+            <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
+                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা • যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন ✨
+            </marquee>
         </div>
 
         <div class="header-icons">
-            <a href="https://facebook.com" style="color:#333;"><i class="fa-brands fa-facebook"></i></a>
-            <div class="cart-icon">
-                <i class="fa-solid fa-heart"></i>
-                <span class="cart-count">0</span>
-            </div>
-            <div class="cart-icon">
-                <i class="fa-solid fa-bag-shopping"></i>
-            </div>
+            <a href="https://www.facebook.com/Need.Jp.To.China" target="_blank" title="Facebook Page"><i class="fa-brands fa-facebook icon-facebook"></i></a>
+            <a href="javascript:void(0)" onclick="openWishlistModal()" title="Wishlist">
+                <i class="fa-solid fa-heart icon-heart-header"></i>
+                <span class="badge" id="wishlistCount">0</span>
+            </a>
+            <a href="#" title="Cart"><i class="fa-solid fa-bag-shopping icon-cart"></i></a>
         </div>
     </header>
 
-    <!-- নেভিগেশন -->
-    <nav class="nav-bar">
-        <ul class="nav-links">
-            <li><a href="index.html">HOME</a></li>
-            <li><a href="#">FEATURES</a></li>
-        </ul>
-        <div><i class="fa-solid fa-magnifying-glass" style="cursor: pointer;"></i></div>
+    <nav>
+        <div class="nav-links">
+            <a href="index.html">HOME</a>
+            <a href="#">FEATURES</a>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="প্রোডাক্ট খুঁজুন..." onkeyup="filterProducts()">
+            <i class="fa-solid fa-magnifying-glass search-btn" onclick="toggleSearch()"></i>
+        </div>
     </nav>
 
-    <!-- অ্যানাউন্সমেন্ট -->
     <div class="announcement">
         DELIVERY IN JOYPURHAT SODOR • SUMMER LOOK FLASH SALE 70% OFF • 20% OFF EVERYTHING FOR WOMAN
     </div>
 
-    <!-- প্রোডাক্ট লিস্ট -->
     <div class="container">
         <div class="section-title">LATEST PRODUCTS</div>
-        <div id="productGrid" class="product-grid">
-            <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 30px;">প্রোডাক্ট লোড হচ্ছে...</p>
+        <div class="product-grid" id="productGrid">
+            <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
     </div>
 
-    <!-- ফুটার -->
-    <footer>
-        Contact Us: mdhayfajothussain38@gmail.com | Phone: +8801732274010<br>
-        &copy; 2026 NeedJp. All Rights Reserved.
+    <!-- Modals -->
+    <div id="wishlistModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeWishlistModal()">&times;</span>
+            <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center; color: #333;"><i class="fa-solid fa-heart" style="color: #e60023;"></i> আপনার পছন্দনীয় প্রোডাক্টস (Wishlist)</h2>
+            <div id="wishlistContainer"></div>
+        </div>
+    </div>
+
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeDetails()">&times;</span>
+            <div class="details-box">
+                <div class="img-zoom-container" onclick="openFullImage()">
+                    <img id="dImg" src="" alt="Product Large Image">
+                    <span class="zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> জুম করতে বা বড় করে দেখতে ক্লিক করুন</span>
+                </div>
+                <h2 id="dTitle"></h2>
+                <div id="dPrice" class="details-price"></div>
+                <div id="dDesc" class="details-desc"></div>
+                <button class="btn-submit" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp icon-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullImgModal" class="modal full-img-modal" onclick="closeFullImage()">
+        <span class="close-btn" onclick="closeFullImage()">&times;</span>
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="fullImgSrc" src="" alt="Full Screen Product Image">
+        </div>
+    </div>
+
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeCheckout()">&times;</span>
+            <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center;">অর্ডার ফর্ম</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>প্রোডাক্টের নাম:</label>
+                    <input type="text" id="pName" readonly style="background-color: #f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>মূল্য (টাকা):</label>
+                    <input type="text" id="pPrice" readonly style="background-color: #f0f0f0;">
+                </div>
+                <div class="form-group">
+                    <label>আপনার নাম *</label>
+                    <input type="text" id="cName" required placeholder="আপনার পুরো নাম">
+                </div>
+                <div class="form-group">
+                    <label>মোবাইল নম্বর *</label>
+                    <input type="tel" id="cPhone" required placeholder="017XXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label>পূর্ণাঙ্গ ঠিকানা *</label>
+                    <textarea id="cAddress" rows="2" required placeholder="জেলা, থানা, এলাকা/গ্রাম"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>পেমেন্ট মাধ্যম</label>
+                    <select id="pMethod" onchange="togglePaymentFields()">
+                        <option value="Cash on Delivery">Cash on Delivery</option>
+                        <option value="bKash (Personal)">bKash (Personal)</option>
+                        <option value="Nagad (Personal)">Nagad (Personal)</option>
+                    </select>
+                </div>
+                <div id="paymentDetailsSection" style="display: none;">
+                    <div class="payment-info-box" id="paymentNotice"></div>
+                    <div class="form-group">
+                        <label id="trxLabel">ট্রানজেকশন আইডি (TrxID) *</label>
+                        <input type="text" id="cTrxID" placeholder="যেমন: 9J38X4L0">
+                    </div>
+                </div>
+                <button type="button" class="btn-submit" onclick="sendOrder()"><i class="fa-brands fa-whatsapp icon-whatsapp"></i> অর্ডার নিশ্চিত করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <footer id="contact">
+        <p>Contact Us: mdhayfajothussain38@gmail.com | Phone: +8801732274010</p>
+        <p>&copy; 2026 NeedJp. All Rights Reserved.</p>
     </footer>
 
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
-      authDomain: "needjp-store.firebaseapp.com",
-      projectId: "needjp-store",
-      storageBucket: "needjp-store.firebasestorage.app",
-      messagingSenderId: "1876371529444",
-      appId: "1:1876371529444:web:9ab84f1af05e79b04756f1",
-      measurementId: "G-DJY5MQCEGP"
-    };
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
+          authDomain: "needjp-store.firebaseapp.com",
+          projectId: "needjp-store",
+          storageBucket: "needjp-store.firebasestorage.app",
+          messagingSenderId: "1876371529444",
+          appId: "1:1876371529444:web:9ab84f1af05e79b04756f1",
+          measurementId: "G-DJY5MQCEGP"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-    function loadProducts() {
-        const grid = document.getElementById('productGrid');
-        
-        db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-            grid.innerHTML = '';
-            
-            if (snapshot.empty) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 30px;">এখনো কোনো প্রোডাক্ট আপলোড করা হয়নি।</p>';
-                return;
-            }
+        let selectedProduct = '';
+        let selectedPrice = 0;
+        let currentImgSrc = '';
+        let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
-            snapshot.forEach(doc => {
-                const p = doc.data();
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.innerHTML = `
-                    <div class="img-box">
-                        <img src="${p.image}" alt="${p.title}">
-                    </div>
-                    <div class="p-details">
-                        <div class="p-title">${p.title}</div>
-                        <div class="p-price">৳${p.price}</div>
-                    </div>
-                    <div class="p-actions">
-                        <button class="btn-buy" onclick="alert('অর্ডার করতে যোগাযোগ করুন: +8801732274010')">BUY NOW</button>
-                        <button class="btn-view" onclick="alert('${p.description.replace(/'/g, "\\'")}')">VIEW DETAILS</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }, error => {
-            console.error("Error loading products: ", error);
-            grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: red;">প্রোডাক্ট লোড করতে সমস্যা হয়েছে।</p>';
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProductsFromFirebase();
+            updateWishlistUI();
         });
-    }
 
-    loadProducts();
-</script>
+        function loadProductsFromFirebase() {
+            const grid = document.getElementById('productGrid');
+            
+            db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                grid.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">এখনো কোনো প্রোডাক্ট আপলোড করা হয়নি। অ্যাডমিন প্যানেল থেকে যোগ করুন!</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    const id = doc.id;
+
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.setAttribute('data-id', id);
+
+                    const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+
+                    card.innerHTML = `
+                        <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
+                            <i class="fa-regular fa-heart"></i>
+                        </div>
+                        <div class="img-box-grid" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">
+                            <img src="${p.image}" alt="${p.title}">
+                        </div>
+                        <div class="product-info">
+                            <h3 onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
+                            <div class="product-price-tag">৳${p.price}</div>
+                        </div>
+                        <div class="button-group">
+                            <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})">BUY NOW</button>
+                            <button class="btn-view" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">VIEW DETAILS</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                updateWishlistUI();
+            });
+        }
+
+        function toggleWishlist(id, name, price, img, element) {
+            let index = wishlist.findIndex(item => item.id === id);
+            if (index === -1) {
+                wishlist.push({ id, name, price, img });
+            } else {
+                wishlist.splice(index, 1);
+            }
+            localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
+            updateWishlistUI();
+        }
+
+        function updateWishlistUI() {
+            document.getElementById('wishlistCount').innerText = wishlist.length;
+            let cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                let id = card.getAttribute('data-id');
+                let iconBox = card.querySelector('.wishlist-icon');
+                if(iconBox) {
+                    let icon = iconBox.querySelector('i');
+                    let isFav = wishlist.some(item => item.id === id);
+                    if (isFav) {
+                        iconBox.classList.add('active');
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                    } else {
+                        iconBox.classList.remove('active');
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                    }
+                }
+            });
+        }
+
+        function openWishlistModal() {
+            let container = document.getElementById('wishlistContainer');
+            container.innerHTML = '';
+            if (wishlist.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#777; padding:20px 0;">আপনার উইশলিস্ট খালি।</p>';
+            } else {
+                wishlist.forEach(item => {
+                    let div = document.createElement('div');
+                    div.className = 'wishlist-item';
+                    div.innerHTML = `
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="wishlist-item-info">
+                            <h4>${item.name}</h4>
+                            <span>৳${item.price}</span>
+                        </div>
+                        <div class="wishlist-actions">
+                            <button class="btn-wishlist-buy" onclick="buyFromWishlist('${item.name}', ${item.price})">অর্ডার করুন</button>
+                            <button class="btn-wishlist-remove" onclick="removeFromWishlist('${item.id}')">মুছে ফেলুন</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            document.getElementById('wishlistModal').style.display = 'flex';
+        }
+
+        function closeWishlistModal() { document.getElementById('wishlistModal').style.display = 'none'; }
+        function removeFromWishlist(id) { wishlist = wishlist.filter(item => item.id !== id); localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist)); updateWishlistUI(); openWishlistModal(); }
+        function buyFromWishlist(name, price) { closeWishlistModal(); openCheckout(name, price); }
+
+        function toggleSearch() { const input = document.getElementById('searchInput'); input.classList.toggle('active'); if(input.classList.contains('active')) input.focus(); }
+        function filterProducts() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('product-card');
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+                cards[i].style.display = title.includes(input) ? "" : "none";
+            }
+        }
+
+        function openDetails(name, price, imgSrc, description) {
+            selectedProduct = name;
+            selectedPrice = price;
+            currentImgSrc = imgSrc;
+            document.getElementById('dTitle').innerText = name;
+            document.getElementById('dPrice').innerText = '৳' + price;
+            document.getElementById('dImg').src = imgSrc;
+            document.getElementById('dDesc').innerText = description || 'কোনো বিবরণ দেওয়া হয়নি।';
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+
+        function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
+        function openFullImage() { document.getElementById('fullImgSrc').src = currentImgSrc; document.getElementById('fullImgModal').style.display = 'flex'; }
+        function closeFullImage() { document.getElementById('fullImgModal').style.display = 'none'; }
+        function buyFromDetails() { closeDetails(); openCheckout(selectedProduct, selectedPrice); }
+
+        function openCheckout(name, price) {
+            selectedProduct = name;
+            selectedPrice = price;
+            document.getElementById('pName').value = name;
+            document.getElementById('pPrice').value = price + ' BDT';
+            document.getElementById('pMethod').value = 'Cash on Delivery';
+            togglePaymentFields();
+            document.getElementById('checkoutModal').style.display = 'flex';
+        }
+
+        function closeCheckout() { document.getElementById('checkoutModal').style.display = 'none'; }
+
+        function togglePaymentFields() {
+            let method = document.getElementById('pMethod').value;
+            let section = document.getElementById('paymentDetailsSection');
+            let notice = document.getElementById('paymentNotice');
+            if (method === 'bKash (Personal)') {
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> বিকাশ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
+            } else if (method === 'Nagad (Personal)') {
+                section.style.display = 'block';
+                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> নগদ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
+            } else {
+                section.style.display = 'none';
+                document.getElementById('cTrxID').value = '';
+            }
+        }
+
+        function sendOrder() {
+            let name = document.getElementById('cName').value;
+            let phone = document.getElementById('cPhone').value;
+            let address = document.getElementById('cAddress').value;
+            let method = document.getElementById('pMethod').value;
+            let trxID = document.getElementById('cTrxID').value;
+
+            if(!name || !phone || !address) { alert('সব তথ্য পূরণ করুন।'); return; }
+            if((method === 'bKash (Personal)' || method === 'Nagad (Personal)') && !trxID) { alert('TrxID প্রদান করুন।'); return; }
+
+            let message = `*নতুন অর্ডার - NEED JP*\n*প্রোডাক্ট:* ${selectedProduct}\n*মূল্য:* ৳${selectedPrice}\n*গ্রাহক:* ${name}\n*ফোন:* ${phone}\n*ঠিকানা:* ${address}\n*পেমেন্ট:* ${method}` + (trxID ? `\n*TrxID:* ${trxID}` : '');
+            window.open(`https://wa.me/8801747425457?text=${encodeURIComponent(message)}`, '_blank');
+        }
+    </script>
 </body>
 </html>
