@@ -4,60 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeedJp - Online Shopping</title>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f5f5f5; color: #333; }
+        a { text-decoration: none; color: inherit; }
 
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
+        .top-bar { background-color: #111; color: #fff; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-wrap: wrap; gap: 8px; }
+        .top-bar-left, .top-bar-right { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .top-bar-right a, .top-bar-left a { color: #ddd; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .top-bar-right a:hover, .top-bar-left a:hover { color: #d2a679; }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* Top Bar Dynamic Responsive Styling */
-        .top-bar {
-            background-color: #111;
-            color: #fff;
-            padding: 10px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .top-bar-left, .top-bar-right {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .top-bar-right a, .top-bar-left a {
-            color: #ddd;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-        }
-
-        .top-bar-right a:hover, .top-bar-left a:hover {
-            color: #d2a679;
-        }
-
-        /* আইকন কালার স্টাইলিং */
         .icon-contact { color: #e6ccb2; }
         .icon-email { color: #EA4335; }
         .icon-phone { color: #34B7F1; }
@@ -67,551 +29,94 @@
         .icon-cart { color: #d2a679; }
 
         @media (max-width: 768px) {
-            .top-bar {
-                flex-direction: column;
-                text-align: center;
-                padding: 8px 10px;
-                gap: 6px;
-            }
-
-            .top-bar-left, .top-bar-right {
-                justify-content: center;
-                width: 100%;
-                gap: 8px;
-            }
-
-            .top-bar-right {
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .top-bar-right a, .top-bar-left a {
-                font-size: 11px;
-            }
+            .top-bar { flex-direction: column; text-align: center; padding: 8px 10px; gap: 6px; }
+            .top-bar-left, .top-bar-right { justify-content: center; width: 100%; gap: 8px; }
+            .top-bar-right { flex-direction: column; gap: 4px; }
+            .top-bar-right a, .top-bar-left a { font-size: 11px; }
         }
 
-        /* Header */
-        header {
-            background-color: #fff;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            gap: 20px;
-        }
+        header { background-color: #fff; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; gap: 15px; }
+        .logo-box { display: flex; align-items: center; flex-shrink: 0; }
+        .site-logo { height: 48px; width: auto; object-fit: contain; display: block; }
 
-        .logo-box {
-            background-color: #e6ccb2;
-            padding: 8px 20px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
+        .scrolling-text-box { flex-grow: 1; overflow: hidden; background: #fff8f0; border: 1px solid #e6ccb2; border-radius: 20px; padding: 6px 15px; display: flex; align-items: center; max-width: 650px; margin: 0 10px; box-shadow: inset 0 0 5px rgba(0,0,0,0.03); }
+        .scrolling-text-box marquee { font-size: 14px; font-weight: 600; color: #2c5e5a; }
+        .scrolling-text-box marquee span { color: #e60023; font-weight: bold; }
 
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #000;
-        }
+        .header-icons { display: flex; gap: 18px; font-size: 20px; align-items: center; flex-shrink: 0; }
+        .header-icons a { transition: transform 0.2s; position: relative; }
+        .header-icons a:hover { transform: scale(1.15); }
 
-        /* চলন্ত টেক্সট/মার্কি কন্টেইনার স্টাইলিং */
-        .scrolling-text-box {
-            flex-grow: 1;
-            overflow: hidden;
-            background: #fff8f0;
-            border: 1px solid #e6ccb2;
-            border-radius: 20px;
-            padding: 6px 15px;
-            display: flex;
-            align-items: center;
-            max-width: 650px;
-            margin: 0 15px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.03);
-        }
+        .badge { position: absolute; top: -8px; right: -10px; background-color: #e60023; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; border: 2px solid #fff; }
 
-        .scrolling-text-box marquee {
-            font-size: 14px;
-            font-weight: 600;
-            color: #2c5e5a;
-        }
+        nav { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: relative; }
+        .nav-links a { margin-right: 20px; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #444; }
+        .nav-links a:hover { color: #d2a679; }
 
-        .scrolling-text-box marquee span {
-            color: #e60023;
-            font-weight: bold;
-        }
+        .search-container { display: flex; align-items: center; position: relative; }
+        .search-input { padding: 6px 12px; border: 1px solid #ccc; border-radius: 20px; font-size: 13px; outline: none; width: 0; opacity: 0; transition: width 0.4s ease, opacity 0.4s ease; }
+        .search-input.active { width: 160px; opacity: 1; margin-right: 8px; }
+        .search-btn { cursor: pointer; font-size: 16px; color: #333; }
 
-        .header-icons {
-            display: flex;
-            gap: 18px;
-            font-size: 20px;
-            align-items: center;
-            flex-shrink: 0;
-        }
+        .announcement { background-color: #d0e7e5; text-align: center; padding: 10px 15px; font-size: 12px; font-weight: bold; color: #2c5e5a; letter-spacing: 0.5px; line-height: 1.4; }
 
-        .header-icons a {
-            transition: transform 0.2s;
-            position: relative;
-        }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .section-title { background-color: #d2a679; color: #fff; padding: 10px 15px; font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 25px; }
 
-        .header-icons a:hover {
-            transform: scale(1.15);
-        }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; min-height: 200px; }
+        .product-card { background: #fff; border: 1px solid #e0e0e0; padding: 15px; text-align: center; position: relative; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        /* ফেভারিট কাউন্টার ব্যাজ স্টাইল */
-        .badge {
-            position: absolute;
-            top: -8px;
-            right: -10px;
-            background-color: #e60023;
-            color: white;
-            font-size: 11px;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-        }
+        .wishlist-icon { position: absolute; top: 15px; right: 15px; color: #888; cursor: pointer; z-index: 2; font-size: 20px; transition: color 0.3s, transform 0.2s; background: rgba(255, 255, 255, 0.9); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+        .wishlist-icon:hover { transform: scale(1.15); }
+        .wishlist-icon.active { color: #e60023; }
 
-        /* Navigation & Search Bar */
-        nav {
-            background-color: #fff;
-            padding: 12px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            position: relative;
-        }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; margin-bottom: 15px; cursor: pointer; }
+        .product-card h3 { font-size: 14px; color: #333; margin-bottom: 15px; min-height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        .nav-links a {
-            margin-right: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            color: #444;
-        }
+        .button-group { display: flex; gap: 5px; }
+        .btn-buy { background-color: #333; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 12px; cursor: pointer; transition: background 0.3s; }
+        .btn-view { background-color: #d2a679; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 12px; cursor: pointer; transition: background 0.3s; }
+        .btn-buy:hover { background-color: #d2a679; }
+        .btn-view:hover { background-color: #333; }
 
-        .nav-links a:hover {
-            color: #d2a679;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 10000; }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 10px; right: 12px; font-size: 22px; cursor: pointer; color: #fff; background-color: #ff3b30; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
-        .search-container {
-            display: flex;
-            align-items: center;
-            position: relative;
-        }
+        .wishlist-item { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .wishlist-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .wishlist-item-info { flex-grow: 1; text-align: left; }
+        .wishlist-item-info h4 { font-size: 13px; color: #333; margin-bottom: 4px; }
+        .wishlist-item-info span { font-size: 13px; font-weight: bold; color: #d2a679; }
+        .wishlist-actions { display: flex; flex-direction: column; gap: 5px; }
+        .btn-wishlist-buy { background-color: #333; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
+        .btn-wishlist-remove { background-color: #ff3b30; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
 
-        .search-input {
-            padding: 6px 12px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            font-size: 13px;
-            outline: none;
-            width: 0;
-            opacity: 0;
-            transition: width 0.4s ease, opacity 0.4s ease;
-        }
+        .details-box { text-align: center; }
+        .img-zoom-container { overflow: hidden; border-radius: 6px; margin-bottom: 15px; position: relative; cursor: zoom-in; background: #eee; }
+        .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; transition: transform 0.4s ease; display: block; }
+        .img-zoom-container:hover img { transform: scale(1.3); }
+        .zoom-hint { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none; }
+        .details-box h2 { font-size: 18px; margin-bottom: 10px; color: #222; }
+        .details-price { font-size: 20px; font-weight: bold; color: #d2a679; margin-bottom: 15px; }
+        .details-desc { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; border: 1px solid #eee; white-space: pre-line; }
 
-        .search-input.active {
-            width: 160px;
-            opacity: 1;
-            margin-right: 8px;
-        }
+        .full-img-modal .modal-content { background: transparent; padding: 0; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; box-shadow: none; }
+        .full-img-modal img { max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
 
-        .search-btn {
-            cursor: pointer;
-            font-size: 16px;
-            color: #333;
-        }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
+        .btn-submit { background-color: #25D366; color: #fff; border: none; padding: 12px; width: 100%; font-weight: bold; font-size: 16px; border-radius: 4px; cursor: pointer; }
 
-        /* Announcement Bar */
-        .announcement {
-            background-color: #d0e7e5;
-            text-align: center;
-            padding: 10px 15px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #2c5e5a;
-            letter-spacing: 0.5px;
-            line-height: 1.4;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .section-title {
-            background-color: #d2a679;
-            color: #fff;
-            padding: 10px 15px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 25px;
-        }
-
-        /* Product Grid */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .product-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            padding: 15px;
-            text-align: center;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        /* উইশলিস্ট লাভ আইকন স্টাইলিং */
-        .wishlist-icon {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #888;
-            cursor: pointer;
-            z-index: 2;
-            font-size: 20px;
-            transition: color 0.3s, transform 0.2s;
-            background: rgba(255, 255, 255, 0.9);
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        }
-
-        .wishlist-icon:hover {
-            transform: scale(1.15);
-        }
-
-        .wishlist-icon.active {
-            color: #e60023;
-        }
-
-        .product-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            margin-bottom: 15px;
-            cursor: pointer;
-        }
-
-        .product-card h3 {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 15px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-buy {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            padding: 10px 0;
-            width: 50%;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-view {
-            background-color: #d2a679;
-            color: #fff;
-            border: none;
-            padding: 10px 0;
-            width: 50%;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-buy:hover {
-            background-color: #d2a679;
-        }
-
-        .btn-view:hover {
-            background-color: #333;
-        }
-
-        /* Modals Common Styling */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.75);
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 12px;
-            font-size: 22px;
-            cursor: pointer;
-            color: #fff;
-            background-color: #ff3b30;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .close-btn:hover {
-            background-color: #d62d20;
-            transform: scale(1.1);
-        }
-
-        /* Wishlist Item List Inside Modal */
-        .wishlist-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-
-        .wishlist-item img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-
-        .wishlist-item-info {
-            flex-grow: 1;
-            text-align: left;
-        }
-
-        .wishlist-item-info h4 {
-            font-size: 13px;
-            color: #333;
-            margin-bottom: 4px;
-        }
-
-        .wishlist-item-info span {
-            font-size: 13px;
-            font-weight: bold;
-            color: #d2a679;
-        }
-
-        .wishlist-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .btn-wishlist-buy {
-            background-color: #333;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            font-size: 11px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .btn-wishlist-remove {
-            background-color: #ff3b30;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            font-size: 11px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        /* Details Popup Styling */
-        .details-box {
-            text-align: center;
-        }
-
-        .img-zoom-container {
-            overflow: hidden;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            position: relative;
-            cursor: zoom-in;
-            background: #eee;
-        }
-
-        .img-zoom-container img {
-            width: 100%;
-            max-height: 280px;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-            display: block;
-        }
-
-        .img-zoom-container:hover img {
-            transform: scale(1.3);
-        }
-
-        .zoom-hint {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            pointer-events: none;
-        }
-
-        .details-box h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #222;
-        }
-
-        .details-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #d2a679;
-            margin-bottom: 15px;
-        }
-
-        .details-desc {
-            text-align: left;
-            background: #f9f9f9;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            line-height: 1.6;
-            color: #555;
-            margin-bottom: 20px;
-            border: 1px solid #eee;
-            white-space: pre-line;
-        }
-
-        /* Full Screen Image Viewer */
-        .full-img-modal .modal-content {
-            background: transparent;
-            padding: 0;
-            max-width: 90vw;
-            max-height: 90vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: none;
-        }
-
-        .full-img-modal img {
-            max-width: 100%;
-            max-height: 85vh;
-            border-radius: 8px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.5);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        .payment-info-box {
-            background-color: #fff8e1;
-            border: 1px solid #ffe082;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #5d4037;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .btn-submit {
-            background-color: #25D366;
-            color: #fff;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            font-weight: bold;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* Footer */
-        footer {
-            background-color: #111;
-            color: #fff;
-            padding: 30px 5%;
-            margin-top: 50px;
-            text-align: center;
-        }
-
-        footer p {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 10px;
-        }
+        footer { background-color: #111; color: #fff; padding: 30px 5%; margin-top: 50px; text-align: center; }
+        footer p { font-size: 14px; color: #aaa; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
             <a href="#contact"><i class="fa-solid fa-envelope icon-contact"></i> Contact Us</a>
@@ -623,35 +128,25 @@
         </div>
     </div>
 
-    <!-- Header -->
     <header>
-        <a href="index.html">
-            <div class="logo-box">
-                <div class="logo">NeedJp</div>
-            </div>
+        <a href="index.html" class="logo-box">
+            <img src="logo.jpg" alt="NeedJp Logo" class="site-logo">
         </a>
-
-        <!-- আপনার চিহ্নিত জায়গায় চলন্ত টেক্সট/মার্কি -->
         <div class="scrolling-text-box">
             <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
                 ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা • যেকোনো প্রয়োজনে সরাসরি যোগাযোগ করুন ✨
             </marquee>
         </div>
-
         <div class="header-icons">
             <a href="https://www.facebook.com/Need.Jp.To.China" target="_blank" title="Facebook Page"><i class="fa-brands fa-facebook icon-facebook"></i></a>
-            
-            <!-- ফেভারিট আইকন উইথ কাউন্টার ব্যাজ -->
             <a href="javascript:void(0)" onclick="openWishlistModal()" title="Wishlist">
                 <i class="fa-solid fa-heart icon-heart-header"></i>
                 <span class="badge" id="wishlistCount">0</span>
             </a>
-            
             <a href="#" title="Cart"><i class="fa-solid fa-bag-shopping icon-cart"></i></a>
         </div>
     </header>
 
-    <!-- Navigation -->
     <nav>
         <div class="nav-links">
             <a href="index.html">HOME</a>
@@ -663,96 +158,26 @@
         </div>
     </nav>
 
-    <!-- Announcement Bar -->
     <div class="announcement">
         DELIVERY IN JOYPURHAT SODOR • SUMMER LOOK FLASH SALE 70% OFF • 20% OFF EVERYTHING FOR WOMAN
     </div>
 
-    <!-- Main Content Container -->
     <div class="container">
         <div class="section-title">LATEST PRODUCTS</div>
-        
         <div class="product-grid" id="productGrid">
-            
-            <!-- প্রোডাক্ট ১ -->
-            <div class="product-card" data-id="p1">
-                <div class="wishlist-icon" onclick="toggleWishlist('p1', 'সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', this)">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-                <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg" alt="Product" 
-                     onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">
-                <h3 onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">
-                    সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার
-                </h3>
-                <div class="button-group">
-                    <button class="btn-buy" onclick="openCheckout('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999)">BUY NOW - ৳999</button>
-                    <button class="btn-view" onclick="openDetails('সেজ প্রিজম জিওমেট্রিক টোট সফট সেজ গ্রিন টেক্সচার্ড লেদার', 999, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%201.jpg', '• মেটেরিয়াল: প্রিমিয়াম টেক্সচার্ড পিইউ লেদার\n• কালার: সফট সেজ গ্রিন\n• ডিজাইন: জিওমেট্রিক স্টিচিং উইথ গোল্ড-টোন হার্ডওয়্যার\n• পকেট: প্রধান জিপার চেম্বার ও ইনার পকেট\n• ব্যবহার: টোট হ্যান্ডেল এবং অ্যাডজাস্টেবল শোল্ডার স্ট্র্যাপ')">VIEW DETAILS</button>
-                </div>
-            </div>
-
-            <!-- প্রোডাক্ট ২ -->
-            <div class="product-card" data-id="p2">
-                <div class="wishlist-icon" onclick="toggleWishlist('p2', 'Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', this)">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-                <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg" alt="Product" 
-                     onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">
-                <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">
-                    Exclusive Imported Chinese Ladies Shoulder Bag - Model 2
-                </h3>
-                <div class="button-group">
-                    <button class="btn-buy" onclick="openCheckout('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250)">BUY NOW - ৳1250</button>
-                    <button class="btn-view" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 2', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%202.jpg', '• মেটেরিয়াল: ইমপোর্টেড লেদার\n• প্রিমিয়াম কোয়ালিটি চেইন ও হার্ডওয়্যার\n• লং লাস্টিং কালার ও ফিনিশিং')">VIEW DETAILS</button>
-                </div>
-            </div>
-
-            <!-- প্রোডাক্ট ৩ -->
-            <div class="product-card" data-id="p3">
-                <div class="wishlist-icon" onclick="toggleWishlist('p3', 'Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', this)">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-                <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg" alt="Product" 
-                     onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">
-                <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">
-                    Exclusive Imported Chinese Ladies Shoulder Bag - Model 3
-                </h3>
-                <div class="button-group">
-                    <button class="btn-buy" onclick="openCheckout('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250)">BUY NOW - ৳1250</button>
-                    <button class="btn-view" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 3', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%203.jpg', '• মেটেরিয়াল: হাই কোয়ালিটি পিইউ লেদার\n• বেশ কয়েকটি পকেট ও জিপার\n• ক্যাজুয়াল ও পার্টি দুই কাজের উপযোগী')">VIEW DETAILS</button>
-                </div>
-            </div>
-
-            <!-- প্রোডাক্ট ৪ -->
-            <div class="product-card" data-id="p4">
-                <div class="wishlist-icon" onclick="toggleWishlist('p4', 'Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', this)">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-                <img src="https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg" alt="Product" 
-                     onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">
-                <h3 onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">
-                    Exclusive Imported Chinese Ladies Shoulder Bag - Model 4
-                </h3>
-                <div class="button-group">
-                    <button class="btn-buy" onclick="openCheckout('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250)">BUY NOW - ৳1250</button>
-                    <button class="btn-view" onclick="openDetails('Exclusive Imported Chinese Ladies Shoulder Bag - Model 4', 1250, 'https://raw.githubusercontent.com/hayfajot1/need-jp/main/boro%20bag%204.jpg', '• আকর্ষণীয় কালার ও এলিগ্যান্ট লুক\n• মজবুত সেলাই ও স্মুথ জিপার')">VIEW DETAILS</button>
-                </div>
-            </div>
-
+            <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
     </div>
 
-    <!-- Wishlist / Favorites Modal -->
+    <!-- Modals -->
     <div id="wishlistModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeWishlistModal()">&times;</span>
             <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center; color: #333;"><i class="fa-solid fa-heart" style="color: #e60023;"></i> আপনার পছন্দনীয় প্রোডাক্টস (Wishlist)</h2>
-            <div id="wishlistContainer">
-                <!-- উইশলিস্ট আইটেম দেখাবে -->
-            </div>
+            <div id="wishlistContainer"></div>
         </div>
     </div>
 
-    <!-- Product Details Popup -->
     <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
@@ -769,7 +194,6 @@
         </div>
     </div>
 
-    <!-- Full Screen Image Viewer Modal -->
     <div id="fullImgModal" class="modal full-img-modal" onclick="closeFullImage()">
         <span class="close-btn" onclick="closeFullImage()">&times;</span>
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -777,12 +201,10 @@
         </div>
     </div>
 
-    <!-- Order Popup (Modal) -->
     <div id="checkoutModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeCheckout()">&times;</span>
             <h2 style="margin-bottom: 15px; font-size: 18px; text-align: center;">অর্ডার ফর্ম</h2>
-            
             <form id="orderForm">
                 <div class="form-group">
                     <label>প্রোডাক্টের নাম:</label>
@@ -812,8 +234,6 @@
                         <option value="Nagad (Personal)">Nagad (Personal)</option>
                     </select>
                 </div>
-
-                <!-- পেমেন্ট ইনফো এবং TrxID ফিল্ড -->
                 <div id="paymentDetailsSection" style="display: none;">
                     <div class="payment-info-box" id="paymentNotice"></div>
                     <div class="form-group">
@@ -821,62 +241,109 @@
                         <input type="text" id="cTrxID" placeholder="যেমন: 9J38X4L0">
                     </div>
                 </div>
-
                 <button type="button" class="btn-submit" onclick="sendOrder()"><i class="fa-brands fa-whatsapp icon-whatsapp"></i> অর্ডার নিশ্চিত করুন</button>
             </form>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer id="contact">
         <p>Contact Us: mdhayfajothussain38@gmail.com | Phone: +8801732274010</p>
         <p>&copy; 2026 NeedJp. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript Logic -->
     <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
+          authDomain: "needjp-store.firebaseapp.com",
+          projectId: "needjp-store",
+          storageBucket: "needjp-store.firebasestorage.app",
+          messagingSenderId: "1876371529444",
+          appId: "1:1876371529444:web:9ab84f1af05e79b04756f1",
+          measurementId: "G-DJY5MQCEGP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let selectedProduct = '';
         let selectedPrice = 0;
         let currentImgSrc = '';
-
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
         document.addEventListener('DOMContentLoaded', () => {
+            loadProductsFromFirebase();
             updateWishlistUI();
         });
 
+        function loadProductsFromFirebase() {
+            const grid = document.getElementById('productGrid');
+            
+            db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                grid.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">এখনো কোনো প্রোডাক্ট আপলোড করা হয়নি। অ্যাডমিন প্যানেল থেকে যোগ করুন!</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    const id = doc.id;
+
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.setAttribute('data-id', id);
+
+                    const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    const safeDesc = p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n");
+
+                    card.innerHTML = `
+                        <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
+                            <i class="fa-regular fa-heart"></i>
+                        </div>
+                        <img src="${p.image}" alt="${p.title}" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">
+                        <h3 onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
+                        <div class="button-group">
+                            <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})">BUY NOW - ৳${p.price}</button>
+                            <button class="btn-view" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">VIEW DETAILS</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                updateWishlistUI();
+            });
+        }
+
         function toggleWishlist(id, name, price, img, element) {
             let index = wishlist.findIndex(item => item.id === id);
-
             if (index === -1) {
                 wishlist.push({ id, name, price, img });
             } else {
                 wishlist.splice(index, 1);
             }
-
             localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
             updateWishlistUI();
         }
 
         function updateWishlistUI() {
             document.getElementById('wishlistCount').innerText = wishlist.length;
-
             let cards = document.querySelectorAll('.product-card');
             cards.forEach(card => {
                 let id = card.getAttribute('data-id');
                 let iconBox = card.querySelector('.wishlist-icon');
-                let icon = iconBox.querySelector('i');
-
-                let isFav = wishlist.some(item => item.id === id);
-
-                if (isFav) {
-                    iconBox.classList.add('active');
-                    icon.classList.remove('fa-regular');
-                    icon.classList.add('fa-solid');
-                } else {
-                    iconBox.classList.remove('active');
-                    icon.classList.remove('fa-solid');
-                    icon.classList.add('fa-regular');
+                if(iconBox) {
+                    let icon = iconBox.querySelector('i');
+                    let isFav = wishlist.some(item => item.id === id);
+                    if (isFav) {
+                        iconBox.classList.add('active');
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                    } else {
+                        iconBox.classList.remove('active');
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                    }
                 }
             });
         }
@@ -884,9 +351,8 @@
         function openWishlistModal() {
             let container = document.getElementById('wishlistContainer');
             container.innerHTML = '';
-
             if (wishlist.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#777; padding:20px 0;">আপনার উইশলিস্ট খালি। কোনো প্রোডাক্ট পছন্দ করতে প্রোডাক্টের উপরের লাভ (❤) আইকনে ট্যাপ করুন।</p>';
+                container.innerHTML = '<p style="text-align:center; color:#777; padding:20px 0;">আপনার উইশলিস্ট খালি।</p>';
             } else {
                 wishlist.forEach(item => {
                     let div = document.createElement('div');
@@ -905,45 +371,20 @@
                     container.appendChild(div);
                 });
             }
-
             document.getElementById('wishlistModal').style.display = 'flex';
         }
 
-        function closeWishlistModal() {
-            document.getElementById('wishlistModal').style.display = 'none';
-        }
+        function closeWishlistModal() { document.getElementById('wishlistModal').style.display = 'none'; }
+        function removeFromWishlist(id) { wishlist = wishlist.filter(item => item.id !== id); localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist)); updateWishlistUI(); openWishlistModal(); }
+        function buyFromWishlist(name, price) { closeWishlistModal(); openCheckout(name, price); }
 
-        function removeFromWishlist(id) {
-            wishlist = wishlist.filter(item => item.id !== id);
-            localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
-            updateWishlistUI();
-            openWishlistModal();
-        }
-
-        function buyFromWishlist(name, price) {
-            closeWishlistModal();
-            openCheckout(name, price);
-        }
-
-        function toggleSearch() {
-            const input = document.getElementById('searchInput');
-            input.classList.toggle('active');
-            if(input.classList.contains('active')) {
-                input.focus();
-            }
-        }
-
+        function toggleSearch() { const input = document.getElementById('searchInput'); input.classList.toggle('active'); if(input.classList.contains('active')) input.focus(); }
         function filterProducts() {
             let input = document.getElementById('searchInput').value.toLowerCase();
             let cards = document.getElementsByClassName('product-card');
-
             for (let i = 0; i < cards.length; i++) {
                 let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-                if (title.includes(input)) {
-                    cards[i].style.display = "";
-                } else {
-                    cards[i].style.display = "none";
-                }
+                cards[i].style.display = title.includes(input) ? "" : "none";
             }
         }
 
@@ -951,60 +392,40 @@
             selectedProduct = name;
             selectedPrice = price;
             currentImgSrc = imgSrc;
-            
             document.getElementById('dTitle').innerText = name;
             document.getElementById('dPrice').innerText = '৳' + price;
             document.getElementById('dImg').src = imgSrc;
             document.getElementById('dDesc').innerText = description;
-            
             document.getElementById('detailsModal').style.display = 'flex';
         }
 
-        function closeDetails() {
-            document.getElementById('detailsModal').style.display = 'none';
-        }
-
-        function openFullImage() {
-            document.getElementById('fullImgSrc').src = currentImgSrc;
-            document.getElementById('fullImgModal').style.display = 'flex';
-        }
-
-        function closeFullImage() {
-            document.getElementById('fullImgModal').style.display = 'none';
-        }
-
-        function buyFromDetails() {
-            closeDetails();
-            openCheckout(selectedProduct, selectedPrice);
-        }
+        function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
+        function openFullImage() { document.getElementById('fullImgSrc').src = currentImgSrc; document.getElementById('fullImgModal').style.display = 'flex'; }
+        function closeFullImage() { document.getElementById('fullImgModal').style.display = 'none'; }
+        function buyFromDetails() { closeDetails(); openCheckout(selectedProduct, selectedPrice); }
 
         function openCheckout(name, price) {
             selectedProduct = name;
             selectedPrice = price;
             document.getElementById('pName').value = name;
             document.getElementById('pPrice').value = price + ' BDT';
-            
             document.getElementById('pMethod').value = 'Cash on Delivery';
             togglePaymentFields();
-
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
-        function closeCheckout() {
-            document.getElementById('checkoutModal').style.display = 'none';
-        }
+        function closeCheckout() { document.getElementById('checkoutModal').style.display = 'none'; }
 
         function togglePaymentFields() {
             let method = document.getElementById('pMethod').value;
             let section = document.getElementById('paymentDetailsSection');
             let notice = document.getElementById('paymentNotice');
-
             if (method === 'bKash (Personal)') {
                 section.style.display = 'block';
-                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> অনুগ্রহ করে বিকাশ পার্সোনাল নম্বর <strong>01747425457</strong>-এ "Send Money" সম্পন্ন করুন এবং নিচের বক্সে TrxID লিখুন।';
+                notice.innerHTML = '<strong>bKash ইনস্ট্রাকশন:</strong> বিকাশ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
             } else if (method === 'Nagad (Personal)') {
                 section.style.display = 'block';
-                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> অনুগ্রহ করে নগদ পার্সোনাল নম্বর <strong>01747425457</strong>-এ "Send Money" সম্পন্ন করুন এবং নিচের বক্সে TrxID লিখুন।';
+                notice.innerHTML = '<strong>Nagad ইনস্ট্রাকশন:</strong> নগদ নম্বর <strong>01747425457</strong>-এ "Send Money" করে TrxID দিন।';
             } else {
                 section.style.display = 'none';
                 document.getElementById('cTrxID').value = '';
@@ -1018,31 +439,11 @@
             let method = document.getElementById('pMethod').value;
             let trxID = document.getElementById('cTrxID').value;
 
-            if(!name || !phone || !address) {
-                alert('অনুগ্রহ করে নাম, ফোন নম্বর এবং ঠিকানা সঠিকভাবে লিখুন।');
-                return;
-            }
+            if(!name || !phone || !address) { alert('সব তথ্য পূরণ করুন।'); return; }
+            if((method === 'bKash (Personal)' || method === 'Nagad (Personal)') && !trxID) { alert('TrxID প্রদান করুন।'); return; }
 
-            if((method === 'bKash (Personal)' || method === 'Nagad (Personal)') && !trxID) {
-                alert('অনুগ্রহ করে পেমেন্টের TrxID (ট্রানজেকশন আইডি) প্রদান করুন।');
-                return;
-            }
-
-            let message = `*নতুন অর্ডার - NEED JP*\n` +
-                          `*প্রোডাক্ট:* ${selectedProduct}\n` +
-                          `*মূল্য:* ৳${selectedPrice}\n` +
-                          `*গ্রাহকের তথ্য:*\n` +
-                          `• নাম: ${name}\n` +
-                          `• ফোন: ${phone}\n` +
-                          `• ঠিকানা: ${address}\n` +
-                          `• পেমেন্ট মাধ্যম: ${method}`;
-
-            if(trxID) {
-                message += `\n• TrxID: ${trxID}`;
-            }
-
-            let whatsappURL = `https://wa.me/8801747425457?text=${encodeURIComponent(message)}`;
-            window.open(whatsappURL, '_blank');
+            let message = `*নতুন অর্ডার - NEED JP*\n*প্রোডাক্ট:* ${selectedProduct}\n*মূল্য:* ৳${selectedPrice}\n*গ্রাহক:* ${name}\n*ফোন:* ${phone}\n*ঠিকানা:* ${address}\n*পেমেন্ট:* ${method}` + (trxID ? `\n*TrxID:* ${trxID}` : '');
+            window.open(`https://wa.me/8801747425457?text=${encodeURIComponent(message)}`, '_blank');
         }
     </script>
 </body>
