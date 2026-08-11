@@ -134,6 +134,11 @@
 
         .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 12px; border-radius: 8px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
 
+        /* Price Breakdown Table in Modal */
+        .price-breakdown { font-size: 12px; color: #555; }
+        .price-breakdown .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .price-breakdown .total-row { font-size: 15px; font-weight: 800; color: var(--primary-gold); border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 6px; }
+
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
 
@@ -184,7 +189,7 @@
         
         <div class="scrolling-text-box">
             <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
-                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা ✨
+                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি ও ফ্রি ডেলিভারি সুবিধা ✨
             </marquee>
         </div>
 
@@ -278,15 +283,28 @@
             <span class="close-btn" onclick="closeCheckout()">&times;</span>
             <div style="text-align:center; margin-bottom:18px;">
                 <h2 style="font-size:20px; font-weight:800;"><i class="fa-solid fa-bag-shopping" style="color:var(--primary-gold)"></i> দ্রুত অর্ডার কনফার্ম করুন</h2>
-                <p id="checkoutSubtitle" style="font-size:12px; color:#666; margin-top:4px;">ক্যাশ অন ডেলিভারিতে অর্ডার করতে তথ্য পূরণ করুন</p>
+                <p id="checkoutSubtitle" style="font-size:12px; color:#666; margin-top:4px;">অর্ডার করতে নিচের তথ্যগুলো সঠিক তথ্য প্রদান করুন</p>
             </div>
 
-            <div style="background:#fdfaf6; border:1px dashed var(--primary-gold); padding:12px 15px; border-radius:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <span style="font-size:10px; color:#888; font-weight:700;">SELECTED PRODUCT</span>
-                    <div id="displayPName" style="font-size:14px; font-weight:700;">-</div>
+            <div style="background:#fdfaf6; border:1px dashed var(--primary-gold); padding:12px 15px; border-radius:10px; margin-bottom:18px;">
+                <div style="font-size:10px; color:#888; font-weight:700; margin-bottom:4px;">SELECTED PRODUCT</div>
+                <div id="displayPName" style="font-size:14px; font-weight:700; margin-bottom:8px;">-</div>
+                
+                <!-- Price Calculation Breakdown -->
+                <div class="price-breakdown">
+                    <div class="row">
+                        <span>প্রোডাক্টের মূল্য:</span>
+                        <span id="summaryProductPrice">৳0</span>
+                    </div>
+                    <div class="row">
+                        <span>ডেলিভারি চার্জ:</span>
+                        <span id="summaryDeliveryCharge">৳0</span>
+                    </div>
+                    <div class="row total-row">
+                        <span>সর্বমোট (Total):</span>
+                        <span id="displayPPrice">৳0</span>
+                    </div>
                 </div>
-                <div id="displayPPrice" style="font-size:18px; font-weight:800; color:var(--primary-gold);">৳0</div>
             </div>
 
             <form id="orderForm">
@@ -298,6 +316,17 @@
                 <div class="form-group">
                     <label>মোবাইল নম্বর *</label>
                     <div class="input-wrapper"><i class="fa-solid fa-phone"></i><input type="tel" id="cPhone" required placeholder="017XXXXXXXX"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>ডেলিভারি এরিয়া (Delivery Location) *</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-truck-ramps"></i>
+                        <select id="deliveryArea" onchange="calculateTotal()">
+                            <option value="Joypurhat" selected>জয়পুরহাট সদর (ফ্রি ডেলিভারি - ৳0)</option>
+                            <option value="Outside">জয়পুরহাটের বাইরে / সমগ্র বাংলাদেশ (৳১২০)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -363,6 +392,7 @@
         const db = firebase.firestore();
 
         let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5;
+        let deliveryCharge = 0, totalPrice = 0;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -375,7 +405,7 @@
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
                 grid.innerHTML = '';
                 if (snapshot.empty) {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
                     return;
                 }
 
@@ -436,6 +466,22 @@
         }
         function closeFullscreenZoom() {
             document.getElementById('zoomOverlay').style.display = 'none';
+        }
+
+        /* Calculate Total Price with Delivery Charge */
+        function calculateTotal() {
+            const area = document.getElementById('deliveryArea').value;
+            if (area === 'Outside') {
+                deliveryCharge = 120;
+            } else {
+                deliveryCharge = 0;
+            }
+
+            totalPrice = Number(selectedPrice) + deliveryCharge;
+
+            document.getElementById('summaryProductPrice').innerText = '৳' + selectedPrice;
+            document.getElementById('summaryDeliveryCharge').innerText = '৳' + deliveryCharge;
+            document.getElementById('displayPPrice').innerText = '৳' + totalPrice;
         }
 
         /* Dynamic Payment Method Handler */
@@ -510,7 +556,7 @@
                 rating: currentRating,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert('আপনার রিভিউ সফলভাবে জমা হয়েছে!');
+                alert('আপনার রিভিউ সফলভাবে জমা হয়েছে!');
                 document.getElementById('revName').value = '';
                 document.getElementById('revComment').value = '';
                 loadReviews(currentProductId);
@@ -525,92 +571,150 @@
             document.getElementById('dTitle').innerText = name;
             document.getElementById('dPrice').innerText = '৳' + price;
             document.getElementById('dImg').src = imgSrc;
-            document.getElementById('dDesc').innerText = description || 'কোনো বিবরণ দেওয়া হয়নি।';
+            document.getElementById('dDesc').innerText = description || 'কোনো বিবরণ দেওয়া হয়নি।';
             document.getElementById('detailsModal').style.display = 'flex';
             loadReviews(id);
         }
 
-        function closeDetails() { document.getElementById('detailsModal').style.display = 'none'; }
-        function buyFromDetails() { closeDetails(); openCheckout(selectedProduct, selectedPrice); }
+        function closeDetails() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        function buyFromDetails() {
+            closeDetails();
+            openCheckout(selectedProduct, selectedPrice);
+        }
 
         function openCheckout(name, price) {
             selectedProduct = name;
             selectedPrice = price;
             document.getElementById('displayPName').innerText = name;
-            document.getElementById('displayPPrice').innerText = '৳' + price;
-            document.getElementById('pMethod').value = 'Cash on Delivery';
-            togglePaymentFields();
+            document.getElementById('deliveryArea').value = 'Joypurhat'; // Reset to default
+            calculateTotal();
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
-        function closeCheckout() { document.getElementById('checkoutModal').style.display = 'none'; }
+        function closeCheckout() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        }
 
         function sendOrder() {
-            let name = document.getElementById('cName').value;
-            let phone = document.getElementById('cPhone').value;
-            let address = document.getElementById('cAddress').value;
-            let method = document.getElementById('pMethod').value;
-            let trxID = document.getElementById('cTrxID').value;
+            const name = document.getElementById('cName').value.trim();
+            const phone = document.getElementById('cPhone').value.trim();
+            const address = document.getElementById('cAddress').value.trim();
+            const areaSelect = document.getElementById('deliveryArea');
+            const areaText = areaSelect.options[areaSelect.selectedIndex].text;
+            const pMethod = document.getElementById('pMethod').value;
+            const trxID = document.getElementById('cTrxID').value.trim();
 
-            if(!name || !phone || !address) { alert('সব তথ্য পূরণ করুন।'); return; }
-            if((method === 'bKash (Personal)' || method === 'Nagad (Personal)') && !trxID) { alert('TrxID প্রদান করুন।'); return; }
+            if (!name || !phone || !address) {
+                alert('অনুগ্রহ করে নাম, ফোন নম্বর এবং ঠিকানা পূরণ করুন!');
+                return;
+            }
 
-            let message = `*নতুন অর্ডার - NEED JP*\n*প্রোডাক্ট:* ${selectedProduct}\n*মূল্য:* ৳${selectedPrice}\n*গ্রাহক:* ${name}\n*ফোন:* ${phone}\n*ঠিকানা:* ${address}\n*পেমেন্ট:* ${method}` + (trxID ? `\n*TrxID:* ${trxID}` : '');
-            window.open(`https://wa.me/8801747425457?text=${encodeURIComponent(message)}`, '_blank');
+            if ((pMethod.includes('bKash') || pMethod.includes('Nagad')) && !trxID) {
+                alert('অনুগ্রহ করে ট্রানজেকশন আইডি (TrxID) প্রদান করুন!');
+                return;
+            }
+
+            let message = `🛍️ *নতুন অর্ডার (NeedJp Store)*\n\n`;
+            message += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
+            message += `💵 *প্রোডাক্ট মূল্য:* ৳${selectedPrice}\n`;
+            message += `🚚 *ডেলিভারি এরিয়া:* ${areaText}\n`;
+            message += `🚚 *ডেলিভারি চার্জ:* ৳${deliveryCharge}\n`;
+            message += `💰 *সর্বমোট (Total):* ৳${totalPrice}\n\n`;
+            message += `👤 *গ্রাহকের নাম:* ${name}\n`;
+            message += `📞 *মোবাইল:* ${phone}\n`;
+            message += `🏠 *ঠিকানা:* ${address}\n`;
+            message += `💳 *পেমেন্ট মাধ্যম:* ${pMethod}\n`;
+
+            if (trxID) {
+                message += `🧾 *TrxID:* ${trxID}\n`;
+            }
+
+            const whatsappUrl = `https://wa.me/8801747425457?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            closeCheckout();
         }
 
         /* Wishlist Functions */
         function toggleWishlist(id, name, price, img, element) {
-            let index = wishlist.findIndex(item => item.id === id);
-            if (index === -1) wishlist.push({ id, name, price, img });
-            else wishlist.splice(index, 1);
+            const index = wishlist.findIndex(item => item.id === id);
+            if (index > -1) {
+                wishlist.splice(index, 1);
+            } else {
+                wishlist.push({ id, name, price, img });
+            }
             localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
             updateWishlistUI();
         }
 
         function updateWishlistUI() {
             document.getElementById('wishlistCount').innerText = wishlist.length;
-            document.querySelectorAll('.product-card').forEach(card => {
-                let id = card.getAttribute('data-id');
-                let iconBox = card.querySelector('.wishlist-icon');
-                if(iconBox) {
-                    let icon = iconBox.querySelector('i');
-                    let isFav = wishlist.some(item => item.id === id);
-                    if (isFav) {
-                        iconBox.classList.add('active');
-                        icon.classList.replace('fa-regular', 'fa-solid');
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                const id = card.getAttribute('data-id');
+                const icon = card.querySelector('.wishlist-icon');
+                if (icon) {
+                    const exists = wishlist.some(item => item.id === id);
+                    if (exists) {
+                        icon.classList.add('active');
+                        icon.innerHTML = '<i class="fa-solid fa-heart"></i>';
                     } else {
-                        iconBox.classList.remove('active');
-                        icon.classList.replace('fa-solid', 'fa-regular');
+                        icon.classList.remove('active');
+                        icon.innerHTML = '<i class="fa-regular fa-heart"></i>';
                     }
                 }
             });
         }
 
         function openWishlistModal() {
-            let container = document.getElementById('wishlistContainer');
-            container.innerHTML = wishlist.length === 0 ? '<p style="text-align:center; color:#777;">উইশলিস্ট খালি।</p>' : '';
-            wishlist.forEach(item => {
-                container.innerHTML += `
-                    <div style="display:flex; align-items:center; gap:10px; border-bottom:1px solid #eee; padding:10px 0;">
-                        <img src="${item.img}" style="width:50px; height:50px; object-fit:cover; border-radius:6px;">
-                        <div style="flex-grow:1;"><h4 style="font-size:12px;">${item.name}</h4><span style="font-weight:bold; color:var(--primary-gold);">৳${item.price}</span></div>
-                        <button onclick="closeWishlistModal(); openCheckout('${item.name}', ${item.price});" style="background:var(--primary-dark); color:#fff; border:none; padding:5px 8px; border-radius:4px; font-size:10px; cursor:pointer;">অর্ডার</button>
-                    </div>
-                `;
-            });
+            const container = document.getElementById('wishlistContainer');
+            container.innerHTML = '';
+            if (wishlist.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#777;">পছন্দের কোনো প্রোডাক্ট নেই।</p>';
+            } else {
+                wishlist.forEach(item => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #eee; padding-bottom:8px;';
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <img src="${item.img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">
+                            <div>
+                                <h4 style="font-size:13px;">${item.name}</h4>
+                                <span style="font-size:12px; font-weight:bold; color:var(--primary-gold);">৳${item.price}</span>
+                            </div>
+                        </div>
+                        <button onclick="openCheckout('${item.name.replace(/'/g, "\\'")}', ${item.price})" style="background:var(--primary-dark); color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;">অর্ডার</button>
+                    `;
+                    container.appendChild(div);
+                });
+            }
             document.getElementById('wishlistModal').style.display = 'flex';
         }
-        function closeWishlistModal() { document.getElementById('wishlistModal').style.display = 'none'; }
 
-        function toggleSearch() { const input = document.getElementById('searchInput'); input.classList.toggle('active'); if(input.classList.contains('active')) input.focus(); }
+        function closeWishlistModal() {
+            document.getElementById('wishlistModal').style.display = 'none';
+        }
+
+        /* Search Functions */
+        function toggleSearch() {
+            const input = document.getElementById('searchInput');
+            input.classList.toggle('active');
+            if (input.classList.contains('active')) input.focus();
+        }
+
         function filterProducts() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let cards = document.getElementsByClassName('product-card');
-            for (let i = 0; i < cards.length; i++) {
-                let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-                cards[i].style.display = title.includes(input) ? "" : "none";
-            }
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                const title = card.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
     </script>
 </body>
