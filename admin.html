@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeedJp - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f4f6f9; padding: 20px; }
-        .admin-container { max-width: 600px; margin: 20px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
-        button { background: #d2a679; color: white; border: none; padding: 12px; width: 100%; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        body { background: #eef2f5; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        .admin-container { width: 100%; max-width: 550px; background: #fff; padding: 35px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        
+        /* লগইন সেকশন ডিজাইন */
+        .login-card { text-align: center; }
+        .login-card h2 { color: #222; font-size: 22px; margin-bottom: 8px; font-weight: 700; }
+        .login-card p { color: #777; font-size: 13px; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #444; }
+        .input-box { position: relative; }
+        .input-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; font-size: 15px; }
+        .input-box input, textarea { width: 100%; padding: 11px 12px 11px 38px; border: 1px solid #dcdcdc; border-radius: 6px; outline: none; font-size: 14px; transition: border-color 0.3s; }
+        .input-box input:focus, textarea:focus { border-color: #d2a679; }
+        
+        button { background: #d2a679; color: white; border: none; padding: 12px; width: 100%; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         button:hover { background: #b88a5d; }
-        #adminContent { display: none; }
 
+        /* অ্যাডমিন কন্টেন্ট ও ডিলিট সেকশন */
+        #adminContent { display: none; }
         .product-list-section { margin-top: 35px; border-top: 2px solid #eee; padding-top: 20px; }
-        .product-item { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; gap: 10px; }
+        .product-item { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; gap: 10px; }
         .product-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
         .product-info { flex-grow: 1; text-align: left; }
         .product-info h4 { font-size: 14px; color: #333; margin-bottom: 3px; }
@@ -32,35 +44,51 @@
 <body>
 
 <div class="admin-container">
-    <!-- পাসওয়ার্ড সেকশন -->
-    <div id="loginSection">
-        <h2>NeedJp অ্যাডমিন লগইন</h2>
-        <div class="form-group">
-            <label>পাসওয়ার্ড প্রবেশ করান:</label>
-            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন">
-        </div>
-        <button onclick="checkPassword()">লগইন</button>
+    <!-- নতুন স্টাইলিশ লগইন সেকশন -->
+    <div id="loginSection" class="login-card">
+        <h2><i class="fa-solid fa-user-shield" style="color: #d2a679;"></i> NeedJp অ্যাডমিন লগইন</h2>
+        <p>প্যানেলে প্রবেশ করতে আপনার সঠিক তথ্য দিন</p>
+        
+        <form id="loginForm" onsubmit="event.preventDefault(); checkLogin();">
+            <div class="form-group">
+                <label>ইউজারনেম (Username)</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="adminUser" placeholder="ইউজারনেম লিখুন" required autocomplete="off">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>পাসওয়ার্ড (Password)</label>
+                <div class="input-box">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন" required>
+                </div>
+            </div>
+            
+            <button type="submit">লগইন করুন</button>
+        </form>
     </div>
 
     <!-- প্রোডাক্ট আপলোড ও ম্যানেজ সেকশন -->
     <div id="adminContent">
-        <h2>নতুন প্রোডাক্ট আপলোড</h2>
+        <h2 style="text-align: center; color: #333; margin-bottom: 20px; font-size: 20px;">নতুন প্রোডাক্ট আপলোড</h2>
         <form id="productForm">
             <div class="form-group">
                 <label>প্রোডাক্টের নাম *</label>
-                <input type="text" id="pTitle" required placeholder="যেমন: ইমপোর্টেড লেডিস ব্যাগ">
+                <input type="text" id="pTitle" required placeholder="যেমন: ইমপোর্টেড লেডিস ব্যাগ" style="padding-left: 12px;">
             </div>
             <div class="form-group">
                 <label>মূল্য (টাকা) *</label>
-                <input type="number" id="pPrice" required placeholder="যেমন: 1250">
+                <input type="number" id="pPrice" required placeholder="যেমন: 1250" style="padding-left: 12px;">
             </div>
             <div class="form-group">
                 <label>বিবরণ (Details) *</label>
-                <textarea id="pDesc" rows="3" required placeholder="• মেটেরিয়াল: লেদার..."></textarea>
+                <textarea id="pDesc" rows="3" required placeholder="• মেটেরিয়াল: লেদার..." style="padding-left: 12px; width: 100%; border: 1px solid #dcdcdc; border-radius: 6px; outline: none; padding: 10px;"></textarea>
             </div>
             <div class="form-group">
                 <label>প্রোডাক্টের ছবি সিলেক্ট করুন *</label>
-                <input type="file" id="pImgFile" accept="image/*" required>
+                <input type="file" id="pImgFile" accept="image/*" required style="padding-left: 12px;">
             </div>
             <button type="button" onclick="uploadProduct()" id="uploadBtn">আপলোড করুন</button>
         </form>
@@ -88,20 +116,23 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const ADMIN_PASSWORD = "12345"; 
+    // আপনার নতুন ইউজারনেম ও পাসওয়ার্ড
+    const ADMIN_USER = "needjp"; 
+    const ADMIN_PASS = "needjp2025"; 
 
-    function checkPassword() {
-        const pass = document.getElementById('adminPass').value;
-        if(pass === ADMIN_PASSWORD) {
+    function checkLogin() {
+        const user = document.getElementById('adminUser').value.trim();
+        const pass = document.getElementById('adminPass').value.trim();
+        
+        if(user === ADMIN_USER && pass === ADMIN_PASS) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
             loadAdminProducts();
         } else {
-            alert('ভুল পাসওয়ার্ড!');
+            alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
         }
     }
 
-    // ছবিকে সরাসরি কোডে রূপান্তরিত করার ফাংশন (Base64)
     function convertToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -128,8 +159,6 @@
 
         try {
             const file = fileInput.files[0];
-            
-            // ছবি রিসাইজ ও বেস-৬৪ কনভার্ট
             const imageUrl = await convertToBase64(file);
 
             btn.innerText = "ডাটা সেভ হচ্ছে...";
