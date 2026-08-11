@@ -7,7 +7,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f4f6f9; padding: 20px; }
-        .admin-container { max-width: 500px; margin: 30px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .admin-container { max-width: 600px; margin: 20px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
@@ -15,6 +15,16 @@
         button { background: #d2a679; color: white; border: none; padding: 12px; width: 100%; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; }
         button:hover { background: #b88a5d; }
         #adminContent { display: none; }
+
+        /* প্রোডাক্ট লিস্ট ও ডিলিট স্টাইল */
+        .product-list-section { margin-top: 35px; border-top: 2px solid #eee; padding-top: 20px; }
+        .product-item { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; gap: 10px; }
+        .product-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+        .product-info { flex-grow: 1; text-align: left; }
+        .product-info h4 { font-size: 14px; color: #333; margin-bottom: 3px; }
+        .product-info span { font-size: 13px; font-weight: bold; color: #d2a679; }
+        .btn-delete { background: #ff3b30; color: white; border: none; padding: 8px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; width: auto; }
+        .btn-delete:hover { background: #d32f2f; }
     </style>
     <!-- Firebase Firestore SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -33,7 +43,7 @@
         <button onclick="checkPassword()">লগইন</button>
     </div>
 
-    <!-- প্রোডাক্ট ফর্ম -->
+    <!-- প্রোডাক্ট আপলোড ও ম্যানেজ সেকশন -->
     <div id="adminContent">
         <h2>নতুন প্রোডাক্ট আপলোড</h2>
         <form id="productForm">
@@ -55,6 +65,14 @@
             </div>
             <button type="button" onclick="uploadProduct()" id="uploadBtn">আপলোড করুন</button>
         </form>
+
+        <!-- বর্তমান প্রোডাক্টগুলোর লিস্ট ও ডিলিট অপশন -->
+        <div class="product-list-section">
+            <h3 style="margin-bottom: 15px; font-size: 16px; text-align: center; color: #444;">আপলোডকৃত প্রোডাক্টসমূহ</h3>
+            <div id="adminProductList">
+                <p style="text-align: center; color: #777;">লোড হচ্ছে...</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -73,13 +91,14 @@
     const db = firebase.firestore();
 
     const ADMIN_PASSWORD = "12345"; 
-    const IMGBB_API_KEY = "c189b276707a01d5dfbb7ec1ec8dd801"; // ImgBB ফ্রি API Key
+    const IMGBB_API_KEY = "c189b276707a01d5dfbb7ec1ec8dd801";
 
     function checkPassword() {
         const pass = document.getElementById('adminPass').value;
         if(pass === ADMIN_PASSWORD) {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminContent').style.display = 'block';
+            loadAdminProducts(); // লগইন সফল হলে প্রোডাক্ট লিস্ট লোড হবে
         } else {
             alert('ভুল পাসওয়ার্ড!');
         }
@@ -101,7 +120,6 @@
         btn.innerText = "ছবি প্রসেস হচ্ছে...";
 
         try {
-            // ImgBB-তে ফ্রি ছবি আপলোড
             const file = fileInput.files[0];
             const formData = new FormData();
             formData.append("image", file);
@@ -120,7 +138,6 @@
             const imageUrl = imgData.data.url;
             btn.innerText = "ডাটা সেভ হচ্ছে...";
 
-            // ফায়ারবেস ডাটাবেজে প্রোডাক্ট সেভ
             await db.collection('products').add({
                 title: title,
                 price: Number(price),
@@ -136,6 +153,49 @@
         } finally {
             btn.disabled = false;
             btn.innerText = "আপলোড করুন";
+        }
+    }
+
+    // এডমিন প্যানেলে সব প্রোডাক্ট দেখানো ও রিফ্রেস করা
+    function loadAdminProducts() {
+        const listDiv = document.getElementById('adminProductList');
+        
+        db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+            listDiv.innerHTML = '';
+            
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<p style="text-align: center; color: #777;">কোনো প্রোডাক্ট আপলোড করা নেই।</p>';
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                const id = doc.id;
+
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <img src="${p.image}" alt="${p.title}">
+                    <div class="product-info">
+                        <h4>${p.title}</h4>
+                        <span>৳${p.price}</span>
+                    </div>
+                    <button class="btn-delete" onclick="deleteProduct('${id}', '${p.title.replace(/'/g, "\\'")}')">ডিলিট করুন</button>
+                `;
+                listDiv.appendChild(item);
+            });
+        });
+    }
+
+    // ১-ক্লিকে প্রোডাক্ট ডিলিট ফাংশন
+    async function deleteProduct(id, title) {
+        if (confirm(`আপনি কি নিশ্চিত যে "${title}" প্রোডাক্টটি ডিলিট করতে চান?`)) {
+            try {
+                await db.collection('products').doc(id).delete();
+                alert('প্রোডাক্টটি সফলভাবে ডিলিট করা হয়েছে!');
+            } catch (error) {
+                alert('ডিলিট করতে সমস্যা হয়েছে: ' + error.message);
+            }
         }
     }
 </script>
