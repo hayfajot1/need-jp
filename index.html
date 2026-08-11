@@ -12,9 +12,10 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f8f9fa; color: #333; }
+        body { background-color: #f4f6f8; color: #333; }
         a { text-decoration: none; color: inherit; }
 
+        /* Top Bar */
         .top-bar { background-color: #111; color: #fff; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-wrap: wrap; gap: 8px; }
         .top-bar-left, .top-bar-right { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
         .top-bar-right a, .top-bar-left a { color: #ddd; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -31,12 +32,11 @@
         @media (max-width: 768px) {
             .top-bar { flex-direction: column; text-align: center; padding: 8px 10px; gap: 6px; }
             .top-bar-left, .top-bar-right { justify-content: center; width: 100%; gap: 8px; }
-            .top-bar-right { flex-direction: flex-row; gap: 8px; flex-wrap: wrap; }
             .top-bar-right a, .top-bar-left a { font-size: 11px; }
         }
 
+        /* Header */
         header { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; gap: 15px; flex-wrap: wrap; }
-        
         .logo { font-size: 28px; font-weight: 800; color: #222; text-decoration: none; letter-spacing: 0.5px; display: flex; align-items: center; }
         .logo span { color: #d2a679; }
 
@@ -50,6 +50,7 @@
 
         .badge { position: absolute; top: -8px; right: -10px; background-color: #e60023; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 50%; border: 2px solid #fff; }
 
+        /* Nav & Search */
         nav { background-color: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: relative; }
         .nav-links a { margin-right: 20px; font-weight: 600; font-size: 14px; text-transform: uppercase; color: #444; }
         .nav-links a:hover { color: #d2a679; }
@@ -59,65 +60,176 @@
         .search-input.active { width: 160px; opacity: 1; margin-right: 8px; }
         .search-btn { cursor: pointer; font-size: 16px; color: #333; }
 
-        .announcement { background-color: #d0e7e5; text-align: center; padding: 10px 15px; font-size: 12px; font-weight: bold; color: #2c5e5a; letter-spacing: 0.5px; line-height: 1.4; }
+        .announcement { background-color: #d0e7e5; text-align: center; padding: 10px 15px; font-size: 12px; font-weight: bold; color: #2c5e5a; letter-spacing: 0.5px; }
 
-        .container { max-width: 1200px; margin: 25px auto; padding: 0 15px; }
-        .section-title { background-color: #d2a679; color: #fff; padding: 10px 15px; font-size: 15px; font-weight: bold; text-transform: uppercase; margin-bottom: 25px; display: inline-block; border-radius: 4px; }
+        /* Container & Titles */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+        .section-title { background: linear-gradient(135deg, #d2a679, #b88a5d); color: #fff; padding: 8px 18px; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 25px; display: inline-block; border-radius: 20px; box-shadow: 0 4px 10px rgba(210, 166, 121, 0.3); }
 
-        /* প্রোডাক্ট গ্রিড ফিক্সড রেসপন্সিভ সাইজ */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        .product-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; position: relative; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
-        .product-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        /* UNIQUE PREMIUM PRODUCT CARD DESIGN */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+        
+        .product-card { 
+            background: #ffffff; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            position: relative; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        .product-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 12px 25px rgba(0,0,0,0.12); 
+        }
 
-        .wishlist-icon { position: absolute; top: 12px; right: 12px; color: #888; cursor: pointer; z-index: 2; font-size: 18px; transition: color 0.3s, transform 0.2s; background: rgba(255, 255, 255, 0.9); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
-        .wishlist-icon:hover { transform: scale(1.15); }
+        /* Wishlist Heart Icon */
+        .wishlist-icon { 
+            position: absolute; 
+            top: 12px; 
+            right: 12px; 
+            color: #777; 
+            cursor: pointer; 
+            z-index: 3; 
+            font-size: 16px; 
+            transition: all 0.3s ease; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(4px);
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12); 
+        }
+        .wishlist-icon:hover { transform: scale(1.15); background: #fff; }
         .wishlist-icon.active { color: #e60023; }
 
-        .img-box-grid { width: 100%; height: 220px; overflow: hidden; background: #fafafa; cursor: pointer; }
-        .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .product-card:hover .img-box-grid img { transform: scale(1.05); }
+        /* HOT Tag */
+        .product-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #e60023;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            z-index: 2;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(230, 0, 35, 0.3);
+        }
 
-        .product-info { padding: 12px; text-align: center; }
-        .product-info h3 { font-size: 14px; color: #333; margin-bottom: 6px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
-        .product-price-tag { font-size: 16px; font-weight: 700; color: #d2a679; margin-bottom: 8px; }
+        /* Image Box */
+        .img-box-grid { width: 100%; height: 230px; overflow: hidden; background: #fafafa; cursor: pointer; position: relative; }
+        .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .product-card:hover .img-box-grid img { transform: scale(1.08); }
 
-        .button-group { display: flex; border-top: 1px solid #eee; }
-        .btn-buy { background-color: #333; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 11px; cursor: pointer; transition: background 0.3s; text-transform: uppercase; }
-        .btn-view { background-color: #d2a679; color: #fff; border: none; padding: 10px 0; width: 50%; font-weight: bold; font-size: 11px; cursor: pointer; transition: background 0.3s; text-transform: uppercase; }
-        .btn-buy:hover { background-color: #111; }
-        .btn-view:hover { background-color: #b88a5d; }
+        /* Product Details Info */
+        .product-info { padding: 15px 15px 10px 15px; text-align: left; }
+        .product-category { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
+        .product-info h3 { 
+            font-size: 15px; 
+            color: #222; 
+            margin-bottom: 6px; 
+            font-weight: 700; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 1; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .product-info h3:hover { color: #d2a679; }
 
-        /* মোডাল স্টাইল */
+        /* Rating Stars */
+        .product-rating { color: #ffb400; font-size: 11px; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+        .product-rating span { color: #888; font-size: 11px; margin-left: 2px; }
+
+        /* Price Tag */
+        .product-price-wrapper { display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px; }
+        .product-price-tag { font-size: 18px; font-weight: 800; color: #111; }
+        .stock-status { font-size: 10px; font-weight: 600; color: #2e7d32; background: #e8f5e9; padding: 2px 6px; border-radius: 4px; }
+
+        /* Unique Action Buttons */
+        .button-group { display: flex; gap: 8px; padding: 0 15px 15px 15px; }
+        
+        .btn-buy { 
+            background: #111; 
+            color: #fff; 
+            border: none; 
+            padding: 10px; 
+            flex: 1; 
+            font-weight: 700; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-transform: uppercase; 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-view { 
+            background: #f0f0f0; 
+            color: #333; 
+            border: 1px solid #e0e0e0; 
+            padding: 10px; 
+            flex: 1; 
+            font-weight: 700; 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            text-transform: uppercase; 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-buy:hover { background: #d2a679; color: #fff; box-shadow: 0 4px 12px rgba(210, 166, 121, 0.4); }
+        .btn-view:hover { background: #e2e2e2; color: #000; }
+
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
-        .modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close-btn { position: absolute; top: 10px; right: 12px; font-size: 20px; cursor: pointer; color: #fff; background-color: #ff3b30; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 100%; max-width: 480px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .close-btn { position: absolute; top: 12px; right: 12px; font-size: 18px; cursor: pointer; color: #fff; background-color: #ff3b30; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
 
         .wishlist-item { display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .wishlist-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .wishlist-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
         .wishlist-item-info { flex-grow: 1; text-align: left; }
         .wishlist-item-info h4 { font-size: 13px; color: #333; margin-bottom: 4px; }
         .wishlist-item-info span { font-size: 13px; font-weight: bold; color: #d2a679; }
         .wishlist-actions { display: flex; flex-direction: column; gap: 5px; }
-        .btn-wishlist-buy { background-color: #333; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
-        .btn-wishlist-remove { background-color: #ff3b30; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 3px; cursor: pointer; }
+        .btn-wishlist-buy { background-color: #111; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; }
+        .btn-wishlist-remove { background-color: #ff3b30; color: white; border: none; padding: 6px 10px; font-size: 11px; border-radius: 4px; cursor: pointer; }
 
         .details-box { text-align: center; }
-        .img-zoom-container { overflow: hidden; border-radius: 6px; margin-bottom: 15px; position: relative; cursor: zoom-in; background: #f0f0f0; }
+        .img-zoom-container { overflow: hidden; border-radius: 8px; margin-bottom: 15px; position: relative; cursor: zoom-in; background: #f0f0f0; }
         .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; transition: transform 0.4s ease; display: block; }
         .img-zoom-container:hover img { transform: scale(1.3); }
         .zoom-hint { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none; }
         .details-box h2 { font-size: 18px; margin-bottom: 8px; color: #222; }
         .details-price { font-size: 20px; font-weight: bold; color: #d2a679; margin-bottom: 15px; }
-        .details-desc { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; border: 1px solid #eee; white-space: pre-line; }
+        .details-desc { text-align: left; background: #f9f9f9; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: #555; margin-bottom: 20px; border: 1px solid #eee; white-space: pre-line; }
 
         .full-img-modal .modal-content { background: transparent; padding: 0; max-width: 90vw; max-height: 90vh; display: flex; justify-content: center; align-items: center; box-shadow: none; }
         .full-img-modal img { max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
 
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; }
         .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 6px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
-        .btn-submit { background-color: #25D366; color: #fff; border: none; padding: 12px; width: 100%; font-weight: bold; font-size: 15px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-submit { background-color: #25D366; color: #fff; border: none; padding: 12px; width: 100%; font-weight: bold; font-size: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
         footer { background-color: #111; color: #fff; padding: 25px 5%; margin-top: 50px; text-align: center; }
         footer p { font-size: 13px; color: #aaa; margin-bottom: 8px; }
@@ -125,15 +237,17 @@
         @media (max-width: 480px) {
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .img-box-grid { height: 160px; }
+            .product-info { padding: 10px 10px 6px 10px; }
             .product-info h3 { font-size: 13px; }
-            .product-price-tag { font-size: 14px; }
-            .button-group { flex-direction: column; }
-            .btn-buy, .btn-view { width: 100%; padding: 8px 0; }
+            .product-price-tag { font-size: 15px; }
+            .button-group { padding: 0 10px 10px 10px; gap: 5px; }
+            .btn-buy, .btn-view { padding: 8px 4px; font-size: 10px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
             <a href="#contact"><i class="fa-solid fa-envelope icon-contact"></i> Contact Us</a>
@@ -145,6 +259,7 @@
         </div>
     </div>
 
+    <!-- Header -->
     <header>
         <a href="index.html" class="logo">
             Need<span>Jp</span>
@@ -166,6 +281,7 @@
         </div>
     </header>
 
+    <!-- Navigation Bar -->
     <nav>
         <div class="nav-links">
             <a href="index.html">HOME</a>
@@ -177,12 +293,14 @@
         </div>
     </nav>
 
+    <!-- Announcement Bar -->
     <div class="announcement">
         DELIVERY IN JOYPURHAT SODOR • SUMMER LOOK FLASH SALE 70% OFF • 20% OFF EVERYTHING FOR WOMAN
     </div>
 
+    <!-- Main Container -->
     <div class="container">
-        <div class="section-title">LATEST PRODUCTS</div>
+        <div class="section-title"><i class="fa-solid fa-fire"></i> LATEST PRODUCTS</div>
         <div class="product-grid" id="productGrid">
             <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
@@ -265,6 +383,7 @@
         </div>
     </div>
 
+    <!-- Footer -->
     <footer id="contact">
         <p>Contact Us: mdhayfajothussain38@gmail.com | Phone: +8801732274010</p>
         <p>&copy; 2026 NeedJp. All Rights Reserved.</p>
@@ -317,6 +436,7 @@
                     const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
 
                     card.innerHTML = `
+                        <div class="product-tag">HOT</div>
                         <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
                             <i class="fa-regular fa-heart"></i>
                         </div>
@@ -324,12 +444,24 @@
                             <img src="${p.image}" alt="${p.title}">
                         </div>
                         <div class="product-info">
+                            <span class="product-category">LADIES COLLECTION</span>
                             <h3 onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
-                            <div class="product-price-tag">৳${p.price}</div>
+                            <div class="product-rating">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <span>(5.0)</span>
+                            </div>
+                            <div class="product-price-wrapper">
+                                <div class="product-price-tag">৳${p.price}</div>
+                                <span class="stock-status">In Stock</span>
+                            </div>
                         </div>
                         <div class="button-group">
-                            <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})">BUY NOW</button>
-                            <button class="btn-view" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">VIEW DETAILS</button>
+                            <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})"><i class="fa-solid fa-bag-shopping"></i> BUY NOW</button>
+                            <button class="btn-view" onclick="openDetails('${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')"><i class="fa-solid fa-eye"></i> VIEW</button>
                         </div>
                     `;
                     grid.appendChild(card);
