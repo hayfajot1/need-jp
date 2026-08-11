@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeedJp - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f4f6f9; padding: 20px; }
+        .admin-container { max-width: 500px; margin: 30px auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; font-size: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #555; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; outline: none; }
+        button { background: #d2a679; color: white; border: none; padding: 12px; width: 100%; font-size: 15px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #b88a5d; }
+        #adminContent { display: none; }
+    </style>
+    <!-- Firebase Firestore SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div class="admin-container">
+    <!-- পাসওয়ার্ড সেকশন -->
+    <div id="loginSection">
+        <h2>NeedJp অ্যাডমিন লগইন</h2>
+        <div class="form-group">
+            <label>পাসওয়ার্ড প্রবেশ করান:</label>
+            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন">
+        </div>
+        <button onclick="checkPassword()">লগইন</button>
+    </div>
+
+    <!-- প্রোডাক্ট ফর্ম -->
+    <div id="adminContent">
+        <h2>নতুন প্রোডাক্ট আপলোড</h2>
+        <form id="productForm">
+            <div class="form-group">
+                <label>প্রোডাক্টের নাম *</label>
+                <input type="text" id="pTitle" required placeholder="যেমন: ইমপোর্টেড লেডিস ব্যাগ">
+            </div>
+            <div class="form-group">
+                <label>মূল্য (টাকা) *</label>
+                <input type="number" id="pPrice" required placeholder="যেমন: 1250">
+            </div>
+            <div class="form-group">
+                <label>বিবরণ (Details) *</label>
+                <textarea id="pDesc" rows="3" required placeholder="• মেটেরিয়াল: লেদার..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>প্রোডাক্টের ছবি সিলেক্ট করুন *</label>
+                <input type="file" id="pImgFile" accept="image/*" required>
+            </div>
+            <button type="button" onclick="uploadProduct()" id="uploadBtn">আপলোড করুন</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
+      authDomain: "needjp-store.firebaseapp.com",
+      projectId: "needjp-store",
+      storageBucket: "needjp-store.firebasestorage.app",
+      messagingSenderId: "1876371529444",
+      appId: "1:1876371529444:web:9ab84f1af05e79b04756f1",
+      measurementId: "G-DJY5MQCEGP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const ADMIN_PASSWORD = "12345"; 
+    const IMGBB_API_KEY = "c189b276707a01d5dfbb7ec1ec8dd801"; // ImgBB ফ্রি API Key
+
+    function checkPassword() {
+        const pass = document.getElementById('adminPass').value;
+        if(pass === ADMIN_PASSWORD) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+        } else {
+            alert('ভুল পাসওয়ার্ড!');
+        }
+    }
+
+    async function uploadProduct() {
+        const title = document.getElementById('pTitle').value;
+        const price = document.getElementById('pPrice').value;
+        const desc = document.getElementById('pDesc').value;
+        const fileInput = document.getElementById('pImgFile');
+        const btn = document.getElementById('uploadBtn');
+
+        if(!title || !price || !desc || !fileInput.files[0]) {
+            alert('অনুগ্রহ করে সকল তথ্য পূরণ করুন!');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "ছবি প্রসেস হচ্ছে...";
+
+        try {
+            // ImgBB-তে ফ্রি ছবি আপলোড
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("image", file);
+
+            const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            });
+
+            const imgData = await imgRes.json();
+
+            if (!imgData.success) {
+                throw new Error("ছবি আপলোড ব্যর্থ হয়েছে!");
+            }
+
+            const imageUrl = imgData.data.url;
+            btn.innerText = "ডাটা সেভ হচ্ছে...";
+
+            // ফায়ারবেস ডাটাবেজে প্রোডাক্ট সেভ
+            await db.collection('products').add({
+                title: title,
+                price: Number(price),
+                description: desc,
+                image: imageUrl,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            alert('প্রোডাক্ট সফলভাবে আপলোড হয়েছে!');
+            document.getElementById('productForm').reset();
+        } catch (error) {
+            alert('ত্রুটি: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "আপলোড করুন";
+        }
+    }
+</script>
+</body>
+</html>
