@@ -134,6 +134,11 @@
 
         .payment-info-box { background-color: #fff8e1; border: 1px solid #ffe082; padding: 12px; border-radius: 8px; font-size: 12px; color: #5d4037; margin-bottom: 15px; line-height: 1.5; }
 
+        /* Price Breakdown Table in Modal */
+        .price-breakdown { font-size: 12px; color: #555; }
+        .price-breakdown .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .price-breakdown .total-row { font-size: 15px; font-weight: 800; color: var(--primary-gold); border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 6px; }
+
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
 
@@ -184,7 +189,7 @@
         
         <div class="scrolling-text-box">
             <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
-                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি সুবিধা ✨
+                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ক্যাশ অন ডেলিভারি ও ফ্রি ডেলিভারি সুবিধা ✨
             </marquee>
         </div>
 
@@ -278,15 +283,28 @@
             <span class="close-btn" onclick="closeCheckout()">&times;</span>
             <div style="text-align:center; margin-bottom:18px;">
                 <h2 style="font-size:20px; font-weight:800;"><i class="fa-solid fa-bag-shopping" style="color:var(--primary-gold)"></i> দ্রুত অর্ডার কনফার্ম করুন</h2>
-                <p id="checkoutSubtitle" style="font-size:12px; color:#666; margin-top:4px;">ক্যাশ অন ডেলিভারিতে অর্ডার করতে তথ্য পূরণ করুন</p>
+                <p id="checkoutSubtitle" style="font-size:12px; color:#666; margin-top:4px;">অর্ডার করতে নিচের তথ্যগুলো সঠিক তথ্য প্রদান করুন</p>
             </div>
 
-            <div style="background:#fdfaf6; border:1px dashed var(--primary-gold); padding:12px 15px; border-radius:10px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <span style="font-size:10px; color:#888; font-weight:700;">SELECTED PRODUCT</span>
-                    <div id="displayPName" style="font-size:14px; font-weight:700;">-</div>
+            <div style="background:#fdfaf6; border:1px dashed var(--primary-gold); padding:12px 15px; border-radius:10px; margin-bottom:18px;">
+                <div style="font-size:10px; color:#888; font-weight:700; margin-bottom:4px;">SELECTED PRODUCT</div>
+                <div id="displayPName" style="font-size:14px; font-weight:700; margin-bottom:8px;">-</div>
+                
+                <!-- Price Calculation Breakdown -->
+                <div class="price-breakdown">
+                    <div class="row">
+                        <span>প্রোডাক্টের মূল্য:</span>
+                        <span id="summaryProductPrice">৳0</span>
+                    </div>
+                    <div class="row">
+                        <span>ডেলিভারি চার্জ:</span>
+                        <span id="summaryDeliveryCharge">৳0</span>
+                    </div>
+                    <div class="row total-row">
+                        <span>সর্বমোট (Total):</span>
+                        <span id="displayPPrice">৳0</span>
+                    </div>
                 </div>
-                <div id="displayPPrice" style="font-size:18px; font-weight:800; color:var(--primary-gold);">৳0</div>
             </div>
 
             <form id="orderForm">
@@ -298,6 +316,17 @@
                 <div class="form-group">
                     <label>মোবাইল নম্বর *</label>
                     <div class="input-wrapper"><i class="fa-solid fa-phone"></i><input type="tel" id="cPhone" required placeholder="017XXXXXXXX"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>ডেলিভারি এরিয়া (Delivery Location) *</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-truck-ramps"></i>
+                        <select id="deliveryArea" onchange="calculateTotal()">
+                            <option value="Joypurhat" selected>জয়পুরহাট সদর (ফ্রি ডেলিভারি - ৳0)</option>
+                            <option value="Outside">জয়পুরহাটের বাইরে / সমগ্র বাংলাদেশ (৳১২০)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -363,6 +392,7 @@
         const db = firebase.firestore();
 
         let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5;
+        let deliveryCharge = 0, totalPrice = 0;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -436,6 +466,22 @@
         }
         function closeFullscreenZoom() {
             document.getElementById('zoomOverlay').style.display = 'none';
+        }
+
+        /* Calculate Total Price with Delivery Charge */
+        function calculateTotal() {
+            const area = document.getElementById('deliveryArea').value;
+            if (area === 'Outside') {
+                deliveryCharge = 120;
+            } else {
+                deliveryCharge = 0;
+            }
+
+            totalPrice = Number(selectedPrice) + deliveryCharge;
+
+            document.getElementById('summaryProductPrice').innerText = '৳' + selectedPrice;
+            document.getElementById('summaryDeliveryCharge').innerText = '৳' + deliveryCharge;
+            document.getElementById('displayPPrice').innerText = '৳' + totalPrice;
         }
 
         /* Dynamic Payment Method Handler */
@@ -543,7 +589,8 @@
             selectedProduct = name;
             selectedPrice = price;
             document.getElementById('displayPName').innerText = name;
-            document.getElementById('displayPPrice').innerText = '৳' + price;
+            document.getElementById('deliveryArea').value = 'Joypurhat'; // Reset to default
+            calculateTotal();
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
@@ -555,6 +602,8 @@
             const name = document.getElementById('cName').value.trim();
             const phone = document.getElementById('cPhone').value.trim();
             const address = document.getElementById('cAddress').value.trim();
+            const areaSelect = document.getElementById('deliveryArea');
+            const areaText = areaSelect.options[areaSelect.selectedIndex].text;
             const pMethod = document.getElementById('pMethod').value;
             const trxID = document.getElementById('cTrxID').value.trim();
 
@@ -570,7 +619,10 @@
 
             let message = `🛍️ *নতুন অর্ডার (NeedJp Store)*\n\n`;
             message += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
-            message += `💰 *মূল্য:* ৳${selectedPrice}\n\n`;
+            message += `💵 *প্রোডাক্ট মূল্য:* ৳${selectedPrice}\n`;
+            message += `🚚 *ডেলিভারি এরিয়া:* ${areaText}\n`;
+            message += `🚚 *ডেলিভারি চার্জ:* ৳${deliveryCharge}\n`;
+            message += `💰 *সর্বমোট (Total):* ৳${totalPrice}\n\n`;
             message += `👤 *গ্রাহকের নাম:* ${name}\n`;
             message += `📞 *মোবাইল:* ${phone}\n`;
             message += `🏠 *ঠিকানা:* ${address}\n`;
