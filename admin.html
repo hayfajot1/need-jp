@@ -21,7 +21,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
         body { background-color: var(--bg-light); color: #222; padding: 20px; }
 
-        .admin-container { max-width: 900px; margin: 0 auto; }
+        /* Login Modal / Box */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+        }
+        .login-card {
+            background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border-top: 4px solid var(--primary-gold);
+        }
+        .login-card h2 { font-size: 20px; margin-bottom: 20px; color: #111; }
+
+        .admin-container { max-width: 900px; margin: 0 auto; display: none; }
         
         header { background: var(--primary-dark); color: #fff; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px solid var(--primary-gold); }
         header h1 { font-size: 20px; color: var(--primary-gold); }
@@ -37,6 +49,9 @@
         .btn-submit { background: var(--primary-dark); color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 12px 20px; font-weight: 800; font-size: 14px; border-radius: 8px; cursor: pointer; transition: 0.3s; width: 100%; }
         .btn-submit:hover { background: var(--primary-gold); color: #fff; }
 
+        .preview-box { margin-top: 10px; display: none; text-align: center; }
+        .preview-box img { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px dashed var(--primary-gold); padding: 4px; }
+
         /* Product List Table */
         .product-list { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .product-list th, .product-list td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
@@ -45,14 +60,35 @@
 
         .btn-delete { background: var(--accent-red); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .btn-delete:hover { background: #b8001c; }
+        .btn-logout { background: #444; color: #fff; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="admin-container">
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2><i class="fa-solid fa-lock" style="color: var(--primary-gold);"></i> Admin Login</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <input type="text" id="adminUser" placeholder="ইউজারনেম (Username)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="adminPass" placeholder="পাসওয়ার্ড (Password)" required>
+                </div>
+                <button type="submit" class="btn-submit">লগইন করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN PANEL CONTAINER -->
+    <div class="admin-container" id="adminContainer">
         <header>
             <h1><i class="fa-solid fa-user-shield"></i> NeedJp Admin Panel</h1>
-            <a href="index.html" target="_blank" style="color: #fff; text-decoration: none; font-size: 13px;"><i class="fa-solid fa-globe"></i> ওয়েবসাইটে যান</a>
+            <div>
+                <a href="index.html" target="_blank" style="color: #fff; text-decoration: none; font-size: 13px; margin-right: 15px;"><i class="fa-solid fa-globe"></i> ওয়েবসাইটে যান</a>
+                <button class="btn-logout" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> লগআউট</button>
+            </div>
         </header>
 
         <!-- Add Product Form -->
@@ -69,17 +105,28 @@
                     <input type="number" id="pPrice" required placeholder="যেমন: 1200">
                 </div>
 
+                <!-- Image Upload Option (File with Auto Compression or Direct URL) -->
                 <div class="form-group">
-                    <label>ইমেজ ইউআরএল (Image URL) *</label>
-                    <input type="url" id="pImg" required placeholder="https://example.com/image.jpg">
+                    <label>ছবি সিলেক্ট করুন (অটোমেটিক সাইজ ও রেজোলিউশন কমপ্রেস হবে) *</label>
+                    <input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)">
                 </div>
 
                 <div class="form-group">
+                    <label>অথবা ইমেজ ইউআরএল (Image URL) দিন</label>
+                    <input type="url" id="pImgUrl" placeholder="https://example.com/image.jpg" onchange="previewUrlImage()">
+                </div>
+
+                <div class="preview-box" id="previewBox">
+                    <p style="font-size:11px; color:#666; margin-bottom:4px;">ছবি প্রিভিউ (কমপ্রেসড):</p>
+                    <img id="imgPreview" src="" alt="Preview">
+                </div>
+
+                <div class="form-group" style="margin-top:15px;">
                     <label>প্রোডাক্টের বিবরণ (Description)</label>
                     <textarea id="pDesc" rows="3" placeholder="প্রোডাক্টের বিস্তারিত তথ্য..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit"><i class="fa-solid fa-cloud-arrow-up"></i> প্রোডাক্ট সেভ করুন</button>
+                <button type="submit" class="btn-submit" id="saveBtn"><i class="fa-solid fa-cloud-arrow-up"></i> প্রোডাক্ট সেভ করুন</button>
             </form>
         </div>
 
@@ -103,7 +150,13 @@
     </div>
 
     <script>
-        // Firebase Configuration (Same as main site)
+        // Updated Admin Credentials
+        const ADMIN_USER = "needjp";
+        const ADMIN_PASS = "needjp2025";
+
+        let compressedBase64Image = "";
+
+        // Firebase Configuration
         const firebaseConfig = {
           apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
           authDomain: "needjp-store.firebaseapp.com",
@@ -118,8 +171,82 @@
         const db = firebase.firestore();
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadAdminProducts();
+            if (sessionStorage.getItem('needjp_admin_logged') === 'true') {
+                showAdminDashboard();
+            }
         });
+
+        // Handle Admin Login
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                sessionStorage.setItem('needjp_admin_logged', 'true');
+                showAdminDashboard();
+            } else {
+                alert('ভুল ইউজারনেম বা পাসওয়ার্ড দিয়েছেন!');
+            }
+        });
+
+        function showAdminDashboard() {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'block';
+            loadAdminProducts();
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('needjp_admin_logged');
+            location.reload();
+        }
+
+        // Automatic Image Compression Function
+        function handleImageCompress(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxWidth = 800; // রেজোলিউশন কমানোর জন্য ম্যাক্সিমাম উইডথ
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // কোয়ালিটি ৭০% (0.7) এ কমপ্রেস করা হচ্ছে
+                    compressedBase64Image = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    document.getElementById('imgPreview').src = compressedBase64Image;
+                    document.getElementById('previewBox').style.display = 'block';
+                    document.getElementById('pImgUrl').value = ''; // Reset URL field
+                }
+            }
+        }
+
+        function previewUrlImage() {
+            const url = document.getElementById('pImgUrl').value.trim();
+            if (url) {
+                compressedBase64Image = url;
+                document.getElementById('imgPreview').src = url;
+                document.getElementById('previewBox').style.display = 'block';
+                document.getElementById('pImgFile').value = ''; // Reset File input
+            }
+        }
 
         // Add Product Event
         document.getElementById('addProductForm').addEventListener('submit', function(e) {
@@ -127,20 +254,34 @@
             
             const title = document.getElementById('pTitle').value.trim();
             const price = Number(document.getElementById('pPrice').value);
-            const image = document.getElementById('pImg').value.trim();
             const description = document.getElementById('pDesc').value.trim();
+
+            if (!compressedBase64Image) {
+                alert('অনুগ্রহ করে একটি ছবি সিলেক্ট করুন বা ছবির ইউআরএল দিন!');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> সেভ হচ্ছে...';
 
             db.collection('products').add({
                 title: title,
                 price: price,
-                image: image,
+                image: compressedBase64Image,
                 description: description,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert('প্রোডাক্ট সফলভাবে আপলোড করা হয়েছে!');
                 document.getElementById('addProductForm').reset();
+                document.getElementById('previewBox').style.display = 'none';
+                compressedBase64Image = "";
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> প্রোডাক্ট সেভ করুন';
             }).catch(error => {
                 alert('এরর: ' + error.message);
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> প্রোডাক্ট সেভ করুন';
             });
         });
 
