@@ -108,12 +108,21 @@
 
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
-        .modal-content { background: #fff; padding: 25px 30px; border-radius: 20px; width: 100%; max-width: 500px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease; }
+        .modal-content { background: #fff; padding: 25px 30px; border-radius: 20px; width: 100%; max-width: 520px; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease; }
 
         @keyframes modalFadeIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 16px; cursor: pointer; color: #666; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 16px; cursor: pointer; color: #666; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 10; }
         .close-btn:hover { background: var(--accent-red); color: #fff; }
+
+        /* Image Zoom Feature */
+        .img-zoom-container { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 15px; cursor: zoom-in; }
+        .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; transition: transform 0.3s ease; display: block; }
+        .img-zoom-hint { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 10px; pointer-events: none; }
+
+        /* Fullscreen Zoom Modal */
+        #zoomOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 20000; justify-content: center; align-items: center; cursor: zoom-out; }
+        #zoomOverlay img { max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
         /* Form Inputs */
         .form-group { margin-bottom: 15px; text-align: left; }
@@ -128,16 +137,16 @@
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
 
-        /* Reviews Styling */
+        /* Customer Reviews Styling */
         .reviews-section { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; text-align: left; }
         .reviews-section h3 { font-size: 15px; margin-bottom: 12px; color: #111; display: flex; align-items: center; gap: 8px; }
-        .review-card { background: #fdfdfd; border: 1px solid #eee; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+        .review-card { background: #fdfdfd; border: 1px solid #eee; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .review-author { font-weight: 700; font-size: 12px; color: #222; }
-        .review-stars { color: #ffc107; font-size: 10px; }
-        .review-text { font-size: 12px; color: #555; }
+        .review-author { font-weight: 700; font-size: 13px; color: #222; }
+        .review-stars { color: #ffc107; font-size: 11px; }
+        .review-text { font-size: 12px; color: #555; line-height: 1.4; }
 
-        .add-review-box { background: #fdfaf6; padding: 12px; border-radius: 10px; border: 1px dashed var(--primary-gold); margin-top: 15px; }
+        .add-review-box { background: #fdfaf6; padding: 14px; border-radius: 12px; border: 1px dashed var(--primary-gold); margin-top: 15px; }
         .star-rating-select { display: flex; gap: 6px; font-size: 18px; color: #ccc; cursor: pointer; margin: 6px 0 10px 0; }
         .star-rating-select i.active { color: #ffc107; }
 
@@ -217,18 +226,26 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeDetails()">&times;</span>
             <div style="text-align: center;">
-                <img id="dImg" src="" style="width:100%; max-height:250px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
+                <!-- Zoomable Image Container -->
+                <div class="img-zoom-container" onclick="openFullscreenZoom()">
+                    <img id="dImg" src="" alt="Product Image">
+                    <div class="img-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> জুম করতে ক্লিক করুন</div>
+                </div>
+                
                 <h2 id="dTitle" style="font-size:18px; color:#111;"></h2>
                 <div id="dPrice" style="font-size:22px; font-weight:800; color:var(--primary-gold); margin:6px 0 12px 0;"></div>
                 <div id="dDesc" style="text-align:left; background:#f9f9f9; padding:12px; border-radius:8px; font-size:13px; color:#555; border:1px solid #eee; margin-bottom:15px; white-space:pre-line;"></div>
                 <button class="btn-submit" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
             </div>
 
-            <!-- Customer Reviews -->
+            <!-- Customer Reviews (Saved Under Product) -->
             <div class="reviews-section">
                 <h3><i class="fa-solid fa-comments" style="color:var(--primary-gold);"></i> কাস্টমার রিভিউ (Customer Reviews)</h3>
-                <div id="reviewsList"></div>
+                <div id="reviewsList">
+                    <!-- Dynamic Reviews Load Here -->
+                </div>
 
+                <!-- Add Review Box -->
                 <div class="add-review-box">
                     <h4 style="font-size:12px; font-weight:700; color:#333;">আপনার মতামত দিন:</h4>
                     <div class="star-rating-select" id="starSelector">
@@ -248,6 +265,11 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Fullscreen Image Zoom Overlay -->
+    <div id="zoomOverlay" onclick="closeFullscreenZoom()">
+        <img id="zoomImg" src="" alt="Zoomed Product Image">
     </div>
 
     <!-- Dynamic Checkout Modal -->
@@ -402,6 +424,18 @@
                 });
                 updateWishlistUI();
             });
+        }
+
+        /* Image Zoom Functions */
+        function openFullscreenZoom() {
+            const imgSrc = document.getElementById('dImg').src;
+            if (imgSrc) {
+                document.getElementById('zoomImg').src = imgSrc;
+                document.getElementById('zoomOverlay').style.display = 'flex';
+            }
+        }
+        function closeFullscreenZoom() {
+            document.getElementById('zoomOverlay').style.display = 'none';
         }
 
         /* Dynamic Payment Method Handler */
