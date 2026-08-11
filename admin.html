@@ -11,7 +11,7 @@
         
         .admin-container { width: 100%; max-width: 550px; background: #fff; padding: 35px 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
         
-        /* লগইন সেকশন ডিজাইন */
+        /* লগইন সেকশন */
         .login-card { text-align: center; }
         .login-card h2 { color: #222; font-size: 22px; margin-bottom: 8px; font-weight: 700; }
         .login-card p { color: #777; font-size: 13px; margin-bottom: 25px; }
@@ -26,7 +26,7 @@
         button { background: #d2a679; color: white; border: none; padding: 12px; width: 100%; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.3s; }
         button:hover { background: #b88a5d; }
 
-        /* অ্যাডমিন কন্টেন্ট ও ডিলিট সেকশন */
+        /* অ্যাডমিন কন্টেন্ট */
         #adminContent { display: none; }
         .product-list-section { margin-top: 35px; border-top: 2px solid #eee; padding-top: 20px; }
         .product-item { display: flex; align-items: center; justify-content: space-between; background: #fafafa; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; gap: 10px; }
@@ -37,14 +37,13 @@
         .btn-delete { background: #ff3b30; color: white; border: none; padding: 8px 12px; font-size: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; width: auto; }
         .btn-delete:hover { background: #d32f2f; }
     </style>
-    <!-- Firebase Firestore SDK -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
 <div class="admin-container">
-    <!-- নতুন স্টাইলিশ লগইন সেকশন -->
     <div id="loginSection" class="login-card">
         <h2><i class="fa-solid fa-user-shield" style="color: #d2a679;"></i> NeedJp অ্যাডমিন লগইন</h2>
         <p>প্যানেলে প্রবেশ করতে আপনার সঠিক তথ্য দিন</p>
@@ -70,7 +69,6 @@
         </form>
     </div>
 
-    <!-- প্রোডাক্ট আপলোড ও ম্যানেজ সেকশন -->
     <div id="adminContent">
         <h2 style="text-align: center; color: #333; margin-bottom: 20px; font-size: 20px;">নতুন প্রোডাক্ট আপলোড</h2>
         <form id="productForm">
@@ -116,7 +114,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // আপনার নতুন ইউজারনেম ও পাসওয়ার্ড
     const ADMIN_USER = "needjp"; 
     const ADMIN_PASS = "needjp2025"; 
 
@@ -133,12 +130,37 @@
         }
     }
 
-    function convertToBase64(file) {
+    // ছবি সাইজ ছোট/কমপ্রেস করার ফাংশন (Max Width 800px & Quality 0.7)
+    function compressAndConvertToBase64(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height * MAX_WIDTH) / width);
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // JPEG ফরম্যাটে কমানো সাইজে কনভার্ট
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    resolve(compressedBase64);
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (error) => reject(error);
         });
     }
 
@@ -155,11 +177,11 @@
         }
 
         btn.disabled = true;
-        btn.innerText = "ছবি প্রসেস হচ্ছে...";
+        btn.innerText = "ছবি প্রসেস হচ্ছে (অটো কমপ্রেস)...";
 
         try {
             const file = fileInput.files[0];
-            const imageUrl = await convertToBase64(file);
+            const imageUrl = await compressAndConvertToBase64(file);
 
             btn.innerText = "ডাটা সেভ হচ্ছে...";
 
