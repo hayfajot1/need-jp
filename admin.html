@@ -24,10 +24,12 @@
         .preview-box { margin-top: 10px; display: none; text-align: center; }
         .preview-box img { max-width: 120px; border-radius: 10px; }
         
-        /* Search Box */
-        .search-box { position: relative; margin-bottom: 15px; }
+        /* Filter Section Styles */
+        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-box { position: relative; flex: 1; }
         .search-box input { padding-left: 38px; }
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; }
+        .category-filter { width: 45%; }
 
         .product-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; }
         .product-info { display: flex; align-items: center; gap: 10px; flex: 1; }
@@ -67,14 +69,13 @@
             <form id="addProductForm">
                 <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
                 
-                <!-- Category Option -->
+                <!-- Category Select (Gadget Removed) -->
                 <div class="form-group">
                     <label>ক্যাটাগরি নির্বাচন করুন *</label>
                     <select id="pCategory" required>
-                        <option value="bag">ব্যাগ (Ladies Bag)</option>
+                        <option value="bag">লেডিস ব্যাগ (Ladies Bag)</option>
                         <option value="watch">ঘড়ি (Watch)</option>
                         <option value="jewelry">জুয়েলারি ও ব্রেসলেট (Jewelry/Bracelet)</option>
-                        <option value="gadget">ইলেকট্রনিক্স ও গ্যাজেট (Gadgets)</option>
                     </select>
                 </div>
 
@@ -90,9 +91,20 @@
         <div class="card">
             <h2 style="margin-bottom:12px;">প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
             
-            <div class="form-group search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট নাম বা ক্যাটাগরি দিয়ে খুঁজুন..." oninput="filterAdminProducts()">
+            <!-- Filter Bar: Search & Category Filter -->
+            <div class="filter-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="adminSearchInput" placeholder="খুঁজুন..." oninput="filterAdminProducts()">
+                </div>
+                <div class="category-filter">
+                    <select id="adminCategoryFilter" onchange="filterAdminProducts()">
+                        <option value="all">সব ক্যাটাগরি</option>
+                        <option value="bag">ব্যাগ</option>
+                        <option value="watch">ঘড়ি</option>
+                        <option value="jewelry">জুয়েলারি</option>
+                    </select>
+                </div>
             </div>
 
             <div id="adminProductList"></div>
@@ -168,7 +180,7 @@
 
             db.collection('products').add({
                 title: document.getElementById('pTitle').value.trim(),
-                category: document.getElementById('pCategory').value, // ক্যাটাগরি সেভ হচ্ছে
+                category: document.getElementById('pCategory').value,
                 price: Number(document.getElementById('pPrice').value),
                 image: compressedBase64Image,
                 description: document.getElementById('pDesc').value.trim(),
@@ -188,19 +200,17 @@
                 snapshot.forEach(doc => {
                     allProductsCache.push({ id: doc.id, ...doc.data() });
                 });
-                renderProductList(allProductsCache);
+                filterAdminProducts();
             });
         }
 
-        // ক্যাটাগরি টেক্সট ফরম্যাট করার জন্য
         function getCategoryName(catKey) {
             const map = {
                 bag: 'ব্যাগ',
                 watch: 'ঘড়ি',
-                jewelry: 'জুয়েলারি',
-                gadget: 'গ্যাজেট'
+                jewelry: 'জুয়েলারি'
             };
-            return map[catKey] || catKey || 'অন্যান্য';
+            return map[catKey] || 'অন্যান্য';
         }
 
         function renderProductList(products) {
@@ -236,12 +246,17 @@
             });
         }
 
+        // Search & Category Combined Filter Function
         function filterAdminProducts() {
-            const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
-            const filtered = allProductsCache.filter(item => 
-                (item.title && item.title.toLowerCase().includes(query)) ||
-                (item.category && item.category.toLowerCase().includes(query))
-            );
+            const searchInput = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            const selectedCat = document.getElementById('adminCategoryFilter').value;
+
+            const filtered = allProductsCache.filter(item => {
+                const matchesSearch = !searchInput || (item.title && item.title.toLowerCase().includes(searchInput));
+                const matchesCat = (selectedCat === 'all') || (item.category === selectedCat);
+                return matchesSearch && matchesCat;
+            });
+
             renderProductList(filtered);
         }
 
