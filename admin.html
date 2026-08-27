@@ -24,13 +24,17 @@
         .preview-box { margin-top: 10px; display: none; text-align: center; }
         .preview-box img { max-width: 120px; border-radius: 10px; }
         
+        /* Search Bar Style */
+        .search-box { position: relative; margin-bottom: 15px; }
+        .search-box input { padding-left: 38px; }
+        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; }
+
         .product-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; }
         .product-info { display: flex; align-items: center; gap: 10px; flex: 1; }
         .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
         .product-details strong { display: block; font-size: 13px; }
         .product-details span { color: var(--primary-gold); font-size: 12px; font-weight: bold; }
         
-        /* Stock Toggle Buttons */
         .actions { display: flex; gap: 6px; align-items: center; }
         .btn-stock { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .btn-in-stock { background: #e8f5e9; color: #2e7d32; }
@@ -54,7 +58,7 @@
     <div class="admin-container" id="adminContainer">
         <header>
             <h1><i class="fa-solid fa-user-shield"></i> NeedJp Admin</h1>
-            <button style="background:none; border:none; color:#fff;" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <button style="background:none; border:none; color:#fff; cursor:pointer;" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i></button>
         </header>
 
         <div class="card">
@@ -71,7 +75,14 @@
         </div>
 
         <div class="card">
-            <h2>প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
+            <h2 style="margin-bottom:12px;">প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
+            
+            <!-- Search Bar -->
+            <div class="form-group search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="filterAdminProducts()">
+            </div>
+
             <div id="adminProductList"></div>
         </div>
     </div>
@@ -79,6 +90,7 @@
     <script>
         const ADMIN_USER = "needjp", ADMIN_PASS = "needjp2025";
         let compressedBase64Image = "";
+        let allProductsCache = []; // সার্চিং দ্রুত করার জন্য প্রোডাক্ট ডাটা ক্যাশ রাখা হচ্ছে
 
         const firebaseConfig = {
           apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
@@ -147,7 +159,7 @@
                 price: Number(document.getElementById('pPrice').value),
                 image: compressedBase64Image,
                 description: document.getElementById('pDesc').value.trim(),
-                inStock: true, // Default Status is In Stock
+                inStock: true,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 alert('প্রোডাক্ট আপলোড হয়েছে!');
@@ -158,37 +170,56 @@
         });
 
         function loadAdminProducts() {
-            const list = document.getElementById('adminProductList');
             db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                list.innerHTML = '';
+                allProductsCache = [];
                 snapshot.forEach(doc => {
-                    const p = doc.data();
-                    const id = doc.id;
-                    const isStock = p.inStock !== false; // true by default
-
-                    const div = document.createElement('div');
-                    div.className = 'product-item';
-                    div.innerHTML = `
-                        <div class="product-info">
-                            <img src="${p.image}" class="product-img">
-                            <div class="product-details">
-                                <strong>${p.title}</strong>
-                                <span>৳${p.price}</span>
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button class="btn-stock ${isStock ? 'btn-in-stock' : 'btn-out-stock'}" onclick="toggleStock('${id}', ${isStock})">
-                                ${isStock ? 'In Stock' : 'Stock Out'}
-                            </button>
-                            <button class="btn-delete" onclick="deleteProduct('${id}')"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    `;
-                    list.appendChild(div);
+                    allProductsCache.push({ id: doc.id, ...doc.data() });
                 });
+                renderProductList(allProductsCache);
             });
         }
 
-        // Toggle Stock Status In Firestore
+        function renderProductList(products) {
+            const list = document.getElementById('adminProductList');
+            list.innerHTML = '';
+            
+            if (products.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#777; padding:15px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>';
+                return;
+            }
+
+            products.forEach(p => {
+                const isStock = p.inStock !== false;
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.innerHTML = `
+                    <div class="product-info">
+                        <img src="${p.image}" class="product-img">
+                        <div class="product-details">
+                            <strong>${p.title}</strong>
+                            <span>৳${p.price}</span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-stock ${isStock ? 'btn-in-stock' : 'btn-out-stock'}" onclick="toggleStock('${p.id}', ${isStock})">
+                            ${isStock ? 'In Stock' : 'Stock Out'}
+                        </button>
+                        <button class="btn-delete" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // সার্চ ইনপুট ফিল্টার ফাংশন
+        function filterAdminProducts() {
+            const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
+            const filtered = allProductsCache.filter(item => 
+                item.title && item.title.toLowerCase().includes(query)
+            );
+                renderProductList(filtered);
+        }
+
         function toggleStock(id, currentStatus) {
             db.collection('products').doc(id).update({
                 inStock: !currentStatus
