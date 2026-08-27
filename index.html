@@ -169,7 +169,7 @@
         </div>
     </header>
 
-    <!-- Navigation Bar (Updated Categories) -->
+    <!-- Navigation Bar -->
     <nav>
         <div class="nav-links">
             <a class="cat-link active" onclick="filterCategory('all', this)"><i class="fa-solid fa-border-all"></i> ALL</a>
@@ -189,7 +189,7 @@
 
     <!-- Main Container -->
     <div class="container">
-        <div class="section-title" id="currentCatTitle"><i class="fa-solid fa-gem"></i> EXCLUSIVE PRODUCTS</div>
+        <div class="section-title" id="currentCatTitle"><i class="fa-solid fa-gem"></i> ALL PRODUCTS</div>
         <div class="product-grid" id="productGrid">
             <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
@@ -310,7 +310,13 @@
 
             const filtered = currentCategory === 'all' 
                 ? allProducts 
-                : allProducts.filter(p => p.category === currentCategory);
+                : allProducts.filter(p => {
+                    if (currentCategory === 'bags') {
+                        // ওয়াচ বা জুয়েলারি ছাড়া বাকি আগের আপলোড করা সব ব্যাগ প্রোডাক্ট এখানে শো করবে
+                        return p.category === 'bags' || !p.category || (p.category !== 'watches' && p.category !== 'jewelry');
+                    }
+                    return p.category === currentCategory;
+                });
 
             if (filtered.length === 0) {
                 grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">এই ক্যাটাগরিতে কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
@@ -319,7 +325,7 @@
 
             filtered.forEach(p => {
                 const isStock = p.inStock !== false;
-                const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const safeTitle = p.title ? p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;") : '';
                 const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
 
                 const card = document.createElement('div');
@@ -335,7 +341,7 @@
                         <img src="${p.image}" alt="${p.title}">
                     </div>
                     <div class="product-info">
-                        <span class="product-category">${(p.category || 'COLLECTION').toUpperCase()}</span>
+                        <span class="product-category">${(p.category || 'BAGS').toUpperCase()}</span>
                         <h3 onclick="openDetails('${p.id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">${p.title}</h3>
                         <div class="product-price-wrapper">
                             <div class="product-price-tag">৳${p.price}</div>
