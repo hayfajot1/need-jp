@@ -2,141 +2,289 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
+    <!-- iOS Viewport & Web App Settings -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NeedJp Admin">
+
     <title>NeedJp - Mobile Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <style>
-        :root { --primary-gold: #c59d5f; --primary-dark: #111111; --accent-red: #e60023; --bg-light: #f4f6f8; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: var(--bg-light); color: #222; padding: 70px 12px 30px; }
-        header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--primary-dark); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; border-bottom: 2px solid var(--primary-gold); }
-        header h1 { font-size: 16px; color: var(--primary-gold); }
-        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(17,17,17,0.95); display: flex; justify-content: center; align-items: center; z-index: 99999; padding: 20px; }
-        .login-card { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 360px; text-align: center; border-top: 5px solid var(--primary-gold); }
-        .admin-container { max-width: 600px; margin: 0 auto; display: none; }
-        .card { background: #fff; padding: 18px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; background: #fff; }
-        .btn-submit { background: var(--primary-dark); color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; }
-        .preview-box { margin-top: 10px; display: none; text-align: center; }
-        .preview-box img { max-width: 120px; border-radius: 10px; }
-        
-        /* Filter Section Styles */
-        .filter-container { display: flex; gap: 10px; margin-bottom: 15px; }
-        .search-box { position: relative; flex: 1; }
-        .search-box input { padding-left: 38px; }
-        .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; }
-        .category-filter { width: 45%; }
 
-        .product-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; }
-        .product-info { display: flex; align-items: center; gap: 10px; flex: 1; }
-        .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
-        .product-details strong { display: block; font-size: 13px; }
-        .product-details span { color: var(--primary-gold); font-size: 12px; font-weight: bold; }
-        .product-details small { display: block; color: #777; font-size: 11px; margin-top: 2px; }
+    <style>
+        :root {
+            --primary-gold: #c59d5f;
+            --primary-dark: #111111;
+            --accent-red: #e60023;
+            --bg-light: #f4f6f8;
+            --safe-top: env(safe-area-inset-top, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: #222;
+            padding-top: calc(var(--safe-top) + 60px);
+            padding-bottom: calc(var(--safe-bottom) + 30px);
+            padding-left: 12px;
+            padding-right: 12px;
+            -webkit-user-select: none;
+        }
+
+        /* iOS Fixed Header */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: calc(var(--safe-top) + 55px);
+            padding-top: var(--safe-top);
+            background: var(--primary-dark);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: 15px;
+            padding-right: 15px;
+            z-index: 1000;
+            border-bottom: 2px solid var(--primary-gold);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 16px;
+            color: var(--primary-gold);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Login Modal / iOS Fullscreen Overlay */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(17, 17, 17, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center; z-index: 99999;
+            padding: 20px;
+        }
+        .login-card {
+            background: #fff; padding: 25px 20px; border-radius: 20px; width: 100%; max-width: 360px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; border-top: 5px solid var(--primary-gold);
+        }
+        .login-card h2 { font-size: 18px; margin-bottom: 20px; color: #111; }
+
+        .admin-container { max-width: 600px; margin: 0 auto; display: none; }
+
+        .card {
+            background: #fff;
+            padding: 18px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 15px;
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 1.5px solid #f0f0f0;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #444; }
         
-        .actions { display: flex; gap: 6px; align-items: center; }
-        .btn-stock { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .btn-in-stock { background: #e8f5e9; color: #2e7d32; }
-        .btn-out-stock { background: #fff3e0; color: #ef6c00; }
-        .btn-delete { background: #ffebee; color: var(--accent-red); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        /* Disable Auto-Zoom on iOS Input (Font size minimum 16px) */
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px; /* Prevents iOS Safari auto zoom */
+            outline: none;
+            background: #fdfdfd;
+            -webkit-appearance: none;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-gold); background: #fff; }
+
+        .btn-submit {
+            background: var(--primary-dark);
+            color: var(--primary-gold);
+            border: 1px solid var(--primary-gold);
+            padding: 14px;
+            font-weight: 700;
+            font-size: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+        .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
+
+        .preview-box { margin-top: 10px; display: none; text-align: center; }
+        .preview-box img { max-width: 120px; max-height: 120px; border-radius: 10px; border: 1px dashed var(--primary-gold); padding: 4px; }
+
+        /* Mobile Product List Card View */
+        .product-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .product-item:last-child { border-bottom: none; }
+        .product-info { display: flex; align-items: center; gap: 12px; }
+        .product-img { width: 55px; height: 55px; object-fit: cover; border-radius: 10px; border: 1px solid #eee; }
+        .product-details { font-size: 14px; }
+        .product-details strong { display: block; color: #111; font-size: 14px; margin-bottom: 2px; }
+        .product-details span { color: var(--primary-gold); font-weight: 700; font-size: 13px; }
+
+        .btn-delete {
+            background: #ffebee;
+            color: var(--accent-red);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .btn-delete:active { background: #ffcdd2; }
+
+        .btn-logout { background: rgba(255,255,255,0.15); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
+    <!-- ADMIN LOGIN OVERLAY -->
     <div id="loginOverlay">
         <div class="login-card">
-            <h2 style="margin-bottom:15px;"><i class="fa-solid fa-lock" style="color: var(--primary-gold);"></i> NeedJp Admin</h2>
+            <h2><i class="fa-solid fa-lock" style="color: var(--primary-gold);"></i> NeedJp Admin</h2>
             <form id="adminLoginForm">
-                <div class="form-group"><input type="text" id="adminUser" placeholder="ইউজারনেম" required></div>
-                <div class="form-group"><input type="password" id="adminPass" placeholder="পাসওয়ার্ড" required></div>
+                <div class="form-group">
+                    <input type="text" id="adminUser" placeholder="ইউজারনেম (Username)" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="adminPass" placeholder="পাসওয়ার্ড (Password)" required>
+                </div>
                 <button type="submit" class="btn-submit">লগইন করুন</button>
             </form>
         </div>
     </div>
 
+    <!-- MAIN ADMIN PANEL CONTAINER -->
     <div class="admin-container" id="adminContainer">
         <header>
             <h1><i class="fa-solid fa-user-shield"></i> NeedJp Admin</h1>
-            <button style="background:none; border:none; color:#fff; cursor:pointer;" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <div>
+                <button class="btn-logout" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> লগআউট</button>
+            </div>
         </header>
 
+        <!-- Add Product Form -->
         <div class="card">
-            <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
+            <h2><i class="fa-solid fa-plus-circle" style="color: var(--primary-gold);"></i> নতুন প্রোডাক্ট যোগ করুন</h2>
             <form id="addProductForm">
-                <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
-                
-                <!-- Category Select (Gadget Removed) -->
                 <div class="form-group">
-                    <label>ক্যাটাগরি নির্বাচন করুন *</label>
-                    <select id="pCategory" required>
-                        <option value="bag">লেডিস ব্যাগ (Ladies Bag)</option>
-                        <option value="watch">ঘড়ি (Watch)</option>
-                        <option value="jewelry">জুয়েলারি ও ব্রেসলেট (Jewelry/Bracelet)</option>
-                    </select>
+                    <label>প্রোডাক্টের নাম *</label>
+                    <input type="text" id="pTitle" required placeholder="যেমন: Premium Ladies Handbag">
                 </div>
 
-                <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="pPrice" required></div>
-                <div class="form-group"><label>ছবি নির্বাচন করুন *</label><input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)"></div>
-                <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="pImgUrl" onchange="previewUrlImage()"></div>
-                <div class="preview-box" id="previewBox"><img id="imgPreview" src=""></div>
-                <div class="form-group"><label>বিবরণ</label><textarea id="pDesc" rows="3"></textarea></div>
+                <div class="form-group">
+                    <label>মূল্য (BDT) *</label>
+                    <input type="number" id="pPrice" required placeholder="যেমন: 1200">
+                </div>
+
+                <!-- Image Input -->
+                <div class="form-group">
+                    <label>ছবি নির্বাচন করুন (অটো কমপ্রেস হবে) *</label>
+                    <input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)">
+                </div>
+
+                <div class="form-group">
+                    <label>অথবা ছবির ইউআরএল (URL) দিন</label>
+                    <input type="url" id="pImgUrl" placeholder="https://..." onchange="previewUrlImage()">
+                </div>
+
+                <div class="preview-box" id="previewBox">
+                    <p style="font-size:11px; color:#666; margin-bottom:4px;">কমপ্রেসড ইমেজ প্রিভিউ:</p>
+                    <img id="imgPreview" src="" alt="Preview">
+                </div>
+
+                <div class="form-group">
+                    <label>বিবরণ (Description)</label>
+                    <textarea id="pDesc" rows="3" placeholder="প্রোডাক্টের বিবরণ..."></textarea>
+                </div>
+
                 <button type="submit" class="btn-submit" id="saveBtn"><i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন</button>
             </form>
         </div>
 
+        <!-- Manage Products List -->
         <div class="card">
-            <h2 style="margin-bottom:12px;">প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
-            
-            <!-- Filter Bar: Search & Category Filter -->
-            <div class="filter-container">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="adminSearchInput" placeholder="খুঁজুন..." oninput="filterAdminProducts()">
-                </div>
-                <div class="category-filter">
-                    <select id="adminCategoryFilter" onchange="filterAdminProducts()">
-                        <option value="all">সব ক্যাটাগরি</option>
-                        <option value="bag">ব্যাগ</option>
-                        <option value="watch">ঘড়ি</option>
-                        <option value="jewelry">জুয়েলারি</option>
-                    </select>
-                </div>
+            <h2><i class="fa-solid fa-boxes-stacked" style="color: var(--primary-gold);"></i> প্রোডাক্ট তালিকা</h2>
+            <div id="adminProductList">
+                <p style="text-align:center; color:#888; font-size:13px; padding:10px;">প্রোডাক্ট লোড হচ্ছে...</p>
             </div>
-
-            <div id="adminProductList"></div>
         </div>
     </div>
 
     <script>
-        const ADMIN_USER = "needjp", ADMIN_PASS = "needjp2025";
-        let compressedBase64Image = "";
-        let allProductsCache = [];
+        const ADMIN_USER = "needjp";
+        const ADMIN_PASS = "needjp2025";
 
+        let compressedBase64Image = "";
+
+        // Firebase Config
         const firebaseConfig = {
           apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
           authDomain: "needjp-store.firebaseapp.com",
           projectId: "needjp-store",
           storageBucket: "needjp-store.firebasestorage.app",
           messagingSenderId: "1876371529444",
-          appId: "1:1876371529444:web:9ab84f1af05e79b04756f1"
+          appId: "1:1876371529444:web:9ab84f1af05e79b04756f1",
+          measurementId: "G-DJY5MQCEGP"
         };
+
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (sessionStorage.getItem('needjp_admin_logged') === 'true') showAdminDashboard();
+            if (sessionStorage.getItem('needjp_admin_logged') === 'true') {
+                showAdminDashboard();
+            }
         });
 
+        // Admin Login
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (document.getElementById('adminUser').value.trim() === ADMIN_USER && document.getElementById('adminPass').value.trim() === ADMIN_PASS) {
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
                 sessionStorage.setItem('needjp_admin_logged', 'true');
                 showAdminDashboard();
-            } else alert('ভুল পাসওয়ার্ড!');
+            } else {
+                alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
+            }
         });
 
         function showAdminDashboard() {
@@ -145,11 +293,16 @@
             loadAdminProducts();
         }
 
-        function logoutAdmin() { sessionStorage.removeItem('needjp_admin_logged'); location.reload(); }
+        function logoutAdmin() {
+            sessionStorage.removeItem('needjp_admin_logged');
+            location.reload();
+        }
 
+        // Mobile Friendly Auto Image Compression
         function handleImageCompress(event) {
             const file = event.target.files[0];
             if (!file) return;
+
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = function(e) {
@@ -157,117 +310,114 @@
                 img.src = e.target.result;
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const maxWidth = 700;
-                    let width = img.width, height = img.height;
-                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-                    canvas.width = width; canvas.height = height;
-                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    const maxWidth = 700; // Mobile Optimized Max Width
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 65% Quality Compression (Fast Loading)
                     compressedBase64Image = canvas.toDataURL('image/jpeg', 0.65);
+                    
                     document.getElementById('imgPreview').src = compressedBase64Image;
                     document.getElementById('previewBox').style.display = 'block';
+                    document.getElementById('pImgUrl').value = '';
                 }
             }
         }
 
         function previewUrlImage() {
             const url = document.getElementById('pImgUrl').value.trim();
-            if (url) { compressedBase64Image = url; document.getElementById('imgPreview').src = url; document.getElementById('previewBox').style.display = 'block'; }
+            if (url) {
+                compressedBase64Image = url;
+                document.getElementById('imgPreview').src = url;
+                document.getElementById('previewBox').style.display = 'block';
+                document.getElementById('pImgFile').value = '';
+            }
         }
 
+        // Add Product Event
         document.getElementById('addProductForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (!compressedBase64Image) return alert('ছবি সিলেক্ট করুন!');
-
-            db.collection('products').add({
-                title: document.getElementById('pTitle').value.trim(),
-                category: document.getElementById('pCategory').value,
-                price: Number(document.getElementById('pPrice').value),
-                image: compressedBase64Image,
-                description: document.getElementById('pDesc').value.trim(),
-                inStock: true,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                alert('প্রোডাক্ট আপলোড হয়েছে!');
-                document.getElementById('addProductForm').reset();
-                document.getElementById('previewBox').style.display = 'none';
-                compressedBase64Image = "";
-            });
-        });
-
-        function loadAdminProducts() {
-            db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-                allProductsCache = [];
-                snapshot.forEach(doc => {
-                    allProductsCache.push({ id: doc.id, ...doc.data() });
-                });
-                filterAdminProducts();
-            });
-        }
-
-        function getCategoryName(catKey) {
-            const map = {
-                bag: 'ব্যাগ',
-                watch: 'ঘড়ি',
-                jewelry: 'জুয়েলারি'
-            };
-            return map[catKey] || 'অন্যান্য';
-        }
-
-        function renderProductList(products) {
-            const list = document.getElementById('adminProductList');
-            list.innerHTML = '';
             
-            if (products.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#777; padding:15px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>';
+            const title = document.getElementById('pTitle').value.trim();
+            const price = Number(document.getElementById('pPrice').value);
+            const description = document.getElementById('pDesc').value.trim();
+
+            if (!compressedBase64Image) {
+                alert('অনুগ্রহ করে ছবি নির্বাচন করুন!');
                 return;
             }
 
-            products.forEach(p => {
-                const isStock = p.inStock !== false;
-                const div = document.createElement('div');
-                div.className = 'product-item';
-                div.innerHTML = `
-                    <div class="product-info">
-                        <img src="${p.image}" class="product-img">
-                        <div class="product-details">
-                            <strong>${p.title}</strong>
-                            <span>৳${p.price}</span>
-                            <small>ক্যাটাগরি: ${getCategoryName(p.category)}</small>
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...';
+
+            db.collection('products').add({
+                title: title,
+                price: price,
+                image: compressedBase64Image,
+                description: description,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('প্রোডাক্ট সফলভাবে আপলোড হয়েছে!');
+                document.getElementById('addProductForm').reset();
+                document.getElementById('previewBox').style.display = 'none';
+                compressedBase64Image = "";
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন';
+            }).catch(error => {
+                alert('এরর: ' + error.message);
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন';
+            });
+        });
+
+        // Load Products in Mobile View
+        function loadAdminProducts() {
+            const list = document.getElementById('adminProductList');
+            db.collection('products').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                list.innerHTML = '';
+                if(snapshot.empty) {
+                    list.innerHTML = '<p style="text-align:center; color:#888; font-size:13px; padding:10px;">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    const id = doc.id;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'product-item';
+                    div.innerHTML = `
+                        <div class="product-info">
+                            <img src="${p.image}" class="product-img" alt="img">
+                            <div class="product-details">
+                                <strong>${p.title}</strong>
+                                <span>৳${p.price}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-stock ${isStock ? 'btn-in-stock' : 'btn-out-stock'}" onclick="toggleStock('${p.id}', ${isStock})">
-                            ${isStock ? 'In Stock' : 'Stock Out'}
-                        </button>
-                        <button class="btn-delete" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                list.appendChild(div);
+                        <button class="btn-delete" onclick="deleteProduct('${id}')"><i class="fa-solid fa-trash"></i></button>
+                    `;
+                    list.appendChild(div);
+                });
             });
         }
 
-        // Search & Category Combined Filter Function
-        function filterAdminProducts() {
-            const searchInput = document.getElementById('adminSearchInput').value.toLowerCase().trim();
-            const selectedCat = document.getElementById('adminCategoryFilter').value;
-
-            const filtered = allProductsCache.filter(item => {
-                const matchesSearch = !searchInput || (item.title && item.title.toLowerCase().includes(searchInput));
-                const matchesCat = (selectedCat === 'all') || (item.category === selectedCat);
-                return matchesSearch && matchesCat;
-            });
-
-            renderProductList(filtered);
-        }
-
-        function toggleStock(id, currentStatus) {
-            db.collection('products').doc(id).update({
-                inStock: !currentStatus
-            });
-        }
-
+        // Delete Product
         function deleteProduct(id) {
-            if(confirm('ডিলিট করতে চান?')) db.collection('products').doc(id).delete();
+            if(confirm('প্রোডাক্টটি ডিলিট করতে চান?')) {
+                db.collection('products').doc(id).delete();
+            }
         }
     </script>
 </body>
