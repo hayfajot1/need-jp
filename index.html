@@ -169,11 +169,10 @@
         </div>
     </header>
 
-    <!-- Navigation Bar -->
+    <!-- Navigation Bar (ALL button removed, LADIES BAG default) -->
     <nav>
         <div class="nav-links">
-            <a class="cat-link active" onclick="filterCategory('all', this)"><i class="fa-solid fa-border-all"></i> ALL</a>
-            <a class="cat-link" onclick="filterCategory('bags', this)"><i class="fa-solid fa-bag-shopping"></i> LADIES BAG</a>
+            <a class="cat-link active" onclick="filterCategory('bags', this)"><i class="fa-solid fa-bag-shopping"></i> LADIES BAG</a>
             <a class="cat-link" onclick="filterCategory('watches', this)"><i class="fa-solid fa-clock"></i> WATCHES</a>
             <a class="cat-link" onclick="filterCategory('jewelry', this)"><i class="fa-solid fa-gem"></i> JEWELRY & BRACELET</a>
         </div>
@@ -189,7 +188,7 @@
 
     <!-- Main Container -->
     <div class="container">
-        <div class="section-title" id="currentCatTitle"><i class="fa-solid fa-gem"></i> ALL PRODUCTS</div>
+        <div class="section-title" id="currentCatTitle"><i class="fa-solid fa-bag-shopping"></i> LADIES BAG COLLECTION</div>
         <div class="product-grid" id="productGrid">
             <p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">প্রোডাক্ট লোড হচ্ছে...</p>
         </div>
@@ -269,7 +268,8 @@
         const db = firebase.firestore();
 
         let allProducts = [];
-        let currentCategory = 'all';
+        // Default category set to bags
+        let currentCategory = 'bags';
         let selectedProduct = '', selectedPrice = 0, currentProductStock = true;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
@@ -294,12 +294,18 @@
             if(element) element.classList.add('active');
 
             const titleMap = {
-                'all': 'ALL PRODUCTS',
                 'bags': 'LADIES BAG COLLECTION',
                 'watches': 'WATCHES COLLECTION',
                 'jewelry': 'JEWELRY & BRACELETS'
             };
-            document.getElementById('currentCatTitle').innerHTML = `<i class="fa-solid fa-gem"></i> ${titleMap[cat] || 'PRODUCTS'}`;
+            
+            const iconMap = {
+                'bags': 'fa-bag-shopping',
+                'watches': 'fa-clock',
+                'jewelry': 'fa-gem'
+            };
+
+            document.getElementById('currentCatTitle').innerHTML = `<i class="fa-solid ${iconMap[cat]}"></i> ${titleMap[cat]}`;
             
             renderProducts();
         }
@@ -308,15 +314,13 @@
             const grid = document.getElementById('productGrid');
             grid.innerHTML = '';
 
-            const filtered = currentCategory === 'all' 
-                ? allProducts 
-                : allProducts.filter(p => {
-                    if (currentCategory === 'bags') {
-                        // ওয়াচ বা জুয়েলারি ছাড়া বাকি আগের আপলোড করা সব ব্যাগ প্রোডাক্ট এখানে শো করবে
-                        return p.category === 'bags' || !p.category || (p.category !== 'watches' && p.category !== 'jewelry');
-                    }
-                    return p.category === currentCategory;
-                });
+            const filtered = allProducts.filter(p => {
+                if (currentCategory === 'bags') {
+                    // ঘড়ি ও জুয়েলারি বাদে আগের ও পরের বাকি সব ব্যাকগ্রাউন্ড ব্যাগ প্রোডাক্ট শো করবে
+                    return p.category === 'bags' || !p.category || (p.category !== 'watches' && p.category !== 'jewelry');
+                }
+                return p.category === currentCategory;
+            });
 
             if (filtered.length === 0) {
                 grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #777; padding: 40px 0;">এই ক্যাটাগরিতে কোনো প্রোডাক্ট পাওয়া যায়নি।</p>';
