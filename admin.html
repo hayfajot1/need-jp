@@ -19,12 +19,12 @@
         .card { background: #fff; padding: 18px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; outline: none; background: #fff; }
         .btn-submit { background: var(--primary-dark); color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; }
         .preview-box { margin-top: 10px; display: none; text-align: center; }
         .preview-box img { max-width: 120px; border-radius: 10px; }
         
-        /* Search Bar Style */
+        /* Search Box */
         .search-box { position: relative; margin-bottom: 15px; }
         .search-box input { padding-left: 38px; }
         .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; }
@@ -34,6 +34,7 @@
         .product-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
         .product-details strong { display: block; font-size: 13px; }
         .product-details span { color: var(--primary-gold); font-size: 12px; font-weight: bold; }
+        .product-details small { display: block; color: #777; font-size: 11px; margin-top: 2px; }
         
         .actions { display: flex; gap: 6px; align-items: center; }
         .btn-stock { border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
@@ -65,6 +66,18 @@
             <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
             <form id="addProductForm">
                 <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
+                
+                <!-- Category Option -->
+                <div class="form-group">
+                    <label>ক্যাটাগরি নির্বাচন করুন *</label>
+                    <select id="pCategory" required>
+                        <option value="bag">ব্যাগ (Ladies Bag)</option>
+                        <option value="watch">ঘড়ি (Watch)</option>
+                        <option value="jewelry">জুয়েলারি ও ব্রেসলেট (Jewelry/Bracelet)</option>
+                        <option value="gadget">ইলেকট্রনিক্স ও গ্যাজেট (Gadgets)</option>
+                    </select>
+                </div>
+
                 <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="pPrice" required></div>
                 <div class="form-group"><label>ছবি নির্বাচন করুন *</label><input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)"></div>
                 <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="pImgUrl" onchange="previewUrlImage()"></div>
@@ -77,10 +90,9 @@
         <div class="card">
             <h2 style="margin-bottom:12px;">প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
             
-            <!-- Search Bar -->
             <div class="form-group search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="filterAdminProducts()">
+                <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট নাম বা ক্যাটাগরি দিয়ে খুঁজুন..." oninput="filterAdminProducts()">
             </div>
 
             <div id="adminProductList"></div>
@@ -90,7 +102,7 @@
     <script>
         const ADMIN_USER = "needjp", ADMIN_PASS = "needjp2025";
         let compressedBase64Image = "";
-        let allProductsCache = []; // সার্চিং দ্রুত করার জন্য প্রোডাক্ট ডাটা ক্যাশ রাখা হচ্ছে
+        let allProductsCache = [];
 
         const firebaseConfig = {
           apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
@@ -156,6 +168,7 @@
 
             db.collection('products').add({
                 title: document.getElementById('pTitle').value.trim(),
+                category: document.getElementById('pCategory').value, // ক্যাটাগরি সেভ হচ্ছে
                 price: Number(document.getElementById('pPrice').value),
                 image: compressedBase64Image,
                 description: document.getElementById('pDesc').value.trim(),
@@ -179,6 +192,17 @@
             });
         }
 
+        // ক্যাটাগরি টেক্সট ফরম্যাট করার জন্য
+        function getCategoryName(catKey) {
+            const map = {
+                bag: 'ব্যাগ',
+                watch: 'ঘড়ি',
+                jewelry: 'জুয়েলারি',
+                gadget: 'গ্যাজেট'
+            };
+            return map[catKey] || catKey || 'অন্যান্য';
+        }
+
         function renderProductList(products) {
             const list = document.getElementById('adminProductList');
             list.innerHTML = '';
@@ -198,6 +222,7 @@
                         <div class="product-details">
                             <strong>${p.title}</strong>
                             <span>৳${p.price}</span>
+                            <small>ক্যাটাগরি: ${getCategoryName(p.category)}</small>
                         </div>
                     </div>
                     <div class="actions">
@@ -211,13 +236,13 @@
             });
         }
 
-        // সার্চ ইনপুট ফিল্টার ফাংশন
         function filterAdminProducts() {
             const query = document.getElementById('adminSearchInput').value.toLowerCase().trim();
             const filtered = allProductsCache.filter(item => 
-                item.title && item.title.toLowerCase().includes(query)
+                (item.title && item.title.toLowerCase().includes(query)) ||
+                (item.category && item.category.toLowerCase().includes(query))
             );
-                renderProductList(filtered);
+            renderProductList(filtered);
         }
 
         function toggleStock(id, currentStatus) {
