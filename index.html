@@ -98,13 +98,19 @@
 
         .product-price-wrapper { display: flex; align-items: center; justify-content: space-between; }
         .product-price-tag { font-size: 20px; font-weight: 900; color: #111; }
+        
+        /* Dynamic Stock Badges */
         .stock-status { font-size: 10px; font-weight: 700; color: #2e7d32; background: #e8f5e9; padding: 3px 8px; border-radius: 12px; }
+        .stock-status.out-of-stock { color: #c62828; background: #ffebee; }
 
         .button-group { display: flex; gap: 10px; padding: 0 18px 18px 18px; }
         .btn-buy { background: var(--primary-dark); color: #fff; border: none; padding: 11px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; letter-spacing: 0.5px; }
         .btn-view { background: #f0f0f0; color: #333; border: 1px solid #e0e0e0; padding: 11px; flex: 1; font-weight: 700; font-size: 11px; cursor: pointer; transition: all 0.3s; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-buy:hover { background: var(--primary-gold); color: #fff; box-shadow: 0 4px 15px rgba(197, 157, 95, 0.4); }
+        .btn-buy:hover:not(:disabled) { background: var(--primary-gold); color: #fff; box-shadow: 0 4px 15px rgba(197, 157, 95, 0.4); }
         .btn-view:hover { background: #e2e2e2; }
+
+        /* Stock Out Button Disabled State */
+        .btn-buy:disabled { background: #ccc !important; color: #666 !important; cursor: not-allowed; box-shadow: none !important; }
 
         /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 10000; padding: 15px; }
@@ -140,7 +146,8 @@
         .price-breakdown .total-row { font-size: 15px; font-weight: 800; color: var(--primary-gold); border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 6px; }
 
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
+        .btn-submit:disabled { background: #ccc !important; cursor: not-allowed; box-shadow: none !important; }
 
         /* Customer Reviews Styling */
         .reviews-section { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; text-align: left; }
@@ -240,7 +247,7 @@
                 <h2 id="dTitle" style="font-size:18px; color:#111;"></h2>
                 <div id="dPrice" style="font-size:22px; font-weight:800; color:var(--primary-gold); margin:6px 0 12px 0;"></div>
                 <div id="dDesc" style="text-align:left; background:#f9f9f9; padding:12px; border-radius:8px; font-size:13px; color:#555; border:1px solid #eee; margin-bottom:15px; white-space:pre-line;"></div>
-                <button class="btn-submit" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
+                <button class="btn-submit" id="dBuyBtn" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
             </div>
 
             <!-- Customer Reviews (Saved Under Product) -->
@@ -391,7 +398,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5;
+        let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5, currentProductStock = true;
         let deliveryCharge = 0, totalPrice = 0;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
@@ -412,6 +419,7 @@
                 snapshot.forEach(doc => {
                     const p = doc.data();
                     const id = doc.id;
+                    const isStock = p.inStock !== false; // Check if inStock is true or undefined
                     const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
 
@@ -430,30 +438,80 @@
                         <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
                             <i class="fa-regular fa-heart"></i>
                         </div>
-                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">
+                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">
                             <img src="${p.image}" alt="${p.title}">
                         </div>
                         <div class="product-info">
                             <span class="product-category">LADIES COLLECTION</span>
-                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')">${p.title}</h3>
+                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">${p.title}</h3>
                             <div class="product-rating">
                                 ${starsHTML}
                                 <span>(${p.totalReviews || 1})</span>
                             </div>
                             <div class="product-price-wrapper">
                                 <div class="product-price-tag">৳${p.price}</div>
-                                <span class="stock-status">In Stock</span>
+                                <span class="stock-status ${isStock ? '' : 'out-of-stock'}">${isStock ? 'In Stock' : 'Stock Out'}</span>
                             </div>
                         </div>
                         <div class="button-group">
-                            <button class="btn-buy" onclick="openCheckout('${safeTitle}', ${p.price})"><i class="fa-solid fa-bag-shopping"></i> BUY NOW</button>
-                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}')"><i class="fa-solid fa-eye"></i> VIEW</button>
+                            <button class="btn-buy" ${isStock ? '' : 'disabled'} onclick="openCheckout('${safeTitle}', ${p.price})">
+                                <i class="fa-solid fa-bag-shopping"></i> ${isStock ? 'BUY NOW' : 'STOCK OUT'}
+                            </button>
+                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">
+                                <i class="fa-solid fa-eye"></i> VIEW
+                            </button>
                         </div>
                     `;
                     grid.appendChild(card);
                 });
                 updateWishlistUI();
             });
+        }
+
+        /* Modal Functions */
+        function openDetails(id, title, price, img, desc, isStock = true) {
+            currentProductId = id;
+            currentProductStock = isStock;
+            document.getElementById('dTitle').innerText = title;
+            document.getElementById('dPrice').innerText = '৳' + price;
+            document.getElementById('dImg').src = img;
+            document.getElementById('dDesc').innerText = desc || 'কোনো বিবরণ দেওয়া হয়নি।';
+            
+            const buyBtn = document.getElementById('dBuyBtn');
+            if(!isStock) {
+                buyBtn.disabled = true;
+                buyBtn.innerHTML = '<i class="fa-solid fa-ban"></i> STOCK OUT';
+            } else {
+                buyBtn.disabled = false;
+                buyBtn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)';
+            }
+
+            document.getElementById('detailsModal').style.display = 'flex';
+            loadReviews(id);
+        }
+
+        function closeDetails() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+
+        function buyFromDetails() {
+            if(!currentProductStock) return alert('দুঃখিত, এই প্রোডাক্টটি বর্তমানে স্টক আউট!');
+            const title = document.getElementById('dTitle').innerText;
+            const price = Number(document.getElementById('dPrice').innerText.replace('৳', ''));
+            closeDetails();
+            openCheckout(title, price);
+        }
+
+        function openCheckout(title, price) {
+            selectedProduct = title;
+            selectedPrice = price;
+            document.getElementById('displayPName').innerText = title;
+            calculateTotal();
+            document.getElementById('checkoutModal').style.display = 'flex';
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').style.display = 'none';
         }
 
         /* Image Zoom Functions */
@@ -506,6 +564,38 @@
             }
         }
 
+        /* Send Order to WhatsApp */
+        function sendOrder() {
+            const name = document.getElementById('cName').value.trim();
+            const phone = document.getElementById('cPhone').value.trim();
+            const address = document.getElementById('cAddress').value.trim();
+            const area = document.getElementById('deliveryArea').value === 'Joypurhat' ? 'জয়পুরহাট সদর (ফ্রি)' : 'জয়পুরহাটের বাইরে (৳১২০)';
+            const method = document.getElementById('pMethod').value;
+            const trx = document.getElementById('cTrxID').value.trim();
+
+            if (!name || !phone || !address) {
+                return alert('অনুগ্রহ করে সকল প্রয়োজনীয় তথ্য পূরণ করুন!');
+            }
+            if ((method.includes('bKash') || method.includes('Nagad')) && !trx) {
+                return alert('পেমেন্টের TrxID প্রদান করুন!');
+            }
+
+            let text = `🛍️ *নতুন অর্ডার (NeedJP Store)*\n\n`;
+            text += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
+            text += `💰 *মূল্য:* ৳${selectedPrice}\n`;
+            text += `🚚 *ডেলিভারি এরিয়া:* ${area}\n`;
+            text += `💵 *সর্বমোট:* ৳${totalPrice}\n\n`;
+            text += `👤 *কাস্টমার নাম:* ${name}\n`;
+            text += `📞 *মোবাইল:* ${phone}\n`;
+            text += `📍 *ঠিকানা:* ${address}\n`;
+            text += `💳 *পেমেন্ট মেথড:* ${method}\n`;
+            if (trx) text += `🧾 *TrxID:* ${trx}\n`;
+
+            const whatsappUrl = `https://wa.me/8801747425457?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+            closeCheckout();
+        }
+
         /* Review Functions */
         function setRating(rating) {
             currentRating = rating;
@@ -531,15 +621,16 @@
                     let stars = '';
                     for(let i=1; i<=5; i++) stars += `<i class="fa-${i <= r.rating ? 'solid' : 'regular'} fa-star"></i>`;
                     
-                    list.innerHTML += `
-                        <div class="review-card">
-                            <div class="review-header">
-                                <span class="review-author">${r.name}</span>
-                                <span class="review-stars">${stars}</span>
-                            </div>
-                            <p class="review-text">${r.comment}</p>
+                    const item = document.createElement('div');
+                    item.className = 'review-card';
+                    item.innerHTML = `
+                        <div class="review-header">
+                            <span class="review-author">${r.name}</span>
+                            <span class="review-stars">${stars}</span>
                         </div>
+                        <div class="review-text">${r.comment}</div>
                     `;
+                    list.appendChild(item);
                 });
             });
         }
@@ -548,7 +639,7 @@
             const name = document.getElementById('revName').value.trim();
             const comment = document.getElementById('revComment').value.trim();
 
-            if(!name || !comment) { alert('অনুগ্রহ করে নাম এবং মতামত লিখুন!'); return; }
+            if (!name || !comment) return alert('নাম ও মতামত প্রদান করুন!');
 
             db.collection('products').doc(currentProductId).collection('reviews').add({
                 name: name,
@@ -556,94 +647,20 @@
                 rating: currentRating,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert('আপনার রিভিউ সফলভাবে জমা হয়েছে!');
+                alert('ধন্যবাদ! আপনার রিভিউ জমা হয়েছে।');
                 document.getElementById('revName').value = '';
                 document.getElementById('revComment').value = '';
                 loadReviews(currentProductId);
             });
         }
 
-        /* Modal Functions */
-        function openDetails(id, name, price, imgSrc, description) {
-            currentProductId = id;
-            selectedProduct = name;
-            selectedPrice = price;
-            document.getElementById('dTitle').innerText = name;
-            document.getElementById('dPrice').innerText = '৳' + price;
-            document.getElementById('dImg').src = imgSrc;
-            document.getElementById('dDesc').innerText = description || 'কোনো বিবরণ দেওয়া হয়নি।';
-            document.getElementById('detailsModal').style.display = 'flex';
-            loadReviews(id);
-        }
-
-        function closeDetails() {
-            document.getElementById('detailsModal').style.display = 'none';
-        }
-
-        function buyFromDetails() {
-            closeDetails();
-            openCheckout(selectedProduct, selectedPrice);
-        }
-
-        function openCheckout(name, price) {
-            selectedProduct = name;
-            selectedPrice = price;
-            document.getElementById('displayPName').innerText = name;
-            document.getElementById('deliveryArea').value = 'Joypurhat'; // Reset to default
-            calculateTotal();
-            document.getElementById('checkoutModal').style.display = 'flex';
-        }
-
-        function closeCheckout() {
-            document.getElementById('checkoutModal').style.display = 'none';
-        }
-
-        function sendOrder() {
-            const name = document.getElementById('cName').value.trim();
-            const phone = document.getElementById('cPhone').value.trim();
-            const address = document.getElementById('cAddress').value.trim();
-            const areaSelect = document.getElementById('deliveryArea');
-            const areaText = areaSelect.options[areaSelect.selectedIndex].text;
-            const pMethod = document.getElementById('pMethod').value;
-            const trxID = document.getElementById('cTrxID').value.trim();
-
-            if (!name || !phone || !address) {
-                alert('অনুগ্রহ করে নাম, ফোন নম্বর এবং ঠিকানা পূরণ করুন!');
-                return;
-            }
-
-            if ((pMethod.includes('bKash') || pMethod.includes('Nagad')) && !trxID) {
-                alert('অনুগ্রহ করে ট্রানজেকশন আইডি (TrxID) প্রদান করুন!');
-                return;
-            }
-
-            let message = `🛍️ *নতুন অর্ডার (NeedJp Store)*\n\n`;
-            message += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
-            message += `💵 *প্রোডাক্ট মূল্য:* ৳${selectedPrice}\n`;
-            message += `🚚 *ডেলিভারি এরিয়া:* ${areaText}\n`;
-            message += `🚚 *ডেলিভারি চার্জ:* ৳${deliveryCharge}\n`;
-            message += `💰 *সর্বমোট (Total):* ৳${totalPrice}\n\n`;
-            message += `👤 *গ্রাহকের নাম:* ${name}\n`;
-            message += `📞 *মোবাইল:* ${phone}\n`;
-            message += `🏠 *ঠিকানা:* ${address}\n`;
-            message += `💳 *পেমেন্ট মাধ্যম:* ${pMethod}\n`;
-
-            if (trxID) {
-                message += `🧾 *TrxID:* ${trxID}\n`;
-            }
-
-            const whatsappUrl = `https://wa.me/8801747425457?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
-            closeCheckout();
-        }
-
         /* Wishlist Functions */
-        function toggleWishlist(id, name, price, img, element) {
+        function toggleWishlist(id, title, price, img, el) {
             const index = wishlist.findIndex(item => item.id === id);
             if (index > -1) {
                 wishlist.splice(index, 1);
             } else {
-                wishlist.push({ id, name, price, img });
+                wishlist.push({ id, title, price, img });
             }
             localStorage.setItem('needjp_wishlist', JSON.stringify(wishlist));
             updateWishlistUI();
@@ -651,11 +668,11 @@
 
         function updateWishlistUI() {
             document.getElementById('wishlistCount').innerText = wishlist.length;
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                const id = card.getAttribute('data-id');
-                const icon = card.querySelector('.wishlist-icon');
-                if (icon) {
+            const icons = document.querySelectorAll('.wishlist-icon');
+            icons.forEach(icon => {
+                const parent = icon.closest('.product-card');
+                if (parent) {
+                    const id = parent.getAttribute('data-id');
                     const exists = wishlist.some(item => item.id === id);
                     if (exists) {
                         icon.classList.add('active');
@@ -672,7 +689,7 @@
             const container = document.getElementById('wishlistContainer');
             container.innerHTML = '';
             if (wishlist.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#777;">পছন্দের কোনো প্রোডাক্ট নেই।</p>';
+                container.innerHTML = '<p style="text-align:center; font-size:13px; color:#777;">আপনার পছন্দের তালিকায় কোনো প্রোডাক্ট নেই।</p>';
             } else {
                 wishlist.forEach(item => {
                     const div = document.createElement('div');
@@ -681,11 +698,11 @@
                         <div style="display:flex; align-items:center; gap:10px;">
                             <img src="${item.img}" style="width:45px; height:45px; object-fit:cover; border-radius:6px;">
                             <div>
-                                <h4 style="font-size:13px;">${item.name}</h4>
-                                <span style="font-size:12px; font-weight:bold; color:var(--primary-gold);">৳${item.price}</span>
+                                <strong style="font-size:13px; display:block;">${item.title}</strong>
+                                <span style="color:var(--primary-gold); font-size:12px; font-weight:bold;">৳${item.price}</span>
                             </div>
                         </div>
-                        <button onclick="openCheckout('${item.name.replace(/'/g, "\\'")}', ${item.price})" style="background:var(--primary-dark); color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;">অর্ডার</button>
+                        <button onclick="openCheckout('${item.title.replace(/'/g, "\\'")}', ${item.price}); closeWishlistModal();" style="background:var(--primary-dark); color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer;">BUY</button>
                     `;
                     container.appendChild(div);
                 });
@@ -697,11 +714,9 @@
             document.getElementById('wishlistModal').style.display = 'none';
         }
 
-        /* Search Functions */
+        /* Search Filter */
         function toggleSearch() {
-            const input = document.getElementById('searchInput');
-            input.classList.toggle('active');
-            if (input.classList.contains('active')) input.focus();
+            document.getElementById('searchInput').classList.toggle('active');
         }
 
         function filterProducts() {
@@ -709,11 +724,8 @@
             const cards = document.querySelectorAll('.product-card');
             cards.forEach(card => {
                 const title = card.querySelector('h3').innerText.toLowerCase();
-                if (title.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                if (title.includes(query)) card.style.display = 'flex';
+                else card.style.display = 'none';
             });
         }
     </script>
