@@ -46,7 +46,7 @@
         /* Navigation & Category Bar */
         nav { background: #fff; padding: 12px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; overflow-x: auto; }
         .nav-links { display: flex; gap: 15px; flex-wrap: nowrap; white-space: nowrap; }
-        .nav-links a { font-weight: 700; font-size: 13px; text-transform: uppercase; color: #444; letter-spacing: 0.5px; transition: color 0.3s; padding: 6px 12px; border-radius: 20px; cursor: pointer; }
+        .nav-links a { font-weight: 700; font-size: 13px; text-transform: uppercase; color: #444; letter-spacing: 0.5px; transition: color 0.3s; padding: 6px 14px; border-radius: 20px; cursor: pointer; }
         .nav-links a:hover, .nav-links a.active { color: #fff; background: var(--primary-gold); }
 
         .search-container { display: flex; align-items: center; margin-left: 15px; }
@@ -62,7 +62,6 @@
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; }
 
-        /* PRODUCT CARD */
         .product-card { 
             background: #ffffff; 
             border-radius: 16px; 
@@ -81,7 +80,6 @@
             position: absolute; top: 12px; right: 12px; color: #888; cursor: pointer; z-index: 3; font-size: 16px; transition: all 0.3s; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(5px); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
         .wishlist-icon:hover { transform: scale(1.15); background: #fff; color: var(--accent-red); }
-        .wishlist-icon.active { color: var(--accent-red); }
 
         .product-tag { position: absolute; top: 12px; left: 12px; background: var(--primary-dark); color: var(--primary-gold); font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; z-index: 2; letter-spacing: 0.5px; border: 1px solid var(--primary-gold); }
 
@@ -93,9 +91,6 @@
         .product-category { font-size: 10px; color: #999; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; display: block; }
         .product-info h3 { font-size: 16px; color: #111; margin-bottom: 8px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
         .product-info h3:hover { color: var(--primary-gold); }
-
-        .product-rating { color: #ffc107; font-size: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
-        .product-rating span { color: #888; font-size: 11px; margin-left: 4px; font-weight: 600; }
 
         .product-price-wrapper { display: flex; align-items: center; justify-content: space-between; }
         .product-price-tag { font-size: 20px; font-weight: 900; color: #111; }
@@ -117,16 +112,15 @@
         .close-btn { position: absolute; top: 15px; right: 15px; font-size: 16px; cursor: pointer; color: #666; background: #f0f0f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 10; }
         .close-btn:hover { background: var(--accent-red); color: #fff; }
 
-        .img-zoom-container { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 15px; cursor: zoom-in; }
+        .img-zoom-container { position: relative; overflow: hidden; border-radius: 12px; margin-bottom: 15px; }
         .img-zoom-container img { width: 100%; max-height: 280px; object-fit: cover; border-radius:12px; }
 
-        /* Form Inputs */
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 12px; color: #444; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper i { position: absolute; left: 14px; color: #888; font-size: 14px; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 12px 12px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 13px; outline: none; transition: 0.3s; background: #fafafa; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary-gold); background: #fff; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 12px 12px 38px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 13px; outline: none; transition: 0.3s; background: #fafafa; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-gold); background: #fff; }
 
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
 
@@ -162,7 +156,7 @@
         
         <div class="scrolling-text-box">
             <marquee behavior="scroll" direction="left" scrollamount="5" onmouseover="this.stop();" onmouseout="this.start();">
-                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম প্রোডাক্টে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ফ্রি ডেলিভারি সুবিধা ✨
+                ✨ আসসালামু আলাইকুম! <span>Need Jp</span> ফ্যামিলিতে আপনাকে স্বাগতম • প্রিমিয়াম লেডিস ব্যাগ, ওয়াচ এবং জুয়েলারিতে পাচ্ছেন বিশেষ ছাড়! • জয়পুরহাট সদরে ফ্রি ডেলিভারি সুবিধা ✨
             </marquee>
         </div>
 
@@ -175,14 +169,13 @@
         </div>
     </header>
 
-    <!-- Navigation & Dynamic Category Menu -->
+    <!-- Navigation Bar (Updated Categories) -->
     <nav>
         <div class="nav-links">
-            <a class="cat-link active" onclick="filterCategory('all', this)"><i class="fa-solid fa-grid-2"></i> ALL</a>
+            <a class="cat-link active" onclick="filterCategory('all', this)"><i class="fa-solid fa-border-all"></i> ALL</a>
             <a class="cat-link" onclick="filterCategory('bags', this)"><i class="fa-solid fa-bag-shopping"></i> LADIES BAG</a>
             <a class="cat-link" onclick="filterCategory('watches', this)"><i class="fa-solid fa-clock"></i> WATCHES</a>
             <a class="cat-link" onclick="filterCategory('jewelry', this)"><i class="fa-solid fa-gem"></i> JEWELRY & BRACELET</a>
-            <a class="cat-link" onclick="filterCategory('electronics', this)"><i class="fa-solid fa-plug"></i> ELECTRONICS</a>
         </div>
         <div class="search-container">
             <input type="text" id="searchInput" class="search-input" placeholder="প্রোডাক্ট খুঁজুন..." onkeyup="filterProductsBySearch()">
@@ -304,8 +297,7 @@
                 'all': 'ALL PRODUCTS',
                 'bags': 'LADIES BAG COLLECTION',
                 'watches': 'WATCHES COLLECTION',
-                'jewelry': 'JEWELRY & BRACELETS',
-                'electronics': 'ELECTRONICS & GADGETS'
+                'jewelry': 'JEWELRY & BRACELETS'
             };
             document.getElementById('currentCatTitle').innerHTML = `<i class="fa-solid fa-gem"></i> ${titleMap[cat] || 'PRODUCTS'}`;
             
