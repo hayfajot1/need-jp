@@ -17,9 +17,12 @@
         .login-card { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 360px; text-align: center; border-top: 5px solid var(--primary-gold); }
         .admin-container { max-width: 600px; margin: 0 auto; display: none; }
         .card { background: #fff; padding: 18px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        .card h2 { font-size: 15px; color: var(--primary-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .card h2 i { color: var(--primary-gold); }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 16px; outline: none; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--primary-gold); }
         .btn-submit { background: var(--primary-dark); color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 14px; font-weight: 700; border-radius: 12px; cursor: pointer; width: 100%; }
         .preview-box { margin-top: 10px; display: none; text-align: center; }
         .preview-box img { max-width: 120px; border-radius: 10px; }
@@ -41,6 +44,36 @@
         .btn-in-stock { background: #e8f5e9; color: #2e7d32; }
         .btn-out-stock { background: #fff3e0; color: #ef6c00; }
         .btn-delete { background: #ffebee; color: var(--accent-red); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+        /* ===== Tabs (NEW) ===== */
+        .tab-switch { display: flex; gap: 8px; margin-bottom: 18px; }
+        .tab-btn { flex: 1; padding: 11px 6px; border-radius: 12px; background: #fff; border: 1px solid #e2e8f0; color: #666; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; }
+        .tab-btn.active { background: var(--primary-dark); color: var(--primary-gold); border-color: var(--primary-dark); }
+        .count-badge { background: var(--accent-red); color: #fff; border-radius: 10px; padding: 1px 7px; font-size: 10px; margin-left: 4px; }
+        @keyframes flashGlow { 0%,100% { box-shadow: 0 0 0 rgba(230,0,35,0); } 50% { box-shadow: 0 0 14px rgba(230,0,35,0.7); } }
+        .tab-btn.flash { animation: flashGlow 0.7s ease-in-out 4; }
+
+        .notice-banner { background: #fdfaf6; border: 1px solid #ebd3b4; color: #666; padding: 10px 14px; border-radius: 12px; font-size: 11.5px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+        .notice-banner i { color: var(--primary-gold); margin-top: 2px; }
+
+        /* ===== Orders (NEW) ===== */
+        .order-item { border: 1px solid #eee; border-radius: 14px; padding: 14px; margin-bottom: 12px; background: #fdfdfd; }
+        .order-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+        .order-product { font-weight: 700; font-size: 14px; color: #111; }
+        .order-total { font-weight: 800; color: var(--primary-gold); font-size: 14px; white-space: nowrap; }
+        .order-details { font-size: 12.5px; color: #555; line-height: 1.7; margin-bottom: 10px; }
+        .order-details b { color: #222; }
+        .order-status-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; background: #fff3e0; color: #ef6c00; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .order-actions { display: flex; gap: 8px; margin-top: 6px; }
+        .btn-call { flex: 1; background: #fff; color: var(--primary-dark); border: 1px solid #ddd; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-order-delete { flex: 1; background: #ffebee; color: var(--accent-red); border: none; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+        /* ===== Coupons (NEW) ===== */
+        .coupon-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 8px; }
+        .coupon-code { font-weight: 800; letter-spacing: 1px; color: var(--primary-dark); background: #fdfaf6; border: 1px dashed var(--primary-gold); padding: 5px 10px; border-radius: 8px; font-size: 13px; }
+        .coupon-percent { color: #2e7d32; font-weight: 700; font-size: 12px; }
+        .coupon-inactive { opacity: 0.5; }
+        .coupon-hint { font-size: 11px; color: #999; margin-top: -8px; margin-bottom: 14px; }
     </style>
 </head>
 <body>
@@ -59,29 +92,72 @@
     <div class="admin-container" id="adminContainer">
         <header>
             <h1><i class="fa-solid fa-user-shield"></i> NeedJp Admin</h1>
-            <button style="background:none; border:none; color:#fff;" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i></button>
+            <button style="background:none; border:none; color:#fff; font-size:16px; cursor:pointer;" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i></button>
         </header>
 
-        <div class="card">
-            <h2>নতুন প্রোডাক্ট যোগ করুন</h2>
-            <form id="addProductForm">
-                <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
-                <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="pPrice" required></div>
-                <div class="form-group"><label>ছবি নির্বাচন করুন *</label><input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)"></div>
-                <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="pImgUrl" onchange="previewUrlImage()"></div>
-                <div class="preview-box" id="previewBox"><img id="imgPreview" src=""></div>
-                <div class="form-group"><label>বিবরণ</label><textarea id="pDesc" rows="3"></textarea></div>
-                <button type="submit" class="btn-submit" id="saveBtn"><i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন</button>
-            </form>
+        <div class="notice-banner">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>নতুন অর্ডার এলে এই পেজ খোলা থাকা অবস্থায় সাউন্ড ও নোটিফিকেশন পাবেন। ব্রাউজার নোটিফিকেশন চালু করতে উপরে অনুমতি দিন (<b>Allow</b>)।</span>
         </div>
 
-        <div class="card">
-            <h2>প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="filterAdminProducts()">
+        <div class="tab-switch">
+            <button class="tab-btn active" id="tabProductsBtn" onclick="switchTab('products')"><i class="fa-solid fa-box"></i> প্রোডাক্ট</button>
+            <button class="tab-btn" id="tabOrdersBtn" onclick="switchTab('orders')"><i class="fa-solid fa-receipt"></i> অর্ডার <span id="orderCountBadge" class="count-badge"></span></button>
+            <button class="tab-btn" id="tabCouponsBtn" onclick="switchTab('coupons')"><i class="fa-solid fa-tag"></i> কুপন</button>
+        </div>
+
+        <!-- PRODUCTS TAB (unchanged from before) -->
+        <div id="productsTab">
+            <div class="card">
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> নতুন প্রোডাক্ট যোগ করুন</h2>
+                <form id="addProductForm">
+                    <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
+                    <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="pPrice" required></div>
+                    <div class="form-group"><label>ছবি নির্বাচন করুন *</label><input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)"></div>
+                    <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="pImgUrl" onchange="previewUrlImage()"></div>
+                    <div class="preview-box" id="previewBox"><img id="imgPreview" src=""></div>
+                    <div class="form-group"><label>বিবরণ</label><textarea id="pDesc" rows="3"></textarea></div>
+                    <button type="submit" class="btn-submit" id="saveBtn"><i class="fa-solid fa-cloud-arrow-up"></i> আপলোড করুন</button>
+                </form>
             </div>
-            <div id="adminProductList"></div>
+
+            <div class="card">
+                <h2><i class="fa-solid fa-list"></i> প্রোডাক্ট তালিকা ও স্টক ম্যানেজমেন্ট</h2>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="adminSearchInput" placeholder="প্রোডাক্ট খুঁজুন..." oninput="filterAdminProducts()">
+                </div>
+                <div id="adminProductList"></div>
+            </div>
+        </div>
+
+        <!-- ORDERS TAB (NEW) -->
+        <div id="ordersTab" style="display:none;">
+            <div class="card">
+                <h2><i class="fa-solid fa-receipt"></i> সকল অর্ডার</h2>
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="orderSearchInput" placeholder="নাম, ফোন বা প্রোডাক্ট দিয়ে খুঁজুন..." oninput="filterOrders()">
+                </div>
+                <div id="ordersList"></div>
+            </div>
+        </div>
+
+        <!-- COUPONS TAB (NEW) -->
+        <div id="couponsTab" style="display:none;">
+            <div class="card">
+                <h2><i class="fa-solid fa-tag"></i> নতুন কুপন কোড যোগ করুন</h2>
+                <form id="addCouponForm">
+                    <div class="form-group"><label>কুপন কোড *</label><input type="text" id="cpCode" style="text-transform:uppercase;" required placeholder="যেমন: EID50"></div>
+                    <div class="form-group"><label>ছাড় (%) *</label><input type="number" id="cpPercent" min="0" max="100" required placeholder="যেমন: 20"></div>
+                    <p class="coupon-hint"><i class="fa-solid fa-circle-info"></i> ১০০ দিলে কাস্টমারের প্রোডাক্টের মূল্য সম্পূর্ণ ফ্রি (৳০) হয়ে যাবে।</p>
+                    <button type="submit" class="btn-submit"><i class="fa-solid fa-tag"></i> কুপন যোগ করুন</button>
+                </form>
+            </div>
+            <div class="card">
+                <h2><i class="fa-solid fa-list"></i> বিদ্যমান কুপন সমূহ</h2>
+                <div id="couponsList"></div>
+            </div>
         </div>
     </div>
 
@@ -89,6 +165,8 @@
         const ADMIN_USER = "needjp", ADMIN_PASS = "needjp2025";
         let compressedBase64Image = "";
         let allProductsCache = [];
+        let allOrdersCache = [];
+        let isFirstOrdersSnapshot = true;
 
         const firebaseConfig = {
           apiKey: "AIzaSyAyvwU9znCjByCZ_UZveWo8m-9EDvDiHJk",
@@ -116,11 +194,57 @@
         function showAdminDashboard() {
             document.getElementById('loginOverlay').style.display = 'none';
             document.getElementById('adminContainer').style.display = 'block';
+
+            if (window.Notification && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                Notification.requestPermission();
+            }
+
             loadAdminProducts();
+            loadOrders();
+            loadCoupons();
         }
 
         function logoutAdmin() { sessionStorage.removeItem('needjp_admin_logged'); location.reload(); }
 
+        /* ---------- TABS (NEW) ---------- */
+        function switchTab(tab) {
+            document.getElementById('productsTab').style.display = tab === 'products' ? 'block' : 'none';
+            document.getElementById('ordersTab').style.display = tab === 'orders' ? 'block' : 'none';
+            document.getElementById('couponsTab').style.display = tab === 'coupons' ? 'block' : 'none';
+            document.getElementById('tabProductsBtn').classList.toggle('active', tab === 'products');
+            document.getElementById('tabOrdersBtn').classList.toggle('active', tab === 'orders');
+            document.getElementById('tabCouponsBtn').classList.toggle('active', tab === 'coupons');
+        }
+
+        /* ---------- NEW-ORDER NOTIFICATION (sound + browser notification) (NEW) ---------- */
+        function playNotificationSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(880, ctx.currentTime);
+                o.frequency.setValueAtTime(1180, ctx.currentTime + 0.15);
+                g.gain.setValueAtTime(0.18, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime + 0.5);
+            } catch (e) { console.log('sound error', e); }
+        }
+
+        function notifyNewOrder(data) {
+            playNotificationSound();
+            if (window.Notification && Notification.permission === 'granted') {
+                new Notification('🛍️ নতুন অর্ডার এসেছে!', {
+                    body: `${data.product || 'প্রোডাক্ট'} — ৳${data.total || 0} — ${data.customerName || ''}`
+                });
+            }
+            const btn = document.getElementById('tabOrdersBtn');
+            btn.classList.add('flash');
+            setTimeout(() => btn.classList.remove('flash'), 3000);
+        }
+
+        /* ---------- PRODUCTS (unchanged) ---------- */
         function handleImageCompress(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -182,7 +306,7 @@
             list.innerHTML = '';
 
             if (products.length === 0) {
-                list.innerHTML = '<p style="text-align:center; color:#888; padding:15px; font-size:13px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>';
+                list.innerHTML = '<p style="text-align:center; color:#888; padding:15px; font-size:13px;">কোনো প্রোডাক্ট পাওয়া যায়নি!</p>';
                 return;
             }
 
@@ -225,6 +349,137 @@
 
         function deleteProduct(id) {
             if(confirm('ডিলিট করতে চান?')) db.collection('products').doc(id).delete();
+        }
+
+        /* ---------- ORDERS (NEW) ---------- */
+        function loadOrders() {
+            db.collection('orders').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+                allOrdersCache = [];
+                snapshot.forEach(doc => {
+                    allOrdersCache.push({ id: doc.id, ...doc.data() });
+                });
+
+                if (!isFirstOrdersSnapshot) {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            notifyNewOrder(change.doc.data());
+                        }
+                    });
+                }
+                isFirstOrdersSnapshot = false;
+
+                document.getElementById('orderCountBadge').innerText = allOrdersCache.length > 0 ? allOrdersCache.length : '';
+                renderOrders(allOrdersCache);
+            });
+        }
+
+        function renderOrders(orders) {
+            const list = document.getElementById('ordersList');
+            list.innerHTML = '';
+
+            if (orders.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#888; padding:15px; font-size:13px;">এখনো কোনো অর্ডার আসেনি।</p>';
+                return;
+            }
+
+            orders.forEach(o => {
+                const div = document.createElement('div');
+                div.className = 'order-item';
+                const time = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString('bn-BD') : '';
+                div.innerHTML = `
+                    <span class="order-status-badge">${o.status || 'Pending'}</span>
+                    <div class="order-top">
+                        <span class="order-product"><i class="fa-solid fa-bag-shopping"></i> ${o.product || '-'}</span>
+                        <span class="order-total">৳${o.total || 0}</span>
+                    </div>
+                    <div class="order-details">
+                        <div><b>কাস্টমার:</b> ${o.customerName || '-'}</div>
+                        <div><b>মোবাইল:</b> ${o.customerPhone || '-'}</div>
+                        <div><b>ঠিকানা:</b> ${o.customerAddress || '-'}</div>
+                        <div><b>ডেলিভারি এরিয়া:</b> ${o.deliveryArea || '-'}</div>
+                        <div><b>পেমেন্ট:</b> ${o.paymentMethod || '-'} ${o.trxId ? '(TrxID: ' + o.trxId + ')' : ''}</div>
+                        ${o.couponCode ? `<div><b>কুপন ব্যবহৃত হয়েছে:</b> ${o.couponCode} (${o.couponDiscountPercent}% ছাড়)</div>` : ''}
+                        ${time ? `<div><b>সময়:</b> ${time}</div>` : ''}
+                    </div>
+                    <div class="order-actions">
+                        <a class="btn-call" href="tel:${o.customerPhone || ''}"><i class="fa-solid fa-phone"></i> কল করুন</a>
+                        <button class="btn-order-delete" onclick="deleteOrder('${o.id}')"><i class="fa-solid fa-trash"></i> ডিলিট</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function filterOrders() {
+            const query = document.getElementById('orderSearchInput').value.toLowerCase().trim();
+            const filtered = allOrdersCache.filter(o =>
+                (o.customerName || '').toLowerCase().includes(query) ||
+                (o.customerPhone || '').toLowerCase().includes(query) ||
+                (o.product || '').toLowerCase().includes(query)
+            );
+            renderOrders(filtered);
+        }
+
+        function deleteOrder(id) {
+            if (confirm('অর্ডারটি ডিলিট করতে চান? (ডেলিভারি সম্পন্ন হয়ে থাকলে এটি করুন)')) {
+                db.collection('orders').doc(id).delete();
+            }
+        }
+
+        /* ---------- COUPONS (NEW) ---------- */
+        document.getElementById('addCouponForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('cpCode').value.trim().toUpperCase();
+            const percent = Number(document.getElementById('cpPercent').value);
+            if (!code || percent < 0 || percent > 100) return alert('সঠিক কুপন কোড ও শতাংশ (০-১০০) দিন।');
+
+            db.collection('coupons').doc(code).set({
+                discountPercent: percent,
+                active: true,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('কুপন যোগ হয়েছে!');
+                document.getElementById('addCouponForm').reset();
+            }).catch(err => {
+                console.error(err);
+                alert('কুপন যোগ করতে সমস্যা হয়েছে।');
+            });
+        });
+
+        function loadCoupons() {
+            db.collection('coupons').onSnapshot(snapshot => {
+                const list = document.getElementById('couponsList');
+                list.innerHTML = '';
+                if (snapshot.empty) {
+                    list.innerHTML = '<p style="text-align:center; color:#888; padding:15px; font-size:13px;">কোনো কুপন যোগ করা হয়নি।</p>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const c = doc.data();
+                    const active = c.active !== false;
+                    const div = document.createElement('div');
+                    div.className = 'coupon-item' + (active ? '' : ' coupon-inactive');
+                    div.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="coupon-code">${doc.id}</span>
+                            <span class="coupon-percent">${c.discountPercent}% ছাড়</span>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-stock ${active ? 'btn-in-stock' : 'btn-out-stock'}" onclick="toggleCoupon('${doc.id}', ${active})">${active ? 'Active' : 'Inactive'}</button>
+                            <button class="btn-delete" onclick="deleteCoupon('${doc.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        function toggleCoupon(code, currentStatus) {
+            db.collection('coupons').doc(code).update({ active: !currentStatus });
+        }
+
+        function deleteCoupon(code) {
+            if (confirm('কুপনটি ডিলিট করতে চান?')) db.collection('coupons').doc(code).delete();
         }
     </script>
 </body>
