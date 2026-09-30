@@ -145,6 +145,14 @@
         .price-breakdown .row { display: flex; justify-content: space-between; margin-bottom: 4px; }
         .price-breakdown .total-row { font-size: 15px; font-weight: 800; color: var(--primary-gold); border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 6px; }
 
+        /* Coupon Box */
+        .coupon-box { margin-top: 12px; display: flex; gap: 8px; }
+        .coupon-box input { flex: 1; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; text-transform: uppercase; outline: none; background: #fff; }
+        .coupon-box input:focus { border-color: var(--primary-gold); }
+        .coupon-box button { background: var(--primary-dark); color: var(--primary-gold); border: none; padding: 0 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .coupon-box button:hover { background: #222; }
+        #couponMsg { font-size: 11px; margin-top: 6px; min-height: 14px; }
+
         .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
         .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
         .btn-submit:disabled { background: #ccc !important; cursor: not-allowed; box-shadow: none !important; }
@@ -303,6 +311,10 @@
                         <span>প্রোডাক্টের মূল্য:</span>
                         <span id="summaryProductPrice">৳0</span>
                     </div>
+                    <div class="row" id="couponRow" style="display:none; color:#2e7d32; font-weight:700;">
+                        <span>কুপন ছাড় (<span id="couponCodeLabel"></span>):</span>
+                        <span id="summaryCouponDiscount">-৳0</span>
+                    </div>
                     <div class="row">
                         <span>ডেলিভারি চার্জ:</span>
                         <span id="summaryDeliveryCharge">৳0</span>
@@ -312,6 +324,13 @@
                         <span id="displayPPrice">৳0</span>
                     </div>
                 </div>
+
+                <!-- Coupon Code Box -->
+                <div class="coupon-box">
+                    <input type="text" id="couponInput" placeholder="কুপন কোড থাকলে দিন">
+                    <button type="button" onclick="applyCoupon()"><i class="fa-solid fa-tag"></i> প্রয়োগ করুন</button>
+                </div>
+                <p id="couponMsg"></p>
             </div>
 
             <form id="orderForm">
@@ -400,6 +419,7 @@
 
         let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5, currentProductStock = true;
         let deliveryCharge = 0, totalPrice = 0;
+        let appliedCouponCode = '', appliedCouponDiscountPercent = 0;
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -475,7 +495,7 @@
             document.getElementById('dTitle').innerText = title;
             document.getElementById('dPrice').innerText = '৳' + price;
             document.getElementById('dImg').src = img;
-            document.getElementById('dDesc').innerText = desc || 'কোনো বিবরণ দেওয়া হয়নি।';
+            document.getElementById('dDesc').innerText = desc || 'কোনো বিবরণ দেওয়া হয়নি।';
             
             const buyBtn = document.getElementById('dBuyBtn');
             if(!isStock) {
@@ -505,6 +525,10 @@
         function openCheckout(title, price) {
             selectedProduct = title;
             selectedPrice = price;
+            appliedCouponCode = '';
+            appliedCouponDiscountPercent = 0;
+            document.getElementById('couponInput').value = '';
+            document.getElementById('couponMsg').innerText = '';
             document.getElementById('displayPName').innerText = title;
             calculateTotal();
             document.getElementById('checkoutModal').style.display = 'flex';
@@ -512,6 +536,36 @@
 
         function closeCheckout() {
             document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        /* Coupon Code System */
+        function applyCoupon() {
+            const codeRaw = document.getElementById('couponInput').value.trim().toUpperCase();
+            const msg = document.getElementById('couponMsg');
+            if (!codeRaw) {
+                msg.style.color = '#c62828';
+                msg.innerText = 'একটি কুপন কোড লিখুন।';
+                return;
+            }
+
+            db.collection('coupons').doc(codeRaw).get().then(doc => {
+                if (!doc.exists || doc.data().active === false) {
+                    appliedCouponCode = '';
+                    appliedCouponDiscountPercent = 0;
+                    msg.style.color = '#c62828';
+                    msg.innerText = 'কুপন কোডটি সঠিক নয় অথবা মেয়াদ শেষ।';
+                    calculateTotal();
+                    return;
+                }
+                appliedCouponCode = codeRaw;
+                appliedCouponDiscountPercent = Number(doc.data().discountPercent) || 0;
+                msg.style.color = '#2e7d32';
+                msg.innerText = `✅ কুপন প্রয়োগ হয়েছে! ${appliedCouponDiscountPercent}% ছাড় পেয়েছেন।`;
+                calculateTotal();
+            }).catch(() => {
+                msg.style.color = '#c62828';
+                msg.innerText = 'কুপন যাচাই করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।';
+            });
         }
 
         /* Image Zoom Functions */
@@ -526,7 +580,7 @@
             document.getElementById('zoomOverlay').style.display = 'none';
         }
 
-        /* Calculate Total Price with Delivery Charge */
+        /* Calculate Total Price with Delivery Charge + Coupon Discount */
         function calculateTotal() {
             const area = document.getElementById('deliveryArea').value;
             if (area === 'Outside') {
@@ -535,11 +589,22 @@
                 deliveryCharge = 0;
             }
 
-            totalPrice = Number(selectedPrice) + deliveryCharge;
+            const discountAmount = Math.round(Number(selectedPrice) * (appliedCouponDiscountPercent / 100));
+            const discountedProductPrice = Math.max(0, Number(selectedPrice) - discountAmount);
+            totalPrice = discountedProductPrice + deliveryCharge;
 
             document.getElementById('summaryProductPrice').innerText = '৳' + selectedPrice;
             document.getElementById('summaryDeliveryCharge').innerText = '৳' + deliveryCharge;
             document.getElementById('displayPPrice').innerText = '৳' + totalPrice;
+
+            const couponRow = document.getElementById('couponRow');
+            if (appliedCouponDiscountPercent > 0) {
+                couponRow.style.display = 'flex';
+                document.getElementById('couponCodeLabel').innerText = appliedCouponCode;
+                document.getElementById('summaryCouponDiscount').innerText = '-৳' + discountAmount;
+            } else {
+                couponRow.style.display = 'none';
+            }
         }
 
         /* Dynamic Payment Method Handler */
@@ -564,7 +629,7 @@
             }
         }
 
-        /* Send Order to WhatsApp */
+        /* Send Order to WhatsApp (unchanged) + silently record it for the Admin Orders tab */
         function sendOrder() {
             const name = document.getElementById('cName').value.trim();
             const phone = document.getElementById('cPhone').value.trim();
@@ -580,9 +645,31 @@
                 return alert('পেমেন্টের TrxID প্রদান করুন!');
             }
 
+            // Save the order in the background so it shows up (with a sound + notification) in the Admin Orders tab.
+            // This does not change or delay the WhatsApp flow below in any way.
+            db.collection('orders').add({
+                product: selectedProduct,
+                price: selectedPrice,
+                couponCode: appliedCouponCode || '',
+                couponDiscountPercent: appliedCouponDiscountPercent || 0,
+                deliveryArea: area,
+                deliveryCharge: deliveryCharge,
+                total: totalPrice,
+                customerName: name,
+                customerPhone: phone,
+                customerAddress: address,
+                paymentMethod: method,
+                trxId: trx || '',
+                status: 'Pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(err => console.error('Order save failed:', err));
+
             let text = `🛍️ *নতুন অর্ডার (NeedJP Store)*\n\n`;
             text += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
             text += `💰 *মূল্য:* ৳${selectedPrice}\n`;
+            if (appliedCouponDiscountPercent > 0) {
+                text += `🏷️ *কুপন:* ${appliedCouponCode} (${appliedCouponDiscountPercent}% ছাড়)\n`;
+            }
             text += `🚚 *ডেলিভারি এরিয়া:* ${area}\n`;
             text += `💵 *সর্বমোট:* ৳${totalPrice}\n\n`;
             text += `👤 *কাস্টমার নাম:* ${name}\n`;
@@ -689,7 +776,7 @@
             const container = document.getElementById('wishlistContainer');
             container.innerHTML = '';
             if (wishlist.length === 0) {
-                container.innerHTML = '<p style="text-align:center; font-size:13px; color:#777;">আপনার পছন্দের তালিকায় কোনো প্রোডাক্ট নেই।</p>';
+                container.innerHTML = '<p style="text-align:center; font-size:13px; color:#777;">আপনার পছন্দের তালিকায় কোনো প্রোডাক্ট নেই।</p>';
             } else {
                 wishlist.forEach(item => {
                     const div = document.createElement('div');
