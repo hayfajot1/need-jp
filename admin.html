@@ -8,7 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary-gold: #c59d5f; --primary-dark: #111111; --accent-red: #e60023; --bg-light: #f4f6f8; }
+        :root { --primary-gold: #d88c9a; --primary-dark: #2b1520; --accent-red: #e63969; --bg-light: #fdf3f0; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
         body { background: var(--bg-light); color: #222; padding: 70px 12px 30px; }
         header { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: var(--primary-dark); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; border-bottom: 2px solid var(--primary-gold); }
@@ -44,6 +44,10 @@
         .btn-in-stock { background: #e8f5e9; color: #2e7d32; }
         .btn-out-stock { background: #fff3e0; color: #ef6c00; }
         .btn-delete { background: #ffebee; color: var(--accent-red); border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+        .btn-edit { background: #fdf3f0; color: var(--primary-gold); border: 1px solid var(--primary-gold); padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+        .edit-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(43,21,32,0.8); backdrop-filter: blur(4px); z-index: 20000; justify-content: center; align-items: center; padding: 15px; }
+        .edit-modal-content { background: #fff; border-radius: 18px; padding: 20px; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
 
         /* ===== Tabs (NEW) ===== */
         .tab-switch { display: flex; gap: 8px; margin-bottom: 18px; }
@@ -113,6 +117,7 @@
                 <form id="addProductForm">
                     <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="pTitle" required></div>
                     <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="pPrice" required></div>
+                    <div class="form-group"><label>বিশেষ ছাড় % (ঐচ্ছিক, না দিলে ছাড় থাকবে না)</label><input type="number" id="pDiscount" min="0" max="90" placeholder="যেমন: 15"></div>
                     <div class="form-group"><label>ছবি নির্বাচন করুন *</label><input type="file" id="pImgFile" accept="image/*" onchange="handleImageCompress(event)"></div>
                     <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="pImgUrl" onchange="previewUrlImage()"></div>
                     <div class="preview-box" id="previewBox"><img id="imgPreview" src=""></div>
@@ -158,6 +163,24 @@
                 <h2><i class="fa-solid fa-list"></i> বিদ্যমান কুপন সমূহ</h2>
                 <div id="couponsList"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div id="editProductModal" class="edit-modal-overlay">
+        <div class="edit-modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                <h2 style="margin-bottom:0;"><i class="fa-solid fa-pen"></i> প্রোডাক্ট এডিট করুন</h2>
+                <button type="button" onclick="closeEditProduct()" style="background:#fdf3f0; color:#888; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="form-group"><label>প্রোডাক্টের নাম *</label><input type="text" id="eTitle"></div>
+            <div class="form-group"><label>মূল্য (BDT) *</label><input type="number" id="ePrice"></div>
+            <div class="form-group"><label>বিশেষ ছাড় % (০ দিলে ছাড় থাকবে না)</label><input type="number" id="eDiscount" min="0" max="90"></div>
+            <div class="form-group"><label>ছবি পরিবর্তন করতে চাইলে নতুন ছবি দিন</label><input type="file" id="eImgFile" accept="image/*" onchange="handleEditImageCompress(event)"></div>
+            <div class="form-group"><label>অথবা ছবির URL দিন</label><input type="url" id="eImgUrl" onchange="previewEditUrlImage()"></div>
+            <div class="preview-box" id="editPreviewBox"><img id="editImgPreview" src=""></div>
+            <div class="form-group"><label>বিবরণ</label><textarea id="eDesc" rows="3"></textarea></div>
+            <button type="button" class="btn-submit" id="editSaveBtn" onclick="saveEditProduct()"><i class="fa-solid fa-floppy-disk"></i> পরিবর্তন সংরক্ষণ করুন</button>
         </div>
     </div>
 
@@ -279,6 +302,7 @@
             db.collection('products').add({
                 title: document.getElementById('pTitle').value.trim(),
                 price: Number(document.getElementById('pPrice').value),
+                discountPercent: Number(document.getElementById('pDiscount').value) || 0,
                 image: compressedBase64Image,
                 description: document.getElementById('pDesc').value.trim(),
                 inStock: true,
@@ -313,6 +337,7 @@
             products.forEach(p => {
                 const id = p.id;
                 const isStock = p.inStock !== false;
+                const discount = Number(p.discountPercent) || 0;
 
                 const div = document.createElement('div');
                 div.className = 'product-item';
@@ -321,13 +346,14 @@
                         <img src="${p.image}" class="product-img">
                         <div class="product-details">
                             <strong>${p.title}</strong>
-                            <span>৳${p.price}</span>
+                            <span>৳${p.price} ${discount > 0 ? `<span style="color:#2e7d32;">(-${discount}% ছাড়)</span>` : ''}</span>
                         </div>
                     </div>
                     <div class="actions">
                         <button class="btn-stock ${isStock ? 'btn-in-stock' : 'btn-out-stock'}" onclick="toggleStock('${id}', ${isStock})">
                             ${isStock ? 'In Stock' : 'Stock Out'}
                         </button>
+                        <button class="btn-edit" onclick="openEditProduct('${id}')"><i class="fa-solid fa-pen"></i></button>
                         <button class="btn-delete" onclick="deleteProduct('${id}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
@@ -349,6 +375,93 @@
 
         function deleteProduct(id) {
             if(confirm('ডিলিট করতে চান?')) db.collection('products').doc(id).delete();
+        }
+
+        /* ---------- EDIT PRODUCT (NEW) ---------- */
+        let editingProductId = null;
+        let editCompressedImage = '';
+
+        function openEditProduct(id) {
+            const p = allProductsCache.find(x => x.id === id);
+            if (!p) return alert('প্রোডাক্ট পাওয়া যায়নি।');
+
+            editingProductId = id;
+            editCompressedImage = p.image || '';
+
+            document.getElementById('eTitle').value = p.title || '';
+            document.getElementById('ePrice').value = p.price || 0;
+            document.getElementById('eDiscount').value = p.discountPercent || 0;
+            document.getElementById('eDesc').value = p.description || '';
+            document.getElementById('editImgPreview').src = editCompressedImage;
+            document.getElementById('editPreviewBox').style.display = editCompressedImage ? 'block' : 'none';
+
+            document.getElementById('editProductModal').style.display = 'flex';
+        }
+
+        function closeEditProduct() {
+            document.getElementById('editProductModal').style.display = 'none';
+            editingProductId = null;
+        }
+
+        function handleEditImageCompress(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxWidth = 700;
+                    let width = img.width, height = img.height;
+                    if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    editCompressedImage = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById('editImgPreview').src = editCompressedImage;
+                    document.getElementById('editPreviewBox').style.display = 'block';
+                }
+            }
+        }
+
+        function previewEditUrlImage() {
+            const url = document.getElementById('eImgUrl').value.trim();
+            if (url) {
+                editCompressedImage = url;
+                document.getElementById('editImgPreview').src = url;
+                document.getElementById('editPreviewBox').style.display = 'block';
+            }
+        }
+
+        function saveEditProduct() {
+            if (!editingProductId) return;
+            const title = document.getElementById('eTitle').value.trim();
+            const price = Number(document.getElementById('ePrice').value);
+            const discountPercent = Number(document.getElementById('eDiscount').value) || 0;
+            const description = document.getElementById('eDesc').value.trim();
+
+            if (!title || !price) return alert('নাম ও মূল্য দিন!');
+            if (!editCompressedImage) return alert('একটি ছবি রাখুন!');
+
+            const saveBtn = document.getElementById('editSaveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> সংরক্ষণ হচ্ছে...';
+
+            db.collection('products').doc(editingProductId).update({
+                title, price, discountPercent, description,
+                image: editCompressedImage,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('প্রোডাক্ট আপডেট হয়েছে!');
+                closeEditProduct();
+            }).catch(err => {
+                console.error(err);
+                alert('আপডেট করতে সমস্যা হয়েছে।');
+            }).finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> পরিবর্তন সংরক্ষণ করুন';
+            });
         }
 
         /* ---------- ORDERS (NEW) ---------- */
