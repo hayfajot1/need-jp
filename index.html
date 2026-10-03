@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeedJp - Premium Online Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -12,17 +15,18 @@
 
     <style>
         :root {
-            --primary-gold: #c59d5f;
-            --primary-dark: #111111;
-            --accent-red: #e60023;
-            --bg-light: #f4f6f8;
+            --primary-gold: #d88c9a;
+            --primary-dark: #2b1520;
+            --accent-red: #e63969;
+            --bg-light: #fdf3f0;
             --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             --hover-shadow: 0 15px 35px rgba(197, 157, 95, 0.2);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { background-color: var(--bg-light); color: #222; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-light); color: #2b1b20; }
         a { text-decoration: none; color: inherit; }
+        .logo, .section-title, .reviews-section h3, #checkoutModal h2, #wishlistModal h2 { font-family: 'Playfair Display', serif; }
 
         /* Top Bar */
         .top-bar { background: var(--primary-dark); color: #d1d1d1; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -32,7 +36,7 @@
 
         /* Header */
         header { background: #ffffff; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.04); position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 30px; font-weight: 900; color: #111; letter-spacing: 1px; display: flex; align-items: center; }
+        .logo { font-size: 28px; font-weight: 700; color: var(--primary-dark); letter-spacing: 0.5px; display: flex; align-items: center; }
         .logo span { color: var(--primary-gold); }
 
         .scrolling-text-box { flex-grow: 1; overflow: hidden; background: #fdfaf6; border: 1px solid #ebd3b4; border-radius: 25px; padding: 8px 20px; margin: 0 20px; max-width: 550px; }
@@ -53,11 +57,11 @@
         .search-input.active { width: 180px; opacity: 1; margin-right: 8px; border-color: var(--primary-gold); }
         .search-btn { cursor: pointer; font-size: 18px; color: #333; }
 
-        .announcement { background: linear-gradient(135deg, #111, #222); color: var(--primary-gold); text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .announcement { background: linear-gradient(135deg, var(--primary-dark), #6b3d4a); color: var(--primary-gold); text-align: center; padding: 10px; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
 
         /* Container & Grid */
         .container { max-width: 1200px; margin: 40px auto; padding: 0 15px; }
-        .section-title { background: linear-gradient(135deg, var(--primary-gold), #a37c41); color: #fff; padding: 10px 22px; font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 30px; display: inline-block; border-radius: 30px; box-shadow: 0 4px 15px rgba(197, 157, 95, 0.3); }
+        .section-title { background: linear-gradient(135deg, var(--primary-gold), #b35d72); color: #fff; padding: 10px 22px; font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 30px; display: inline-block; border-radius: 30px; box-shadow: 0 4px 15px rgba(216, 140, 154, 0.35); }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; }
 
@@ -83,6 +87,8 @@
         .wishlist-icon.active { color: var(--accent-red); }
 
         .product-tag { position: absolute; top: 12px; left: 12px; background: var(--primary-dark); color: var(--primary-gold); font-size: 10px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; z-index: 2; letter-spacing: 0.5px; border: 1px solid var(--primary-gold); }
+        .product-tag.discount-tag { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .old-price { text-decoration: line-through; color: #999; font-size: 12px; font-weight: 600; margin-right: 6px; }
 
         .img-box-grid { width: 100%; height: 250px; overflow: hidden; background: #fafafa; cursor: pointer; position: relative; }
         .img-box-grid img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
@@ -153,8 +159,8 @@
         .coupon-box button:hover { background: #222; }
         #couponMsg { font-size: 11px; margin-top: 6px; min-height: 14px; }
 
-        .btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); transition: 0.3s; }
-        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5); }
+        .btn-submit { background: linear-gradient(135deg, var(--primary-dark), #522840); color: var(--primary-gold); border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(43, 21, 32, 0.3); transition: 0.3s; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(43, 21, 32, 0.45); }
         .btn-submit:disabled { background: #ccc !important; cursor: not-allowed; box-shadow: none !important; }
 
         /* Customer Reviews Styling */
@@ -182,6 +188,31 @@
             .btn-buy, .btn-view { padding: 9px 4px; font-size: 10px; }
             .modal-content { padding: 20px 18px; }
         }
+
+        /* ============ MOBILE HEADER FIX ============ */
+        @media (max-width: 768px) {
+            .top-bar { justify-content: center; gap: 0; padding: 8px 4%; flex-wrap: nowrap; overflow-x: auto; }
+            .top-bar-left, .top-bar-right { gap: 18px; }
+            .top-bar-left { margin-right: 18px; }
+            .top-bar a { font-size: 16px; white-space: nowrap; }
+            .tb-text { display: none; }
+
+            header { padding: 12px 4%; gap: 10px; }
+            .scrolling-text-box { display: none; }
+            .logo { font-size: 19px; }
+            .header-icons { gap: 12px; }
+            .header-icons a { font-size: 17px; }
+
+            nav { padding: 10px 4%; gap: 8px; }
+            .nav-links { display: flex; gap: 0; overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; }
+            .nav-links::-webkit-scrollbar { display: none; }
+            .nav-links a { margin-right: 16px; font-size: 11px; flex: 0 0 auto; }
+        }
+        @media (max-width: 360px) {
+            .logo { font-size: 16px; }
+            .header-icons { gap: 9px; }
+            .header-icons a { font-size: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -189,12 +220,12 @@
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="top-bar-left">
-            <a href="#contact"><i class="fa-solid fa-envelope" style="color:var(--primary-gold)"></i> Contact Us</a>
+            <a href="#contact"><i class="fa-solid fa-envelope" style="color:var(--primary-gold)"></i> <span class="tb-text">Contact Us</span></a>
         </div>
         <div class="top-bar-right">
-            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope"></i> mdhayfajothussain38@gmail.com</a>
-            <a href="tel:+8801732274010"><i class="fa-solid fa-phone"></i> +8801732274010</a>
-            <a href="https://wa.me/8801747425457" target="_blank"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> +8801747425457</a>
+            <a href="mailto:mdhayfajothussain38@gmail.com"><i class="fa-solid fa-envelope"></i> <span class="tb-text">mdhayfajothussain38@gmail.com</span></a>
+            <a href="tel:+8801732274010"><i class="fa-solid fa-phone"></i> <span class="tb-text">+8801732274010</span></a>
+            <a href="https://wa.me/8801747425457" target="_blank"><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> <span class="tb-text">+8801747425457</span></a>
         </div>
     </div>
 
@@ -255,7 +286,7 @@
                 <h2 id="dTitle" style="font-size:18px; color:#111;"></h2>
                 <div id="dPrice" style="font-size:22px; font-weight:800; color:var(--primary-gold); margin:6px 0 12px 0;"></div>
                 <div id="dDesc" style="text-align:left; background:#f9f9f9; padding:12px; border-radius:8px; font-size:13px; color:#555; border:1px solid #eee; margin-bottom:15px; white-space:pre-line;"></div>
-                <button class="btn-submit" id="dBuyBtn" onclick="buyFromDetails()"><i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)</button>
+                <button class="btn-submit" id="dBuyBtn" onclick="buyFromDetails()"><i class="fa-solid fa-bag-shopping"></i> এখনই অর্ডার করুন (BUY NOW)</button>
             </div>
 
             <!-- Customer Reviews (Saved Under Product) -->
@@ -383,8 +414,19 @@
                     </div>
                 </div>
 
-                <button type="button" class="btn-submit" onclick="sendOrder()"><i class="fa-brands fa-whatsapp"></i> হোয়াটসঅ্যাপে অর্ডার কনফার্ম করুন</button>
+                <button type="button" class="btn-submit" id="orderSubmitBtn" onclick="sendOrder()"><i class="fa-solid fa-paper-plane"></i> অর্ডার কনফার্ম করুন</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Order Success Modal -->
+    <div id="orderSuccessModal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <span class="close-btn" onclick="closeOrderSuccess()">&times;</span>
+            <i class="fa-solid fa-circle-check" style="font-size:42px; color:#2e7d32; margin-top:6px;"></i>
+            <h2 style="font-size:19px; margin-top:14px; color:#2b1b20;">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h2>
+            <p style="font-size:13px; color:#777; margin-top:8px; line-height:1.6;">আপনার অর্ডারটি আমরা পেয়েছি। শীঘ্রই আমাদের প্রতিনিধি আপনার দেওয়া মোবাইল নম্বরে যোগাযোগ করে অর্ডার কনফার্ম করবেন।</p>
+            <button class="btn-submit" style="margin-top:18px;" onclick="closeOrderSuccess()"><i class="fa-solid fa-check"></i> ঠিক আছে</button>
         </div>
     </div>
 
@@ -442,6 +484,8 @@
                     const isStock = p.inStock !== false; // Check if inStock is true or undefined
                     const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                     const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+                    const discount = Number(p.discountPercent) || 0;
+                    const finalPrice = discount > 0 ? Math.round(p.price * (1 - discount / 100)) : p.price;
 
                     const avgRating = p.avgRating || 5;
                     let starsHTML = '';
@@ -449,35 +493,39 @@
                         starsHTML += `<i class="fa-${i <= Math.round(avgRating) ? 'solid' : 'regular'} fa-star"></i>`;
                     }
 
+                    const priceHTML = discount > 0
+                        ? `<span style="text-decoration:line-through; color:#aaa; font-size:13px; font-weight:600; margin-right:6px;">৳${p.price}</span>৳${finalPrice}`
+                        : `৳${p.price}`;
+
                     const card = document.createElement('div');
                     card.className = 'product-card';
                     card.setAttribute('data-id', id);
 
                     card.innerHTML = `
-                        <div class="product-tag">HOT</div>
-                        <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${p.price}, '${p.image}', this)">
+                        <div class="product-tag" ${discount > 0 ? 'style="background:var(--accent-red); border-color:var(--accent-red); color:#fff;"' : ''}>${discount > 0 ? '-' + discount + '%' : 'HOT'}</div>
+                        <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', this)">
                             <i class="fa-regular fa-heart"></i>
                         </div>
-                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">
+                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">
                             <img src="${p.image}" alt="${p.title}">
                         </div>
                         <div class="product-info">
                             <span class="product-category">LADIES COLLECTION</span>
-                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">${p.title}</h3>
+                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">${p.title}</h3>
                             <div class="product-rating">
                                 ${starsHTML}
                                 <span>(${p.totalReviews || 1})</span>
                             </div>
                             <div class="product-price-wrapper">
-                                <div class="product-price-tag">৳${p.price}</div>
+                                <div class="product-price-tag">${priceHTML}</div>
                                 <span class="stock-status ${isStock ? '' : 'out-of-stock'}">${isStock ? 'In Stock' : 'Stock Out'}</span>
                             </div>
                         </div>
                         <div class="button-group">
-                            <button class="btn-buy" ${isStock ? '' : 'disabled'} onclick="openCheckout('${safeTitle}', ${p.price})">
+                            <button class="btn-buy" ${isStock ? '' : 'disabled'} onclick="openCheckout('${safeTitle}', ${finalPrice})">
                                 <i class="fa-solid fa-bag-shopping"></i> ${isStock ? 'BUY NOW' : 'STOCK OUT'}
                             </button>
-                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${p.price}, '${p.image}', '${safeDesc}', ${isStock})">
+                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">
                                 <i class="fa-solid fa-eye"></i> VIEW
                             </button>
                         </div>
@@ -489,11 +537,15 @@
         }
 
         /* Modal Functions */
-        function openDetails(id, title, price, img, desc, isStock = true) {
+        let currentDetailFinalPrice = 0;
+        function openDetails(id, title, price, img, desc, isStock = true, originalPrice = null, discount = 0) {
             currentProductId = id;
             currentProductStock = isStock;
+            currentDetailFinalPrice = price;
             document.getElementById('dTitle').innerText = title;
-            document.getElementById('dPrice').innerText = '৳' + price;
+            document.getElementById('dPrice').innerHTML = (discount > 0 && originalPrice)
+                ? `<span style="text-decoration:line-through; color:#aaa; font-size:16px; font-weight:600; margin-right:6px;">৳${originalPrice}</span>৳${price}`
+                : '৳' + price;
             document.getElementById('dImg').src = img;
             document.getElementById('dDesc').innerText = desc || 'কোনো বিবরণ দেওয়া হয়নি।';
             
@@ -503,7 +555,7 @@
                 buyBtn.innerHTML = '<i class="fa-solid fa-ban"></i> STOCK OUT';
             } else {
                 buyBtn.disabled = false;
-                buyBtn.innerHTML = '<i class="fa-brands fa-whatsapp"></i> এখনই অর্ডার করুন (BUY NOW)';
+                buyBtn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> এখনই অর্ডার করুন (BUY NOW)';
             }
 
             document.getElementById('detailsModal').style.display = 'flex';
@@ -517,9 +569,8 @@
         function buyFromDetails() {
             if(!currentProductStock) return alert('দুঃখিত, এই প্রোডাক্টটি বর্তমানে স্টক আউট!');
             const title = document.getElementById('dTitle').innerText;
-            const price = Number(document.getElementById('dPrice').innerText.replace('৳', ''));
             closeDetails();
-            openCheckout(title, price);
+            openCheckout(title, currentDetailFinalPrice);
         }
 
         function openCheckout(title, price) {
@@ -629,7 +680,7 @@
             }
         }
 
-        /* Send Order to WhatsApp (unchanged) + silently record it for the Admin Orders tab */
+        /* Send Order — goes DIRECTLY to the Admin Panel only (no WhatsApp) */
         function sendOrder() {
             const name = document.getElementById('cName').value.trim();
             const phone = document.getElementById('cPhone').value.trim();
@@ -645,8 +696,10 @@
                 return alert('পেমেন্টের TrxID প্রদান করুন!');
             }
 
-            // Save the order in the background so it shows up (with a sound + notification) in the Admin Orders tab.
-            // This does not change or delay the WhatsApp flow below in any way.
+            const submitBtn = document.getElementById('orderSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> অর্ডার হচ্ছে...';
+
             db.collection('orders').add({
                 product: selectedProduct,
                 price: selectedPrice,
@@ -662,25 +715,22 @@
                 trxId: trx || '',
                 status: 'Pending',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch(err => console.error('Order save failed:', err));
+            }).then(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> অর্ডার কনফার্ম করুন';
+                document.getElementById('orderForm').reset();
+                closeCheckout();
+                document.getElementById('orderSuccessModal').style.display = 'flex';
+            }).catch(err => {
+                console.error('Order save failed:', err);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> অর্ডার কনফার্ম করুন';
+                alert('দুঃখিত, অর্ডার করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+            });
+        }
 
-            let text = `🛍️ *নতুন অর্ডার (NeedJP Store)*\n\n`;
-            text += `📦 *প্রোডাক্ট:* ${selectedProduct}\n`;
-            text += `💰 *মূল্য:* ৳${selectedPrice}\n`;
-            if (appliedCouponDiscountPercent > 0) {
-                text += `🏷️ *কুপন:* ${appliedCouponCode} (${appliedCouponDiscountPercent}% ছাড়)\n`;
-            }
-            text += `🚚 *ডেলিভারি এরিয়া:* ${area}\n`;
-            text += `💵 *সর্বমোট:* ৳${totalPrice}\n\n`;
-            text += `👤 *কাস্টমার নাম:* ${name}\n`;
-            text += `📞 *মোবাইল:* ${phone}\n`;
-            text += `📍 *ঠিকানা:* ${address}\n`;
-            text += `💳 *পেমেন্ট মেথড:* ${method}\n`;
-            if (trx) text += `🧾 *TrxID:* ${trx}\n`;
-
-            const whatsappUrl = `https://wa.me/8801747425457?text=${encodeURIComponent(text)}`;
-            window.open(whatsappUrl, '_blank');
-            closeCheckout();
+        function closeOrderSuccess() {
+            document.getElementById('orderSuccessModal').style.display = 'none';
         }
 
         /* Review Functions */
