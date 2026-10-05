@@ -68,8 +68,15 @@
         .order-details { font-size: 12.5px; color: #555; line-height: 1.7; margin-bottom: 10px; }
         .order-details b { color: #222; }
         .order-status-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; background: #fff3e0; color: #ef6c00; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .order-edit { border-top: 1px dashed #e2e2e2; padding-top: 10px; margin-top: 6px; }
+        .order-edit .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+        .order-edit input, .order-edit select { width: 100%; padding: 9px 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; background: #fafafa; outline: none; }
+        .order-edit input:focus, .order-edit select:focus { border-color: var(--primary-gold); }
+        .order-edit label { font-size: 10.5px; color: #999; display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+
         .order-actions { display: flex; gap: 8px; margin-top: 6px; }
         .btn-call { flex: 1; background: #fff; color: var(--primary-dark); border: 1px solid #ddd; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-update { flex: 1; background: linear-gradient(135deg, var(--primary-gold), #b35d72); color: #fff; border: none; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .btn-order-delete { flex: 1; background: #ffebee; color: var(--accent-red); border: none; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
 
         /* ===== Coupons (NEW) ===== */
@@ -165,6 +172,14 @@
             </div>
         </div>
     </div>
+
+    <datalist id="deliveryServices">
+        <option value="Pathao">
+        <option value="Steadfast">
+        <option value="RedX">
+        <option value="eCourier">
+        <option value="নিজস্ব রাইডার">
+    </datalist>
 
     <!-- Edit Product Modal -->
     <div id="editProductModal" class="edit-modal-overlay">
@@ -514,12 +529,70 @@
                         ${o.couponCode ? `<div><b>কুপন ব্যবহৃত হয়েছে:</b> ${o.couponCode} (${o.couponDiscountPercent}% ছাড়)</div>` : ''}
                         ${time ? `<div><b>সময়:</b> ${time}</div>` : ''}
                     </div>
+                    <div class="order-edit">
+                        <label>স্ট্যাটাস</label>
+                        <select id="status_${o.id}" style="margin-bottom:8px;">${statusOptionsHTML(o.status)}</select>
+                        <div class="grid2">
+                            <div>
+                                <label>রাইডারের নাম</label>
+                                <input id="rider_${o.id}" type="text" value="${o.riderName || ''}" placeholder="যেমন: করিম">
+                            </div>
+                            <div>
+                                <label>রাইডারের ফোন</label>
+                                <input id="riderPhone_${o.id}" type="text" value="${o.riderPhone || ''}" placeholder="01XXXXXXXXX">
+                            </div>
+                        </div>
+                        <div class="grid2">
+                            <div>
+                                <label>ডেলিভারি পার্টনার</label>
+                                <input id="service_${o.id}" type="text" list="deliveryServices" value="${o.deliveryService || ''}" placeholder="Pathao/Steadfast...">
+                            </div>
+                            <div>
+                                <label>প্রত্যাশিত সময়</label>
+                                <input id="eta_${o.id}" type="text" value="${o.estimatedTime || ''}" placeholder="আজ সন্ধ্যা ৬টা">
+                            </div>
+                        </div>
+                    </div>
                     <div class="order-actions">
-                        <a class="btn-call" href="tel:${o.customerPhone || ''}"><i class="fa-solid fa-phone"></i> কল করুন</a>
+                        <a class="btn-call" href="tel:${o.customerPhone || ''}"><i class="fa-solid fa-phone"></i> কল</a>
+                        <button class="btn-update" onclick="updateOrder('${o.id}')"><i class="fa-solid fa-floppy-disk"></i> আপডেট</button>
                         <button class="btn-order-delete" onclick="deleteOrder('${o.id}')"><i class="fa-solid fa-trash"></i> ডিলিট</button>
                     </div>
                 `;
                 list.appendChild(div);
+            });
+        }
+
+        const ORDER_STATUS_OPTIONS = [
+            { value: 'Pending', label: 'Pending - অর্ডার প্লেসড' },
+            { value: 'Confirmed', label: 'Confirmed - কনফার্মড' },
+            { value: 'Picked Up', label: 'Picked Up - পিকড আপ' },
+            { value: 'Out for Delivery', label: 'Out for Delivery - ডেলিভারিতে যাচ্ছে' },
+            { value: 'Delivered', label: 'Delivered - ডেলিভারড' },
+            { value: 'Cancelled', label: 'Cancelled - বাতিল' }
+        ];
+
+        function statusOptionsHTML(currentStatus) {
+            return ORDER_STATUS_OPTIONS.map(o =>
+                `<option value="${o.value}" ${currentStatus === o.value ? 'selected' : ''}>${o.label}</option>`
+            ).join('');
+        }
+
+        function updateOrder(id) {
+            const status = document.getElementById('status_' + id).value;
+            const riderName = document.getElementById('rider_' + id).value.trim();
+            const riderPhone = document.getElementById('riderPhone_' + id).value.trim();
+            const deliveryService = document.getElementById('service_' + id).value.trim();
+            const estimatedTime = document.getElementById('eta_' + id).value.trim();
+
+            db.collection('orders').doc(id).update({
+                status, riderName, riderPhone, deliveryService, estimatedTime,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert('অর্ডার স্ট্যাটাস আপডেট হয়েছে! কাস্টমার এখন লাইভ দেখতে পাবেন।');
+            }).catch(err => {
+                console.error(err);
+                alert('আপডেট করতে সমস্যা হয়েছে।');
             });
         }
 
