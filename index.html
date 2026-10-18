@@ -159,6 +159,23 @@
         .coupon-box button:hover { background: #222; }
         #couponMsg { font-size: 11px; margin-top: 6px; min-height: 14px; }
 
+        /* Seller / Reseller Code Box */
+        .seller-prompt { background: #fdfaf6; border: 1px dashed var(--primary-gold); border-radius: 10px; padding: 12px; }
+        .seller-prompt-title { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .seller-prompt-title i { color: var(--primary-gold); }
+        .seller-box-row { display: flex; gap: 8px; }
+        .seller-box-row input { flex: 1; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 12px; text-transform: uppercase; outline: none; background: #fff; }
+        .seller-box-row input:focus { border-color: var(--primary-gold); }
+        .seller-box-row button { background: var(--primary-dark); color: var(--primary-gold); border: none; padding: 0 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        #sellerMsg { font-size: 11px; margin-top: 6px; min-height: 14px; color: #c62828; }
+
+        .wholesale-reveal { background: #fff3e0; border: 1px solid #ffcc80; border-radius: 10px; padding: 12px; }
+        .wr-title { font-size: 12px; font-weight: 800; color: #ef6c00; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .wr-row { display: flex; justify-content: space-between; font-size: 12.5px; color: #555; margin-bottom: 4px; }
+        .wr-row b { color: #2b1b20; }
+        .wr-profit { background: #2e7d32; color: #fff; text-align: center; padding: 8px; border-radius: 8px; font-weight: 800; font-size: 13px; margin-top: 8px; }
+        .wr-clear { text-align: right; font-size: 10.5px; color: #999; margin-top: 8px; cursor: pointer; text-decoration: underline; }
+
         .btn-submit { background: linear-gradient(135deg, var(--primary-dark), #522840); color: var(--primary-gold); border: none; padding: 14px; width: 100%; font-weight: 800; font-size: 15px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 15px rgba(43, 21, 32, 0.3); transition: 0.3s; }
         .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(43, 21, 32, 0.45); }
         .btn-submit:disabled { background: #ccc !important; cursor: not-allowed; box-shadow: none !important; }
@@ -309,6 +326,7 @@
                 <h2 id="dTitle" style="font-size:18px; color:#111;"></h2>
                 <div id="dPrice" style="font-size:22px; font-weight:800; color:var(--primary-gold); margin:6px 0 12px 0;"></div>
                 <div id="dDesc" style="text-align:left; background:#f9f9f9; padding:12px; border-radius:8px; font-size:13px; color:#555; border:1px solid #eee; margin-bottom:15px; white-space:pre-line;"></div>
+                <div id="sellerBox" style="text-align:left; margin-bottom:15px;"></div>
                 <button class="btn-submit" id="dBuyBtn" onclick="buyFromDetails()"><i class="fa-solid fa-bag-shopping"></i> এখনই অর্ডার করুন (BUY NOW)</button>
             </div>
 
@@ -369,6 +387,10 @@
                         <span>কুপন ছাড় (<span id="couponCodeLabel"></span>):</span>
                         <span id="summaryCouponDiscount">-৳0</span>
                     </div>
+                    <div class="row" id="sellerDiscountRow" style="display:none; color:#ef6c00; font-weight:700;">
+                        <span>সেলার মূল্যে ছাড়:</span>
+                        <span id="summarySellerDiscount">-৳0</span>
+                    </div>
                     <div class="row">
                         <span>ডেলিভারি চার্জ:</span>
                         <span id="summaryDeliveryCharge">৳0</span>
@@ -379,12 +401,19 @@
                     </div>
                 </div>
 
-                <!-- Coupon Code Box -->
-                <div class="coupon-box">
-                    <input type="text" id="couponInput" placeholder="কুপন কোড থাকলে দিন">
-                    <button type="button" onclick="applyCoupon()"><i class="fa-solid fa-tag"></i> প্রয়োগ করুন</button>
+                <!-- Seller mode banner (shown instead of coupon box when a verified seller code is active for this product) -->
+                <div id="checkoutSellerBanner" style="display:none; background:#e8f5e9; border:1px solid #a5d6a7; color:#2e7d32; border-radius:8px; padding:8px 10px; font-size:11.5px; font-weight:700; margin-bottom:10px;">
+                    <i class="fa-solid fa-store"></i> সেলার কোড "<span id="checkoutSellerCodeLabel"></span>" অনুযায়ী পাইকারি মূল্যে অর্ডার হচ্ছে
                 </div>
-                <p id="couponMsg"></p>
+
+                <!-- Coupon Code Box -->
+                <div id="couponSection">
+                    <div class="coupon-box">
+                        <input type="text" id="couponInput" placeholder="কুপন কোড থাকলে দিন">
+                        <button type="button" onclick="applyCoupon()"><i class="fa-solid fa-tag"></i> প্রয়োগ করুন</button>
+                    </div>
+                    <p id="couponMsg"></p>
+                </div>
             </div>
 
             <form id="orderForm">
@@ -502,6 +531,7 @@
         let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5, currentProductStock = true;
         let deliveryCharge = 0, totalPrice = 0;
         let appliedCouponCode = '', appliedCouponDiscountPercent = 0;
+        let verifiedSellerCode = localStorage.getItem('needjp_seller_code') || '';
         let wishlist = JSON.parse(localStorage.getItem('needjp_wishlist')) || [];
         let successOrderUnsub = null;
         let trackUnsub = null;
@@ -545,6 +575,7 @@
                     const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
                     const discount = Number(p.discountPercent) || 0;
                     const finalPrice = discount > 0 ? Math.round(p.price * (1 - discount / 100)) : p.price;
+                    const resellerProfit = Number(p.resellerProfit) || 0;
 
                     const avgRating = p.avgRating || 5;
                     let starsHTML = '';
@@ -565,12 +596,12 @@
                         <div class="wishlist-icon" onclick="toggleWishlist('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', this)">
                             <i class="fa-regular fa-heart"></i>
                         </div>
-                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">
+                        <div class="img-box-grid" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount}, ${resellerProfit})">
                             <img src="${p.image}" alt="${p.title}">
                         </div>
                         <div class="product-info">
                             <span class="product-category">LADIES COLLECTION</span>
-                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">${p.title}</h3>
+                            <h3 onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount}, ${resellerProfit})">${p.title}</h3>
                             <div class="product-rating">
                                 ${starsHTML}
                                 <span>(${p.totalReviews || 1})</span>
@@ -581,10 +612,10 @@
                             </div>
                         </div>
                         <div class="button-group">
-                            <button class="btn-buy" ${isStock ? '' : 'disabled'} onclick="openCheckout('${safeTitle}', ${finalPrice})">
+                            <button class="btn-buy" ${isStock ? '' : 'disabled'} onclick="openCheckout('${safeTitle}', ${finalPrice}, ${resellerProfit}, ${p.price})">
                                 <i class="fa-solid fa-bag-shopping"></i> ${isStock ? 'BUY NOW' : 'STOCK OUT'}
                             </button>
-                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount})">
+                            <button class="btn-view" onclick="openDetails('${id}', '${safeTitle}', ${finalPrice}, '${p.image}', '${safeDesc}', ${isStock}, ${p.price}, ${discount}, ${resellerProfit})">
                                 <i class="fa-solid fa-eye"></i> VIEW
                             </button>
                         </div>
@@ -597,10 +628,14 @@
 
         /* Modal Functions */
         let currentDetailFinalPrice = 0;
-        function openDetails(id, title, price, img, desc, isStock = true, originalPrice = null, discount = 0) {
+        let currentDetailOrigPrice = 0;
+        let currentDetailResellerProfit = 0;
+        function openDetails(id, title, price, img, desc, isStock = true, originalPrice = null, discount = 0, resellerProfit = 0) {
             currentProductId = id;
             currentProductStock = isStock;
             currentDetailFinalPrice = price;
+            currentDetailOrigPrice = originalPrice || price;
+            currentDetailResellerProfit = resellerProfit || 0;
             document.getElementById('dTitle').innerText = title;
             document.getElementById('dPrice').innerHTML = (discount > 0 && originalPrice)
                 ? `<span style="text-decoration:line-through; color:#aaa; font-size:16px; font-weight:600; margin-right:6px;">৳${originalPrice}</span>৳${price}`
@@ -617,6 +652,7 @@
                 buyBtn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> এখনই অর্ডার করুন (BUY NOW)';
             }
 
+            renderSellerBox();
             document.getElementById('detailsModal').style.display = 'flex';
             loadReviews(id);
         }
@@ -629,23 +665,104 @@
             if(!currentProductStock) return alert('দুঃখিত, এই প্রোডাক্টটি বর্তমানে স্টক আউট!');
             const title = document.getElementById('dTitle').innerText;
             closeDetails();
-            openCheckout(title, currentDetailFinalPrice);
+            openCheckout(title, currentDetailFinalPrice, currentDetailResellerProfit, currentDetailOrigPrice);
         }
 
-        function openCheckout(title, price) {
+        let currentCheckoutResellerProfit = 0;
+        let currentCheckoutOrigPrice = 0;
+
+        function openCheckout(title, price, resellerProfit = 0, origPrice = null) {
             selectedProduct = title;
             selectedPrice = price;
+            currentCheckoutResellerProfit = resellerProfit || 0;
+            currentCheckoutOrigPrice = origPrice || price;
             appliedCouponCode = '';
             appliedCouponDiscountPercent = 0;
             document.getElementById('couponInput').value = '';
             document.getElementById('couponMsg').innerText = '';
             document.getElementById('displayPName').innerText = title;
+
+            const sellerActive = verifiedSellerCode && currentCheckoutResellerProfit > 0;
+            document.getElementById('checkoutSellerBanner').style.display = sellerActive ? 'block' : 'none';
+            document.getElementById('checkoutSellerCodeLabel').innerText = verifiedSellerCode;
+            document.getElementById('couponSection').style.display = sellerActive ? 'none' : 'block';
+
             calculateTotal();
             document.getElementById('checkoutModal').style.display = 'flex';
         }
 
         function closeCheckout() {
             document.getElementById('checkoutModal').style.display = 'none';
+        }
+
+        /* Seller / Reseller Code System */
+        function renderSellerBox() {
+            const box = document.getElementById('sellerBox');
+
+            if (!verifiedSellerCode) {
+                box.innerHTML = `
+                    <div class="seller-prompt">
+                        <div class="seller-prompt-title"><i class="fa-solid fa-store"></i> আপনি কি রিসেলার/সেলার? কোড দিয়ে পাইকারি দাম দেখুন</div>
+                        <div class="seller-box-row">
+                            <input type="text" id="sellerCodeInput" placeholder="সেলার কোড দিন">
+                            <button type="button" onclick="verifySellerCode()"><i class="fa-solid fa-unlock"></i> দেখুন</button>
+                        </div>
+                        <p id="sellerMsg"></p>
+                    </div>
+                `;
+                return;
+            }
+
+            // A seller code is already verified this session — show wholesale info for this product right away.
+            if (currentDetailResellerProfit > 0) {
+                const wholesalePrice = Math.max(0, currentDetailOrigPrice - currentDetailResellerProfit);
+                box.innerHTML = `
+                    <div class="wholesale-reveal">
+                        <div class="wr-title"><span><i class="fa-solid fa-store"></i> সেলার মূল্য (কোড: ${verifiedSellerCode})</span></div>
+                        <div class="wr-row"><span>পাইকারি মূল্য:</span><b>৳${wholesalePrice}</b></div>
+                        <div class="wr-row"><span>বিক্রয় মূল্য (MRP):</span><b>৳${currentDetailOrigPrice}</b></div>
+                        <div class="wr-profit">আপনি বিক্রি করে লাভ করতে পারবেন ৳${currentDetailResellerProfit}</div>
+                        <div class="wr-clear" onclick="clearSellerCode()">সেলার কোড বাতিল করুন</div>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="seller-prompt">
+                        <div class="seller-prompt-title"><i class="fa-solid fa-circle-info"></i> এই প্রোডাক্টে পাইকারি মূল্য নির্ধারণ করা হয়নি।</div>
+                        <div class="wr-clear" onclick="clearSellerCode()" style="text-align:left;">সেলার কোড বাতিল করুন</div>
+                    </div>
+                `;
+            }
+        }
+
+        function verifySellerCode() {
+            const codeRaw = document.getElementById('sellerCodeInput').value.trim().toUpperCase();
+            const msg = document.getElementById('sellerMsg');
+            if (!codeRaw) {
+                msg.style.color = '#c62828';
+                msg.innerText = 'একটি সেলার কোড লিখুন।';
+                return;
+            }
+
+            db.collection('sellerCodes').doc(codeRaw).get().then(doc => {
+                if (!doc.exists || doc.data().active === false) {
+                    msg.style.color = '#c62828';
+                    msg.innerText = 'সেলার কোডটি সঠিক নয় অথবা বন্ধ করা হয়েছে।';
+                    return;
+                }
+                verifiedSellerCode = codeRaw;
+                localStorage.setItem('needjp_seller_code', codeRaw);
+                renderSellerBox();
+            }).catch(() => {
+                msg.style.color = '#c62828';
+                msg.innerText = 'কোড যাচাই করতে সমস্যা হয়েছে, আবার চেষ্টা করুন।';
+            });
+        }
+
+        function clearSellerCode() {
+            verifiedSellerCode = '';
+            localStorage.removeItem('needjp_seller_code');
+            renderSellerBox();
         }
 
         /* Coupon Code System */
@@ -699,22 +816,37 @@
                 deliveryCharge = 0;
             }
 
-            const discountAmount = Math.round(Number(selectedPrice) * (appliedCouponDiscountPercent / 100));
-            const discountedProductPrice = Math.max(0, Number(selectedPrice) - discountAmount);
-            totalPrice = discountedProductPrice + deliveryCharge;
+            const sellerActive = verifiedSellerCode && currentCheckoutResellerProfit > 0;
+            const couponRow = document.getElementById('couponRow');
+            const sellerRow = document.getElementById('sellerDiscountRow');
 
-            document.getElementById('summaryProductPrice').innerText = '৳' + selectedPrice;
+            if (sellerActive) {
+                // Wholesale pricing: the reseller pays (original price - their profit margin)
+                const wholesalePrice = Math.max(0, currentCheckoutOrigPrice - currentCheckoutResellerProfit);
+                totalPrice = wholesalePrice + deliveryCharge;
+
+                document.getElementById('summaryProductPrice').innerText = '৳' + currentCheckoutOrigPrice;
+                sellerRow.style.display = 'flex';
+                document.getElementById('summarySellerDiscount').innerText = '-৳' + currentCheckoutResellerProfit;
+                couponRow.style.display = 'none';
+            } else {
+                const discountAmount = Math.round(Number(selectedPrice) * (appliedCouponDiscountPercent / 100));
+                const discountedProductPrice = Math.max(0, Number(selectedPrice) - discountAmount);
+                totalPrice = discountedProductPrice + deliveryCharge;
+
+                document.getElementById('summaryProductPrice').innerText = '৳' + selectedPrice;
+                sellerRow.style.display = 'none';
+                if (appliedCouponDiscountPercent > 0) {
+                    couponRow.style.display = 'flex';
+                    document.getElementById('couponCodeLabel').innerText = appliedCouponCode;
+                    document.getElementById('summaryCouponDiscount').innerText = '-৳' + discountAmount;
+                } else {
+                    couponRow.style.display = 'none';
+                }
+            }
+
             document.getElementById('summaryDeliveryCharge').innerText = '৳' + deliveryCharge;
             document.getElementById('displayPPrice').innerText = '৳' + totalPrice;
-
-            const couponRow = document.getElementById('couponRow');
-            if (appliedCouponDiscountPercent > 0) {
-                couponRow.style.display = 'flex';
-                document.getElementById('couponCodeLabel').innerText = appliedCouponCode;
-                document.getElementById('summaryCouponDiscount').innerText = '-৳' + discountAmount;
-            } else {
-                couponRow.style.display = 'none';
-            }
         }
 
         /* Dynamic Payment Method Handler */
@@ -765,11 +897,16 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> অর্ডার হচ্ছে...';
 
+            const sellerActive = verifiedSellerCode && currentCheckoutResellerProfit > 0;
+
             db.collection('orders').add({
                 product: selectedProduct,
-                price: selectedPrice,
-                couponCode: appliedCouponCode || '',
-                couponDiscountPercent: appliedCouponDiscountPercent || 0,
+                price: sellerActive ? currentCheckoutOrigPrice : selectedPrice,
+                isWholesaleOrder: sellerActive,
+                sellerCode: sellerActive ? verifiedSellerCode : '',
+                resellerProfit: sellerActive ? currentCheckoutResellerProfit : 0,
+                couponCode: sellerActive ? '' : (appliedCouponCode || ''),
+                couponDiscountPercent: sellerActive ? 0 : (appliedCouponDiscountPercent || 0),
                 deliveryArea: area,
                 deliveryCharge: deliveryCharge,
                 total: totalPrice,
