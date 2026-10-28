@@ -572,7 +572,7 @@
                     const id = doc.id;
                     const isStock = p.inStock !== false; // Check if inStock is true or undefined
                     const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-                    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/\n/g, "\\n") : '';
+                    const safeDesc = p.description ? p.description.replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/\n/g, "\\n") : '';
                     const discount = Number(p.discountPercent) || 0;
                     const finalPrice = discount > 0 ? Math.round(p.price * (1 - discount / 100)) : p.price;
                     const resellerProfit = Number(p.resellerProfit) || 0;
