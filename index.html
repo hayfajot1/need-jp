@@ -446,6 +446,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// 🚀 Cloudflare Proxy 404/Timeout fix:
+db.settings({ experimentalForceLongPolling: true });
+
 let selectedProduct = '', selectedPrice = 0, currentProductId = '', currentRating = 5, currentProductStock = true;
 let deliveryCharge = 0, totalPrice = 0;
 let appliedCouponCode = '', appliedCouponDiscountPercent = 0;
